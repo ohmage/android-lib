@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-	<declare-styleable name="ActivityBarControl">
-	    <attr name="title" format="string" />
-	    <attr name="showlogo" format="boolean" />
-	    <attr name="showhome" format="boolean" />
-	</declare-styleable>    
-
 	<declare-styleable name="ScaledImageView">
 	    <attr name="scaleWidth" format="float" />
 	    <attr name="scaleHeight" format="float" />

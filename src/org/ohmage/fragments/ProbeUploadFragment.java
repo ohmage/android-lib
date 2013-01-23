@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.AccountHelper;
@@ -35,9 +36,8 @@ import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.ProbeCount;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
-import org.ohmage.ui.BaseActivity;
 
-public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class ProbeUploadFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
 
     private static final String TAG = "ProbeUploadFragment";
 
@@ -92,9 +92,8 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (getActivity() instanceof BaseActivity)
-                ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(
-                        ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(
+                    ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
             mUploadButton.setEnabled(!ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 

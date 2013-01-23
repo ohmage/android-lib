@@ -7,8 +7,7 @@
     <org.ohmage.controls.FilterControl
         android:id="@+id/campaign_filter"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/action_bar" />
+        android:layout_height="wrap_content"/>
 
     <View
         style="@style/DividerHorizontal"

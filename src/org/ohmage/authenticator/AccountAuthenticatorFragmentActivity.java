@@ -19,7 +19,8 @@ package org.ohmage.authenticator;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
  * Base class for implementing an Activity that is used to help implement an
@@ -35,7 +36,7 @@ import android.support.v4.app.FragmentActivity;
  * is never set or if it is set to null then error {@link AccountManager#ERROR_CODE_CANCELED}
  * will be called on the response.
  */
-public class AccountAuthenticatorFragmentActivity extends FragmentActivity {
+public class AccountAuthenticatorFragmentActivity extends SherlockFragmentActivity {
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
 

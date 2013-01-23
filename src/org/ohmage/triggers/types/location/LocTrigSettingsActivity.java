@@ -18,7 +18,6 @@ package org.ohmage.triggers.types.location;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,13 +39,14 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import org.ohmage.library.R;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.triggers.config.TrigUserConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
+import org.ohmage.ui.BaseListActivity;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -58,7 +58,7 @@ import java.util.LinkedList;
  * each place are also displayed. Provides options to manage the
  * categories (add, delete, rename and modify surveys)
  */
-public class LocTrigSettingsActivity extends ListActivity implements OnClickListener, TextWatcher {
+public class LocTrigSettingsActivity extends BaseListActivity implements OnClickListener, TextWatcher {
 
     private static final String TAG = "LocTrigSettingsActivity";
 

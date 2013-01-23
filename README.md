@@ -22,12 +22,12 @@ Fork this project if you want to make .
 Dependencies
 ------------
 
-You will need to download [LogProbe](https://github.com/cens/LogProbe) and make it available to
-ohmage as a library apk. (Alternatively you could just change all logging functionality to use
-the default android logs instead of using ProbeLog)
+* [LogProbe](https://github.com/cens/LogProbe)
+* [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
+* [Google Play Services](http://developer.android.com/google/play-services/setup.html)
 
-You will also need the [Google Play Services](http://developer.android.com/google/play-services/index.html) library apk setup on your system. Information about installing it can be found here: [http://developer.android.com/google/play-services/setup.html](http://developer.android.com/google/play-services/setup.html). In addition, you will need a Google Maps Android API key which you will reference in your manifest. Information on getting a key can be found here: [https://developers.google.com/maps/documentation/android/start](https://developers.google.com/maps/documentation/android/start).
-
+Notes:
+These should all be included as Library Projects. For [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock), you should update its version of the Android Compatibility Library otherwise it will complain that it found 2 versions of android-support-v4.jar. The easiest thing to do is to copy the jar from libs/ in this library to the libs/ folder of the ActionBarSherlock library. For [Google Play Services](http://developer.android.com/google/play-services/index.html) you will also need a Google Maps Android API key which you will reference in your manifest. Information on getting a key can be found here: [https://developers.google.com/maps/documentation/android/start](https://developers.google.com/maps/documentation/android/start).
 
 All other external libraries which are needed are included in the libs directory of the project,
 but of course you will need the android SDK which can be found here:

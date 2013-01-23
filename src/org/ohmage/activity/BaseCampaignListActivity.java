@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.async.CampaignXmlDownloadTask;
-import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.fragments.CampaignListFragment.OnCampaignActionListener;
@@ -21,35 +24,27 @@ import org.ohmage.ui.BaseSingleFragmentActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 public class BaseCampaignListActivity extends BaseSingleFragmentActivity implements
-        OnCampaignActionListener, ActionListener,
+        OnCampaignActionListener,
         LoaderManager.LoaderCallbacks<CampaignReadResponse> {
 
     static final String TAG = "BaseCampaignListActivity";
 
-    // action bar commands
-    protected static final int ACTION_REFRESH_CAMPAIGNS = 0;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.refresh, menu);
+        return true;
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onContentChanged() {
-        super.onContentChanged();
-
-        // throw some actions on it
-        getActionBarControl().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS,
-                getString(R.string.campaign_list_refresh_action_button_description),
-                R.drawable.btn_title_refresh);
-
-        // and attach handlers for said actions
-        getActionBarControl().setOnActionListener(this);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_refresh) {
+            getSupportLoaderManager().restartLoader(0, null, this);
+            setSupportProgressBarIndeterminateVisibility(true);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -116,22 +111,12 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
         return builder.create();
     }
 
+    private String campaignUrnForDialogs;
+
     @Override
     protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
         super.onPrepareDialog(id, dialog, args);
         campaignUrnForDialogs = args.getString("campaign_urn");
-    }
-
-    private String campaignUrnForDialogs;
-
-    @Override
-    public void onActionClicked(int commandID) {
-        switch (commandID) {
-            case ACTION_REFRESH_CAMPAIGNS:
-                getSupportLoaderManager().restartLoader(0, null, this);
-                getActionBarControl().setProgressVisible(true);
-                break;
-        }
     }
 
     @Override
@@ -141,7 +126,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
     @Override
     public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
-        getActionBarControl().setProgressVisible(false);
+        setSupportProgressBarIndeterminateVisibility(false);
     }
 
     @Override

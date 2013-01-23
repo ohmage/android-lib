@@ -4,11 +4,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <include
-        android:layout_width="fill_parent"
-        android:layout_height="40dip"
-        layout="@layout/trigger_add_new" />
-
     <ListView
         android:id="@+id/android:list"
         android:layout_width="fill_parent"

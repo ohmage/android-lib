@@ -1,48 +1,50 @@
+
 package org.ohmage.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import org.ohmage.library.R;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import org.ohmage.fragments.CampaignListFragment;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 
 public class CampaignListActivity extends BaseCampaignListActivity {
 
-	static final String TAG = "CampaignListActivity";
+    static final String TAG = "CampaignListActivity";
 
-	protected static final int ACTION_ADD_CAMPAIGNS = 1;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+        setContentFragment(new CampaignListFragment());
+    }
 
-		setContentFragment(new CampaignListFragment());
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.add_campaign, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-	@Override
-	public void onContentChanged() {
-		// throw some actions on it
-		getActionBarControl().addActionBarCommand(ACTION_ADD_CAMPAIGNS, getString(R.string.campaign_list_add_action_button_description), R.drawable.btn_title_add);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_add_campaign) {
+            startActivity(new Intent(CampaignListActivity.this, CampaignAddActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-		super.onContentChanged();
-	}
-
-	@Override
-	public void onActionClicked(int commandID) {
-		switch(commandID) {
-			case ACTION_ADD_CAMPAIGNS:
-				startActivity(new Intent(CampaignListActivity.this, CampaignAddActivity.class));
-				break;
-			default:
-				super.onActionClicked(commandID);
-		}
-	}
-
-	@Override
-	public void onCampaignActionDownload(String campaignUrn) {
-		Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT).show();
-		Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
-	}
+    @Override
+    public void onCampaignActionDownload(String campaignUrn) {
+        Toast.makeText(this, R.string.campaign_list_download_action_invalid, Toast.LENGTH_SHORT)
+                .show();
+        Log.w(TAG, "onCampaignActionDownload should not be exposed in this activity.");
+    }
 }

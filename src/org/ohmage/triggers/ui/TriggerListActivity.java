@@ -18,28 +18,27 @@ package org.ohmage.triggers.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.ohmage.library.R;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import org.ohmage.activity.AdminPincodeActivity;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -53,8 +52,9 @@ import org.ohmage.triggers.notif.NotifEditActivity;
 import org.ohmage.triggers.notif.NotifSettingsActivity;
 import org.ohmage.triggers.notif.Notifier;
 import org.ohmage.triggers.utils.TrigPrefManager;
+import org.ohmage.ui.BaseListActivity;
 
-public class TriggerListActivity extends ListActivity implements OnClickListener {
+public class TriggerListActivity extends BaseListActivity {
 
     private static final String TAG = "TriggerListActivity";
 
@@ -75,12 +75,7 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
     private static final String KEY_SAVE_DIALOG_TEXT = TriggerListActivity.class.getName()
             + ".dialog_text";
 
-    private static final int MENU_ID_DELETE_TRIGGER = Menu.FIRST;
-    private static final int MENU_ID_NOTIF_SETTINGS = Menu.FIRST + 1;
-    private static final int MENU_ID_SETTINGS = Menu.FIRST + 2;
-    private static final int MENU_ID_ADMIN_LOGIN = Menu.FIRST + 3;
-    private static final int MENU_ID_ADMIN_LOGOFF = Menu.FIRST + 4;
-    private static final int MENU_ID_RINGTONE_SETTINGS = Menu.FIRST + 5;
+     private static final int MENU_ID_DELETE_TRIGGER = 0;
 
     private static final int DIALOG_ID_ADD_NEW = 0;
     private static final int DIALOG_ID_PREFERENCES = 1;
@@ -117,13 +112,6 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
 
         mTrigMap = new TriggerTypeMap();
 
-        TextView tv = (TextView) findViewById(R.id.add_new_label);
-        tv.setText(R.string.triggers_title);
-
-        ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
-        bAdd.setOnClickListener(this);
-
-        getListView().setHeaderDividersEnabled(true);
         Intent i = getIntent();
         if (i.hasExtra(KEY_ACTIONS)) {
             mActions = i.getStringArrayExtra(KEY_ACTIONS);
@@ -153,8 +141,6 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
 
         populateTriggerList();
         registerForContextMenu(getListView());
-
-        updateGUIWithAdminStatus(isAdminLoggedIn());
 
         // Display message and exit if there are no supported
         // trigger types
@@ -206,11 +192,6 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
         mActSelected = state.getBooleanArray(KEY_SAVE_SEL_ACTIONS);
         mDialogText = state.getString(KEY_SAVE_DIALOG_TEXT);
         mAdminMode = state.getBoolean(KEY_ADMIN_MODE);
-    }
-
-    private void updateGUIWithAdminStatus(boolean status) {
-        ImageButton bAdd = (ImageButton) findViewById(R.id.button_add_new);
-        bAdd.setEnabled(isAdminLoggedIn() || TrigUserConfig.addTrigers);
     }
 
     private String getDisplayTitle(String trigType, String trigDesc) {
@@ -385,7 +366,7 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
     private void setAdminMode(boolean enable) {
         if (mAdminMode != enable) {
             mAdminMode = enable;
-            updateGUIWithAdminStatus(enable);
+            supportInvalidateOptionsMenu();
         }
     }
 
@@ -511,82 +492,77 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean ret = super.onPrepareOptionsMenu(menu);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.reminders_add_menu, menu);
 
-        menu.removeItem(MENU_ID_ADMIN_LOGOFF);
-        menu.removeItem(MENU_ID_ADMIN_LOGIN);
-        menu.removeItem(MENU_ID_NOTIF_SETTINGS);
-        menu.removeItem(MENU_ID_RINGTONE_SETTINGS);
-        menu.removeItem(MENU_ID_SETTINGS);
-
-        boolean adminMode = isAdminLoggedIn();
-        if (!getResources().getBoolean(R.bool.reminder_admin_mode)) {
-            if (!adminMode) {
-                menu.add(0, MENU_ID_ADMIN_LOGIN, 0, R.string.trigger_menu_admin_turn_on).setIcon(
-                        R.drawable.ic_menu_login);
-            } else {
-                menu.add(0, MENU_ID_ADMIN_LOGOFF, 0, R.string.trigger_menu_admin_turn_off).setIcon(
-                        R.drawable.ic_menu_login);
-            }
+        if (getResources().getBoolean(R.bool.reminder_admin_mode)) {
+            menu.removeItem(R.id.menu_reminder_admin);
         }
 
         // Add 'preferences' menu item only if there is at least
         // one trigger type registered which has settings
+        boolean hasSettings = false;
         for (TriggerBase trig : mTrigMap.getAllTriggers()) {
+            hasSettings |= trig.hasSettings();
+        }
+        if (!hasSettings) {
+            menu.removeItem(R.id.menu_reminder_preferences);
+        }
 
-            if (trig.hasSettings()) {
-                menu.add(0, MENU_ID_SETTINGS, 0, R.string.trigger_menu_preferences)
-                        .setIcon(android.R.drawable.ic_menu_preferences)
-                        .setEnabled(adminMode || TrigUserConfig.editTriggerSettings);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-                break;
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        boolean adminMode = isAdminLoggedIn();
+        if (!getResources().getBoolean(R.bool.reminder_admin_mode)) {
+            if (!adminMode) {
+                menu.findItem(R.id.menu_reminder_admin).setTitle(
+                        R.string.trigger_menu_admin_turn_on);
+            } else {
+                menu.findItem(R.id.menu_reminder_admin).setTitle(
+                        R.string.trigger_menu_admin_turn_off);
             }
         }
 
-        menu.add(0, MENU_ID_NOTIF_SETTINGS, 0, R.string.trigger_menu_notifications)
-                .setIcon(R.drawable.ic_menu_notification)
-                .setEnabled(adminMode || TrigUserConfig.editNotificationSettings);
-
-        menu.add(0, MENU_ID_RINGTONE_SETTINGS, 0, R.string.trigger_menu_ringtone)
-                .setIcon(R.drawable.ic_menu_ringtone).setEnabled(true);
-
-        return ret;
+        menu.findItem(R.id.menu_reminder_add).setEnabled(adminMode || TrigUserConfig.addTrigers);
+        menu.findItem(R.id.menu_reminder_notification_settings).setEnabled(
+                adminMode || TrigUserConfig.editNotificationSettings);
+        menu.findItem(R.id.menu_reminder_ringtone_settings).setEnabled(
+                adminMode || TrigUserConfig.editNotificationSettings);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-
-            case MENU_ID_NOTIF_SETTINGS:
-
-                Intent i = new Intent(this, NotifEditActivity.class);
-                i.putExtra(NotifEditActivity.KEY_NOTIF_CONFIG, NotifDesc.getGlobalDesc(this));
-                startActivityForResult(i, REQ_EDIT_NOTIF);
-                return true;
-
-            case MENU_ID_RINGTONE_SETTINGS:
-                startActivity(new Intent(TriggerListActivity.this, NotifSettingsActivity.class));
-                return true;
-
-            case MENU_ID_SETTINGS:
-
-                showDialog(DIALOG_ID_PREFERENCES);
-                return true;
-
-            case MENU_ID_ADMIN_LOGIN:
-
+        if (R.id.menu_reminder_add == item.getItemId()) {
+            showDialog(DIALOG_ID_ADD_NEW);
+            return true;
+        } else if (R.id.menu_reminder_notification_settings == item.getItemId()) {
+            Intent i = new Intent(this, NotifEditActivity.class);
+            i.putExtra(NotifEditActivity.KEY_NOTIF_CONFIG, NotifDesc.getGlobalDesc(this));
+            startActivityForResult(i, REQ_EDIT_NOTIF);
+            return true;
+        } else if (R.id.menu_reminder_ringtone_settings == item.getItemId()) {
+            startActivity(new Intent(TriggerListActivity.this, NotifSettingsActivity.class));
+            return true;
+        } else if (R.id.menu_reminder_preferences == item.getItemId()) {
+            showDialog(DIALOG_ID_PREFERENCES);
+            return true;
+        } else if (R.id.menu_reminder_admin == item.getItemId()) {
+            if (isAdminLoggedIn()) {
                 mDialogText = null;
                 startActivityForResult(new Intent(this, AdminPincodeActivity.class),
                         ADMIN_REQUESTED);
-                return true;
-
-            case MENU_ID_ADMIN_LOGOFF:
-
-                setAdminMode(false);
+            } else {
                 Toast.makeText(this, R.string.trigger_admin_logged_off, Toast.LENGTH_SHORT).show();
-                return true;
+                setAdminMode(false);
+            }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -626,7 +602,7 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
 
         int pos = ((AdapterContextMenuInfo) item.getMenuInfo()).position;
         mCursor.moveToPosition(pos);
@@ -667,14 +643,4 @@ public class TriggerListActivity extends ListActivity implements OnClickListener
         }
 
     }
-
-    @Override
-    public void onClick(View v) {
-
-        if (v.getId() == R.id.button_add_new) {
-
-            showDialog(DIALOG_ID_ADD_NEW);
-        }
-    }
-
 }

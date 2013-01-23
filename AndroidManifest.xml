@@ -29,7 +29,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="8" />
+        android:targetSdkVersion="17" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -40,7 +40,8 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/OhmageTheme" >
-        <activity android:name="org.ohmage.activity.OhmageLauncher" >
+        <activity android:name="org.ohmage.activity.OhmageLauncher"
+            android:theme="@style/OhmageTheme.LogoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -62,7 +63,8 @@
 
         <activity
             android:name="org.ohmage.authenticator.AuthenticatorActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:theme="@style/OhmageTheme.LogoActionBar" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -70,7 +72,8 @@
         <activity
             android:name="org.ohmage.activity.DashboardActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/OhmageTheme.LogoActionBar" />
         <activity
             android:name="org.ohmage.ui.ImageLoaderActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
@@ -306,7 +309,8 @@
         ******************************************************
         -->
 
-        <activity android:name="org.ohmage.triggers.ui.TriggerListActivity" />
+        <activity android:name="org.ohmage.triggers.ui.TriggerListActivity"
+            android:label="@string/triggers_title" />
 
         <!-- Lock the orientation until the TimePicker rotate bug is fixed -->
         <activity

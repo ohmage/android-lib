@@ -7,11 +7,12 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Result;
@@ -42,7 +43,6 @@ public class DashboardActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.dashboard_layout);
-        getActionBarControl().setShowLogo(true);
 
         mPrefs = new PreferenceStore(this);
 
@@ -111,7 +111,7 @@ public class DashboardActivity extends BaseActivity implements
         if (mPrefs.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System
                 .currentTimeMillis()) {
             getSupportLoaderManager().restartLoader(0, null, this);
-            getActionBarControl().setProgressVisible(true);
+            setSupportProgressBarIndeterminateVisibility(true);
         }
 
         // This is to prevent users from clicking an icon multiple times when
@@ -176,7 +176,6 @@ public class DashboardActivity extends BaseActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, 1, 0, R.string.menu_settings);
-        menu.findItem(1).setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
 
@@ -193,14 +192,14 @@ public class DashboardActivity extends BaseActivity implements
     @Override
     public Loader<CampaignReadResponse> onCreateLoader(int arg0, Bundle arg1) {
         return new CampaignReadTask(this);
-    }
+}
 
     @Override
     public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
         if (data.getResult() == Result.SUCCESS) {
             mPrefs.edit().setLastCampaignRefreshTime(System.currentTimeMillis()).commit();
         }
-        getActionBarControl().setProgressVisible(false);
+        setSupportProgressBarIndeterminateVisibility(false);
     }
 
     @Override

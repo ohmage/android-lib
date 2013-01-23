@@ -33,7 +33,6 @@ public class UploadQueueActivity extends BaseActivity implements OnResponseActio
         mResponseHelper = new ResponseActivityHelper(this);
 
         setContentView(R.layout.tab_layout);
-        setActionBarShadowVisibility(false);
 
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup();

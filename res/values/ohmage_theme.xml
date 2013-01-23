@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="OhmageTheme" parent="@android:style/Theme.Light.NoTitleBar">
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="OhmageTheme" parent="Theme.Sherlock.Light">
         <item name="android:checkMark">@drawable/btn_check_ohmage</item>
     </style>
+
+    <style name="OhmageTheme.LogoActionBar" parent="OhmageTheme">
+        <item name="actionBarStyle">@style/Widget.Logo.ActionBar</item>
+        <item name="android:actionBarStyle" tools:targetApi="11">@style/Widget.Logo.ActionBar</item>
+    </style>
+
+    <style name="Widget.Logo.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid">
+        <item name="displayOptions">showCustom</item>
+        <item name="android:displayOptions" tools:targetApi="11">showCustom</item>
+        <item name="customNavigationLayout">@layout/actionbar_logo_layout</item>
+        <item name="android:customNavigationLayout" tools:targetApi="11">@layout/actionbar_logo_layout</item>
+    </style>
+
 </resources>

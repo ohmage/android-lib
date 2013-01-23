@@ -19,7 +19,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -38,6 +37,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.fragments.ProbeListFragment.ProbeAppEntry;
@@ -47,7 +47,6 @@ import org.ohmage.probemanager.DbContract.Probe;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.ProbeManager;
 import org.ohmage.service.ProbeUploadService;
-import org.ohmage.ui.BaseActivity;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -60,7 +59,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ProbeListFragment extends ListFragment implements LoaderCallbacks<List<ProbeAppEntry>> {
+public class ProbeListFragment extends SherlockListFragment implements LoaderCallbacks<List<ProbeAppEntry>> {
 
     private static final String TAG = "ProbeListFragment";
 
@@ -116,9 +115,8 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (getActivity() instanceof BaseActivity)
-                ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(
-                        ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(
+                    ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
             if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action)
                     || ProbeUploadService.RESPONSE_UPLOAD_ERROR.equals(action)) {
@@ -446,7 +444,8 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
                             String observerId = sa.getString(R.styleable.probe_observerId);
                             String observerVersionName = sa
                                     .getString(R.styleable.probe_observerVersionName);
-                            String observerVersion = sa.getString(R.styleable.probe_observerVersionCode);
+                            String observerVersion = sa
+                                    .getString(R.styleable.probe_observerVersionCode);
 
                             ProbeAppEntry entry = new ProbeAppEntry(this, info, observerName,
                                     observerId, observerVersionName, observerVersion);
@@ -667,14 +666,15 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
 
         @Override
         protected void onPreExecute() {
-            ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(true);
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
         }
 
         @Override
         protected Boolean doInBackground(Probe... params) {
             if (params.length == 1) {
                 return getActivity().getContentResolver().delete(Probes.CONTENT_URI,
-                        Probes.OBSERVER_ID + "=? AND " + Probes.OBSERVER_VERSION + "=?", new String[] {
+                        Probes.OBSERVER_ID + "=? AND " + Probes.OBSERVER_VERSION + "=?",
+                        new String[] {
                                 params[0].observer_id, params[0].observer_version
                         }) > 0;
             }
@@ -683,7 +683,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
 
         @Override
         protected void onPostExecute(Boolean result) {
-            ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(false);
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
         }
     }
 }

@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -29,6 +28,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.AccountHelper;
@@ -41,9 +41,8 @@ import org.ohmage.mobility.glue.MobilityInterface;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.service.ProbeUploadService;
-import org.ohmage.ui.BaseActivity;
 
-public class MobilityControlFragment extends Fragment implements LoaderCallbacks<Cursor> {
+public class MobilityControlFragment extends SherlockFragment implements LoaderCallbacks<Cursor> {
 
     private static final String TAG = "MobilityFeedbackActivity";
 
@@ -188,10 +187,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if (getActivity() instanceof BaseActivity)
-                ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(
-                        ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
-
+            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(
+                    ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
             mUploadButton.setEnabled(!ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
 
             if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
@@ -336,7 +333,9 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
         // upgraded mobility)
         final String filterUser = " (" + MobilityInterface.KEY_USERNAME + "=? OR "
                 + MobilityInterface.KEY_TIME + " > " + loginTimestamp + ") ";
-        final String[] filterUserParams = new String[] { username };
+        final String[] filterUserParams = new String[] {
+            username
+        };
 
         switch (id) {
             case RECENT_LOADER:
@@ -353,7 +352,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
                 return new CursorLoader(getActivity(), Probes.CONTENT_URI, new String[] {
                     BaseColumns._ID
                 }, BaseProbeColumns.USERNAME + "=? AND " + Probes.OBSERVER_ID + "=?", new String[] {
-                    username, MOBILITY_OBSERVER_ID
+                        username, MOBILITY_OBSERVER_ID
                 }, null);
 
             default:

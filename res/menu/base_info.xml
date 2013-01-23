@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_view_feedback"
+        android:icon="@drawable/btn_title_resphist"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/feedback"/>
+    <item
+        android:id="@+id/menu_setup_triggers"
+        android:icon="@drawable/btn_title_trigger"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/triggers"/>
+
+</menu>

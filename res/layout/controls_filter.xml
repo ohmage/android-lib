@@ -13,7 +13,6 @@
 		android:layout_height="40dp"
 		android:contentDescription="@string/controls_filter_prev_description"
 		/>
-	<!--<ImageView style="@style/TitleBarSeparator" />-->
 	
 	<Button
 		android:id="@+id/controls_filter_current"
@@ -31,7 +30,6 @@
 		android:contentDescription="@string/controls_filter_current_description"
 		/>
 	
-	<!--<ImageView style="@style/TitleBarSeparator" />-->
 	<Button
 		android:id="@+id/controls_filter_next"
 		android:text="&gt;"

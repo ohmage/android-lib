@@ -17,21 +17,20 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
-import org.ohmage.controls.ActionBarControl;
-import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.triggers.base.TriggerDB;
-import org.ohmage.ui.BaseInfoActivity;
+import org.ohmage.ui.BaseCampaignInfoActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
-public class CampaignInfoActivity extends BaseInfoActivity implements
+public class CampaignInfoActivity extends BaseCampaignInfoActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final int TRIGGER_UPDATE_FINISHED = 0;
 
@@ -125,13 +124,39 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
         }
     }
 
-    protected void populateCommands(final String campaignUrn, final int campaignStatus) {
-        // first remove all the commands from the action bar...
-        ActionBarControl actionBar = getActionBarControl();
-        actionBar.clearActionBarCommands();
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
 
-        // ...and gather up the commands in the command tray so we can hide/show
-        // them
+        // // only show data-related actions if it's ready
+        if (mCampaignStatus != Campaign.STATUS_READY) {
+            menu.findItem(R.id.menu_view_feedback).setVisible(false);
+            menu.findItem(R.id.menu_setup_triggers).setVisible(false);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_view_feedback) {
+            Intent intent = new Intent(mContext, ResponseHistoryActivity.class);
+            intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, mCampaignUrn);
+            startActivity(intent);
+            return true;
+        } else if (itemId == R.id.menu_setup_triggers) {
+            Intent intent = Campaign.launchTriggerIntent(this, mCampaignUrn);
+            startActivityForResult(intent, TRIGGER_UPDATE_FINISHED);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void populateCommands(final String campaignUrn, final int campaignStatus) {
+        supportInvalidateOptionsMenu();
+
+        // Gather up the commands in the command tray so we can hide/show them
         Button surveysButton = (Button) findViewById(R.id.campaign_info_button_surveys);
         Button participateButton = (Button) findViewById(R.id.campaign_info_button_particpate);
         Button removeButton = (Button) findViewById(R.id.campaign_info_button_remove);
@@ -141,39 +166,6 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
         if (campaignStatus != Campaign.STATUS_REMOTE) {
             // only show data-related actions if it's ready
             if (campaignStatus == Campaign.STATUS_READY) {
-                if (UserPreferencesHelper.showFeedback())
-                    actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY,
-                            getString(R.string.response_history_action_button_description),
-                            R.drawable.btn_title_resphist);
-                actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS,
-                        getString(R.string.reminder_action_button_description),
-                        R.drawable.btn_title_trigger);
-
-                // route the actions to the appropriate places
-                actionBar.setOnActionListener(new ActionListener() {
-                    @Override
-                    public void onActionClicked(int commandID) {
-                        Intent intent;
-
-                        switch (commandID) {
-                            case ACTION_TAKE_SURVEY:
-                                intent = new Intent(mContext, SurveyListActivity.class);
-                                intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
-                                startActivity(intent);
-                                break;
-                            case ACTION_VIEW_RESPHISTORY:
-                                intent = new Intent(mContext, ResponseHistoryActivity.class);
-                                intent.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
-                                startActivity(intent);
-                                break;
-                            case ACTION_SETUP_TRIGGERS:
-                                Intent triggerIntent = Campaign.launchTriggerIntent(mContext,
-                                        campaignUrn);
-                                startActivityForResult(triggerIntent, TRIGGER_UPDATE_FINISHED);
-                                return;
-                        }
-                    }
-                });
 
                 // also show the take surveys button
                 surveysButton.setVisibility(View.VISIBLE);
@@ -268,8 +260,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
                     // when clicked, it fires off a download task,
                     // waits for it to finish, then goes back to the list when
                     // it's done
-                    new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn)
-                            .startLoading();
+                    new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn).startLoading();
                 }
             });
         }

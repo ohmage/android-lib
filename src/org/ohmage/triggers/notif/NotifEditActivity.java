@@ -17,7 +17,6 @@
 package org.ohmage.triggers.notif;
 
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,6 +36,7 @@ import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.triggers.config.NotifConfig;
 import org.ohmage.triggers.utils.TrigTextInput;
+import org.ohmage.ui.BaseListActivity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,7 +49,7 @@ import java.util.Iterator;
  * notification description associated with individual trigger
  * if required in the future. 
  */
-public class NotifEditActivity extends ListActivity implements OnClickListener {
+public class NotifEditActivity extends BaseListActivity implements OnClickListener {
 
     private static final String TAG = "NotifEditActivity";
 

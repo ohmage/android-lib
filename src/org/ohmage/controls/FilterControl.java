@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -98,7 +97,6 @@ public class FilterControl extends LinearLayout {
      *            control's constructor
      */
     protected void initStyles(AttributeSet attrs) {
-        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ActivityBarControl);
     }
 
     /**

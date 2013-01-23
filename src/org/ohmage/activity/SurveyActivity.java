@@ -16,7 +16,6 @@
 
 package org.ohmage.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -43,6 +42,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -93,7 +94,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
-public class SurveyActivity extends Activity implements LocationListener {
+public class SurveyActivity extends SherlockActivity implements LocationListener {
 
     private static final String TAG = "SurveyActivity";
 
@@ -102,7 +103,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 
     protected static final int PROMPT_RESULT = 0;
 
-    private TextView mSurveyTitleText;
     private ProgressBar mProgressBar;
     private TextView mPromptText;
     private FrameLayout mPromptFrame;
@@ -156,6 +156,8 @@ public class SurveyActivity extends Activity implements LocationListener {
         mSurveyId = getIntent().getStringExtra("survey_id");
         mSurveyTitle = getIntent().getStringExtra("survey_title");
         mSurveySubmitText = getIntent().getStringExtra("survey_submit_text");
+
+        getSupportActionBar().setTitle(mSurveyTitle);
 
         // Create the location manager and start listening to the GPS
         mLocManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -231,7 +233,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 
         setContentView(R.layout.survey_activity);
 
-        mSurveyTitleText = (TextView) findViewById(R.id.survey_title_text);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mPromptText = (TextView) findViewById(R.id.prompt_text);
         mPromptText.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -260,7 +261,6 @@ public class SurveyActivity extends Activity implements LocationListener {
         super.onResume();
         Analytics.activity(this, Status.ON);
 
-        mSurveyTitleText.setText(mSurveyTitle);
         if (mReachedEnd == false) {
             showElement(mCurrentPosition);
         } else {

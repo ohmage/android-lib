@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_reminder_add"
+        android:icon="@drawable/btn_title_add"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/add"/>
+    <item
+        android:id="@+id/menu_reminder_admin"
+        android:icon="@drawable/ic_menu_login"
+        android:showAsAction="never"/>
+    <item
+        android:id="@+id/menu_reminder_preferences"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:showAsAction="never"
+        android:title="@string/trigger_menu_preferences"/>
+    <item
+        android:id="@+id/menu_reminder_notification_settings"
+        android:icon="@drawable/ic_menu_notification"
+        android:showAsAction="never"
+        android:title="@string/trigger_menu_notifications"/>
+    <item
+        android:id="@+id/menu_reminder_ringtone_settings"
+        android:icon="@drawable/ic_menu_ringtone"
+        android:showAsAction="never"
+        android:title="@string/trigger_menu_ringtone"/>
+
+</menu>

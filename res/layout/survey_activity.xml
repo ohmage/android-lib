@@ -4,47 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/survey_title_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#777777"
-        android:ellipsize="end"
-        android:paddingBottom="1dp"
-        android:paddingLeft="3dp"
-        android:paddingTop="2dp"
-        android:singleLine="true"
-        android:text="@string/survey_title"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#ffffff" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="10dp"
-        android:background="#777777"
-        android:max="100"
-        android:paddingBottom="2dp"
-        android:paddingLeft="1dp"
-        android:paddingRight="1dp"
-        android:progress="15" />
-
-    <TextView
-        android:id="@+id/prompt_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="4"
-        android:paddingBottom="4dp"
-        android:paddingLeft="3dp"
-        android:scrollbars="vertical"
-        android:text="@string/survey_prompt"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="#adaaad" />
+    <include layout="@layout/survey_activity_header" />
 
     <FrameLayout
         android:id="@+id/prompt_frame"
@@ -55,15 +15,15 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#777777"
-        android:paddingBottom="2dp"
-        android:paddingTop="2dp" >
+        android:background="#888888"
+        android:paddingTop="@dimen/halfgutter" >
 
         <Button
             android:id="@+id/prev_button"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
+            android:background="@android:drawable/btn_default"
             android:contentDescription="@string/survey_activity_previous_description"
             android:text="@string/previous" />
 
@@ -72,6 +32,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
+            android:background="@android:drawable/btn_default"
             android:contentDescription="@string/survey_activity_skip_description"
             android:text="@string/skip" />
 
@@ -80,6 +41,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
+            android:background="@android:drawable/btn_default"
             android:contentDescription="@string/survey_activity_next_description"
             android:text="@string/next" />
     </LinearLayout>

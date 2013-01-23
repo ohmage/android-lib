@@ -71,7 +71,6 @@ public class MobilityActivity extends BaseActivity {
             mobilityConnected = true;
 
             setContentView(R.layout.tab_layout);
-            setActionBarShadowVisibility(false);
 
             mTabHost = (TabHost) findViewById(android.R.id.tabhost);
             mTabHost.setup();
@@ -92,4 +91,4 @@ public class MobilityActivity extends BaseActivity {
             }
         }
     }
-}
+    }
