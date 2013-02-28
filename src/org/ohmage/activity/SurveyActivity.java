@@ -52,7 +52,6 @@ import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.PromptXmlParser;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
 import org.ohmage.conditionevaluator.DataPoint.PromptType;
@@ -60,6 +59,7 @@ import org.ohmage.conditionevaluator.DataPointConditionEvaluator;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -80,7 +80,6 @@ import org.ohmage.prompt.number.NumberPrompt;
 import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
 import org.ohmage.prompt.text.TextPrompt;
-import org.ohmage.prompt.timestamp.TimestampPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.WakefulService;
 import org.ohmage.triggers.glue.TriggerFramework;
@@ -1020,7 +1019,6 @@ public class SurveyActivity extends Activity implements LocationListener {
                 AbstractPrompt prompt = ((AbstractPrompt) mSurveyElements.get(i));
 
                 DataPoint dataPoint = new DataPoint(prompt.getId());
-                dataPoint.setDisplayType(prompt.getDisplayType());
 
                 if (prompt instanceof SingleChoicePrompt) {
                     dataPoint.setPromptType("single_choice");
