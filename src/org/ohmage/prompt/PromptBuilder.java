@@ -23,8 +23,8 @@ import java.util.ArrayList;
 public interface PromptBuilder {
 
 	void build(	Prompt prompt, String id, String displayLabel,
-				String promptText, String abbreviatedText, String explanationText,
-				String defaultValue, String condition, 
+				String promptText, String explanationText,
+				String defaultValue, String condition,
 				String skippable, String skipLabel,
 				ArrayList<KVLTriplet> properties);
 }
