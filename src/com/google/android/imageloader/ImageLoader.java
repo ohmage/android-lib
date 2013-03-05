@@ -25,9 +25,9 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.content.ModernAsyncTask;
 import android.text.TextUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -997,9 +997,9 @@ public final class ImageLoader {
         }
     }
 
-    private class ImageTask extends ModernAsyncTask<ImageRequest, ImageRequest, Void> {
+    private class ImageTask extends AsyncTask<ImageRequest, ImageRequest, Void> {
 
-        public final ModernAsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
+        public final AsyncTask<ImageRequest, ImageRequest, Void> executeOnThreadPool(
                 ImageRequest... params) {
             return execute(params);
         }
