@@ -74,10 +74,33 @@ public class DbContract {
 
     }
 
+    interface ProbeCountColumns {
+        /** Unique string identifying the observer */
+        String OBSERVER_ID = "observer_id";
+        /** Version to identify observer */
+        String OBSERVER_VERSION = "observer_version";
+    }
+
     private static final String PATH_COUNTS = "counts";
 
-    public static final class ProbeCount {
+    public static final class ProbeCount implements ProbeCountColumns {
         public static final Uri CONTENT_URI = Probes.CONTENT_URI.buildUpon()
                 .appendPath(PATH_COUNTS).build();
+
+        public static String[] mapToResponse(String... projection) {
+            String[] ret = new String[projection.length];
+            for (int i = 0; i < projection.length; i++) {
+                ret[i] = mapToResponse(projection[i]);
+            }
+            return ret;
+        }
+
+        public static String mapToResponse(String projection) {
+            if (projection == null)
+                return null;
+            String ret = projection.replaceFirst(OBSERVER_ID, ResponseColumns.CAMPAIGN_URN);
+            ret = ret.replaceFirst(OBSERVER_VERSION, ResponseColumns.CAMPAIGN_CREATED);
+            return ret;
+        }
     }
 }

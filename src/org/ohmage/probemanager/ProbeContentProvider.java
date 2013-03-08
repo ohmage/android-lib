@@ -7,11 +7,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.ohmage.probemanager.DbContract.ProbeCount;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 import org.ohmage.probemanager.DbHelper.Tables;
@@ -31,7 +33,8 @@ public class ProbeContentProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "probes", MatcherTypes.PROBES);
         sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
-        sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "probes/counts", MatcherTypes.PROBE_COUNTS);
+        sUriMatcher
+                .addURI(DbContract.CONTENT_AUTHORITY, "probes/counts", MatcherTypes.PROBE_COUNTS);
 
     }
 
@@ -99,15 +102,31 @@ public class ProbeContentProvider extends ContentProvider {
         return true;
     }
 
+    @SuppressWarnings("resource")
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
             case MatcherTypes.PROBE_COUNTS:
-                SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-                builder.setTables(Tables.Probes);
-                cursor = builder.query(dbHelper.getReadableDatabase(), projection, selection, selectionArgs, Probes.OBSERVER_ID + ", " + Probes.OBSERVER_VERSION, null, sortOrder);
+
+                SQLiteQueryBuilder probes = new SQLiteQueryBuilder();
+                probes.setTables(Tables.Probes);
+
+                SQLiteQueryBuilder responses = new SQLiteQueryBuilder();
+                responses.setTables(Tables.Responses);
+
+                Cursor[] merged = new Cursor[2];
+                merged[0] = probes.query(dbHelper.getReadableDatabase(), projection, selection,
+                        selectionArgs, Probes.OBSERVER_ID + ", " + Probes.OBSERVER_VERSION, null,
+                        sortOrder);
+                merged[1] = responses.query(dbHelper.getReadableDatabase(),
+                        ProbeCount.mapToResponse(projection), ProbeCount.mapToResponse(selection),
+                        selectionArgs, Responses.CAMPAIGN_URN + ", " + Responses.CAMPAIGN_CREATED,
+                        null, sortOrder);
+                merged[1].setNotificationUri(getContext().getContentResolver(), uri);
+
+                cursor = new MergeCursor(merged);
                 break;
             case MatcherTypes.PROBES:
                 cursor = dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
