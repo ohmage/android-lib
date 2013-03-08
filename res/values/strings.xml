@@ -384,6 +384,9 @@
     <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
     <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
 
+    <!-- Probes -->
+	<string name="probe_list_item_action_button_upload_description">List Item Action Button (Upload Probe)</string>
+
     <!-- Commit hash is inserted here by the build script -->
     <string name="commit_hash">meow</string>
 </resources>

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -214,13 +215,32 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
             public void bindView(View view, Context context, Cursor cursor) {
                 TextView observerText = (TextView) view.findViewById(R.id.main_text);
                 TextView countText = (TextView) view.findViewById(R.id.sub_text);
+                final String observer_id = cursor.getString(0);
+
+                observerText.setText(observer_id);
+                countText.setText(cursor.getString(1));
 
                 view.findViewById(R.id.icon_image).setVisibility(View.GONE);
-                view.findViewById(R.id.action_separator).setVisibility(View.GONE);
-                view.findViewById(R.id.action_button).setVisibility(View.GONE);
+                view.findViewById(R.id.action_separator).setVisibility(View.VISIBLE);
+                ImageView actionButton = (ImageView) view.findViewById(R.id.action_button);
+                actionButton.setVisibility(View.VISIBLE);
+                actionButton.setFocusable(false);
+                actionButton.setEnabled(true);
 
-                observerText.setText(cursor.getString(0));
-                countText.setText(cursor.getString(1));
+                actionButton.setContentDescription(getActivity().getString(
+                        R.string.probe_list_item_action_button_upload_description));
+                actionButton.setImageResource(R.drawable.subaction_upload_response);
+                actionButton.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Analytics.widget(v);
+                        Intent intent = new Intent(getActivity(), ProbeUploadService.class);
+                        intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_ID, observer_id);
+                        WakefulIntentService.sendWakefulWork(getActivity(), intent);
+                    }
+                });
+
             }
 
             @Override
