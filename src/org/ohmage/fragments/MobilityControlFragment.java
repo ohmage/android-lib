@@ -32,8 +32,8 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.mobility.glue.IMobility;
@@ -50,6 +50,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
     private static final int RECENT_LOADER = 0;
     private static final int ALL_LOADER = 1;
     private static final int UPLOAD_LOADER = 2;
+
+    private static final String MOBILITY_OBSERVER_ID = "edu.ucla.cens.Mobility";
 
     private ListView mMobilityList;
     private TextView mTotalCountText;
@@ -349,8 +351,8 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
             case UPLOAD_LOADER:
                 return new CursorLoader(getActivity(), Probes.CONTENT_URI, new String[] {
                     BaseColumns._ID
-                }, BaseProbeColumns.USERNAME + "=?", new String[] {
-                    username
+                }, BaseProbeColumns.USERNAME + "=? AND " + Probes.OBSERVER_ID + "=?", new String[] {
+                    username, MOBILITY_OBSERVER_ID
                 }, null);
 
             default:
