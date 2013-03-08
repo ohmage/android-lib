@@ -1,154 +1,86 @@
+
 package org.ohmage.activity;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.support.v4.view.ViewPager;
+import android.widget.TabHost;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
-import org.ohmage.adapters.ResponseListCursorAdapter;
-import org.ohmage.adapters.UploadingResponseListCursorAdapter;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbHelper.Tables;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.db.Models.Response;
-import org.ohmage.fragments.ResponseListFragment;
+import org.ohmage.fragments.ProbeUploadFragment;
 import org.ohmage.fragments.ResponseListFragment.OnResponseActionListener;
-import org.ohmage.service.UploadService;
-import org.ohmage.logprobe.Analytics;
-import org.ohmage.ui.CampaignFilterActivity;
+import org.ohmage.fragments.ResponseUploadFragment;
+import org.ohmage.library.R;
+import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.ResponseActivityHelper;
+import org.ohmage.ui.TabsAdapter;
 
-public class UploadQueueActivity extends CampaignFilterActivity implements OnResponseActionListener {
-	private static final String TAG = "UploadQueueActivity";
+public class UploadQueueActivity extends BaseActivity implements OnResponseActionListener {
 
-	private Button mUploadAll;
+    private static final String TAG = "UploadQueueActivity";
 
-	private ResponseActivityHelper mResponseHelper;
+    TabHost mTabHost;
+    ViewPager mViewPager;
+    TabsAdapter mTabsAdapter;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private ResponseActivityHelper mResponseHelper;
 
-		setContentView(R.layout.upload_queue_layout);
-		
-		mResponseHelper = new ResponseActivityHelper(this);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		mUploadAll = (Button) findViewById(R.id.upload_button);
-		
-		mUploadAll.setOnClickListener(mUploadAllListener);
+        mResponseHelper = new ResponseActivityHelper(this);
 
-		// Show the upload button immediately in single campaign mode since we don't query for the campaign
-		if(ConfigHelper.isSingleCampaignMode())
-			ensureButtons();
-	}
-	
-	@Override
-	protected void onCampaignFilterChanged(String filter) {
-		if (getUploadingResponseListFragment() != null) {
-			getUploadingResponseListFragment().setCampaignUrn(filter);
-		}
-	}
+        setContentView(R.layout.tab_layout);
+        setActionBarShadowVisibility(false);
 
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		super.onLoadFinished(loader, data);
-		ensureButtons();
-	}
+        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+        mTabHost.setup();
 
-	private void ensureButtons() {
-		findViewById(R.id.upload_all_container).setVisibility(View.VISIBLE);
-	}
-	
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new CursorLoader(this, Campaigns.CONTENT_URI, new String [] { Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_NAME }, 
-				Campaigns.CAMPAIGN_STATUS + "=" + Campaign.STATUS_READY, null, Campaigns.CAMPAIGN_NAME);
-	}
+        mViewPager = (ViewPager) findViewById(R.id.pager);
 
-	private ResponseListFragment getUploadingResponseListFragment() {
-		return (UploadingResponseListFragment) getSupportFragmentManager().findFragmentById(R.id.upload_queue_response_list_fragment);
-	}
+        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-	public static class UploadingResponseListFragment extends ResponseListFragment {
+        mTabsAdapter.addTab("Responses", ResponseUploadFragment.class, null);
+        mTabsAdapter.addTab("Streams", ProbeUploadFragment.class, null);
 
-		@Override
-		public void onActivityCreated(Bundle savedInstanceState) {
-			super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
 
-			// Set the empty text
-			setEmptyText(getString(R.string.upload_queue_empty));
-		}
-		
-		@Override
-		protected ResponseListCursorAdapter createAdapter() {
-			return new UploadingResponseListCursorAdapter(getActivity(), null, this, 0);
-		}
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mTabHost != null)
+            outState.putString("tab", mTabHost.getCurrentTabTag());
+    }
 
-		@Override
-		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-			CursorLoader loader = (CursorLoader) super.onCreateLoader(id, args);
+    @Override
+    public void onResponseActionView(Uri responseUri) {
+        startActivity(new Intent(Intent.ACTION_VIEW, responseUri));
+    }
 
-			StringBuilder selection = new StringBuilder(loader.getSelection());
-			if(selection.length() != 0)
-				selection.append(" AND ");
-			selection.append(Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_UPLOADED + " AND " + Tables.RESPONSES + "." + Responses.RESPONSE_STATUS + "!=" + Response.STATUS_DOWNLOADED);
-			loader.setSelection(selection.toString());
-			return loader;
-		}
+    @Override
+    public void onResponseActionUpload(Uri responseUri) {
+        mResponseHelper.queueForUpload(responseUri);
+    }
 
-		@Override
-		protected boolean ignoreTimeBounds() {
-			return true;
-		}
-	}
-	
-	private final OnClickListener mUploadAllListener = new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			Analytics.widget(v);
-			Intent intent = new Intent(UploadQueueActivity.this, UploadService.class);
-			intent.setData(Responses.CONTENT_URI);
-			WakefulIntentService.sendWakefulWork(UploadQueueActivity.this, intent);
-		}
-	};
+    @Override
+    public void onResponseActionError(Uri responseUri, int status) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ResponseActivityHelper.KEY_URI, responseUri);
+        showDialog(status, bundle);
+    }
 
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+        mResponseHelper.onPrepareDialog(id, dialog, args);
+    }
 
-	@Override
-	public void onResponseActionView(Uri responseUri) {
-		startActivity(new Intent(Intent.ACTION_VIEW, responseUri));
-	}
-
-	@Override
-	public void onResponseActionUpload(Uri responseUri) {
-		mResponseHelper.queueForUpload(responseUri);
-	}
-
-	@Override
-	public void onResponseActionError(Uri responseUri, int status) {
-		Bundle bundle = new Bundle();
-		bundle.putParcelable(ResponseActivityHelper.KEY_URI, responseUri);
-		showDialog(status, bundle);
-	}
-
-	@Override
-	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
-		mResponseHelper.onPrepareDialog(id, dialog, args);
-	}
-
-	@Override
-	protected Dialog onCreateDialog(int id, Bundle args) {
-		return mResponseHelper.onCreateDialog(id, args);
-	}
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle args) {
+        return mResponseHelper.onCreateDialog(id, args);
+    }
 }

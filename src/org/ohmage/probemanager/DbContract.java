@@ -73,4 +73,11 @@ public class DbContract {
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.ohmage.response";
 
     }
+
+    private static final String PATH_COUNTS = "counts";
+
+    public static final class ProbeCount {
+        public static final Uri CONTENT_URI = Probes.CONTENT_URI.buildUpon()
+                .appendPath(PATH_COUNTS).build();
+    }
 }

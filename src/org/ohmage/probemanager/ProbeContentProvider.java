@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -21,6 +22,7 @@ public class ProbeContentProvider extends ContentProvider {
     private interface MatcherTypes {
         int PROBES = 0;
         int RESPONSES = 1;
+        int PROBE_COUNTS = 2;
     }
 
     private DbHelper dbHelper;
@@ -29,6 +31,8 @@ public class ProbeContentProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "probes", MatcherTypes.PROBES);
         sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "responses", MatcherTypes.RESPONSES);
+        sUriMatcher.addURI(DbContract.CONTENT_AUTHORITY, "probes/counts", MatcherTypes.PROBE_COUNTS);
+
     }
 
     @Override
@@ -100,7 +104,11 @@ public class ProbeContentProvider extends ContentProvider {
             String sortOrder) {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
-
+            case MatcherTypes.PROBE_COUNTS:
+                SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+                builder.setTables(Tables.Probes);
+                cursor = builder.query(dbHelper.getReadableDatabase(), projection, selection, selectionArgs, Probes.OBSERVER_ID + ", " + Probes.OBSERVER_VERSION, null, sortOrder);
+                break;
             case MatcherTypes.PROBES:
                 cursor = dbHelper.getReadableDatabase().query(Tables.Probes, projection, selection,
                         selectionArgs, null, null, sortOrder);

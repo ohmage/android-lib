@@ -27,7 +27,7 @@
     <string name="set">Set</string>
     <string name="continue_string">Continue</string>
     <string name="off">Off</string>
-    <string name="last_successful_upload">Last successful upload</string>
+    <string name="last_successful_upload">Last upload time</string>
     <string name="upload_now">Upload Now</string>
     <string name="empty_value">-</string>
 

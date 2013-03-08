@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/org.ohmage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -35,7 +34,7 @@
 
     <fragment
         android:id="@+id/upload_queue_response_list_fragment"
-        android:name="org.ohmage.activity.UploadQueueActivity$UploadingResponseListFragment"
+        android:name="org.ohmage.fragments.ResponseUploadFragment$UploadingResponseListFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_above="@id/upload_all_container"
