@@ -1,12 +1,12 @@
 ohmageAndroidLib
 ================
 
-This is the library project which is required by any app which would like to use ohmage.
-
 ohmage (http://ohmage.org) is an open-source, mobile to web platform that records, 
 analyzes, and visualizes data from both prompted experience samples entered by the 
 user, as well as continuous streams of data passively collected from sensors or 
 applications onboard the mobile device. 
+
+This is the library project which is required by any app which would like to use ohmage. The idea behind this library is that you can easily replace files in a custom project forked from [ohmageApp](https://github.com/ohmage/ohmageApp) without having to update any files in this library. Any resources in your res directory will override resources in the library (such as the server url). You can also override applications in the android manifest to launch custom activities instead of the ones provided by this library. etc. Take a look at the projects to see examples of how to override the resources of this library project.
 
 Projects
 --------
