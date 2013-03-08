@@ -33,6 +33,9 @@ public class ProbeUploadService extends WakefulIntentService {
     /** Extra to tell the upload service if it is running in the background **/
     public static final String EXTRA_BACKGROUND = "is_background";
 
+    /** Extra to tell the upload service to only upload one probe **/
+    public static final String EXTRA_OBSERVER_ID = "extra_observer_id";
+
     /** Uploaded in batches of 0.5 mb */
     private static final int BATCH_SIZE = 1024 * 1024 / 2;
 
@@ -62,6 +65,8 @@ public class ProbeUploadService extends WakefulIntentService {
     private AccountHelper mAccount;
     private UserPreferencesHelper mPrefs;
 
+    private String mObserverId = null;
+
     public ProbeUploadService() {
         super(TAG);
     }
@@ -89,6 +94,8 @@ public class ProbeUploadService extends WakefulIntentService {
             setOhmageApi(new OhmageApi(this));
 
         isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
+
+        mObserverId = intent.getStringExtra(EXTRA_OBSERVER_ID);
 
         Log.d(TAG, "upload probes");
         ProbesUploader probesUploader = new ProbesUploader();
@@ -157,9 +164,13 @@ public class ProbeUploadService extends WakefulIntentService {
 
             uploadStarted();
 
+            String select = BaseProbeColumns.USERNAME + "=?";
+            if (mObserverId != null)
+                select += " AND " + getNameColumn() + "='" + mObserverId + "'";
+
             Cursor observersCursor = getContentResolver().query(getContentURI(), new String[] {
                     "distinct " + getNameColumn(), getVersionColumn()
-            }, BaseProbeColumns.USERNAME + "=?", new String[] {
+            }, select, new String[] {
                 mAccount.getUsername()
             }, null);
 

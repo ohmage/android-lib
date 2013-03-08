@@ -219,6 +219,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
         public void onClick(View v) {
             Analytics.widget(v);
             Intent intent = new Intent(getActivity(), ProbeUploadService.class);
+            intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_ID, MOBILITY_OBSERVER_ID);
             WakefulIntentService.sendWakefulWork(getActivity(), intent);
         }
     };
