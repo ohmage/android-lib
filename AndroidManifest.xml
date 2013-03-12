@@ -128,6 +128,12 @@
             android:label="@string/title_profile"
             android:screenOrientation="portrait" />
         <activity
+            android:name="org.ohmage.activity.ProbeActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_probes"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="org.ohmage.activity.MobilityActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_mobility"

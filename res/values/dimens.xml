@@ -22,4 +22,10 @@
     <dimen name="font_size_large">18.0sp</dimen>
     <dimen name="font_size_xlarge">20.0sp</dimen>
 
+    <!-- Lists -->
+    <dimen name="normal_list_item_height">64.0dip</dimen>
+
+    <!-- List Context Menu -->
+    <dimen name="list_item_context_menu_button_padding">12.0dip</dimen>
+
 </resources>

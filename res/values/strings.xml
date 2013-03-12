@@ -104,6 +104,7 @@
     <string name="title_profile">Profile</string>
     <string name="title_help">Help</string>
     <string name="title_mobility">Mobility</string>
+    <string name="title_probes">Streams</string>
 
     <!-- subscreen titles -->
     <string name="title_add_campaign">Add Campaign</string>
@@ -119,12 +120,14 @@
     <string name="dashboard_profile">Profile</string>
     <string name="dashboard_help">Help</string>
     <string name="dashboard_mobility">Mobility</string>
+    <string name="dashboard_probe">Streams</string>
     <string name="dashboard_campaigns_btn_description">Campaign List Dashboard Button</string>
     <string name="dashboard_surveys_btn_description">Surveys Dashboard Button</string>
     <string name="dashboard_feedback_btn_description">Response History Dashboard Button</string>
     <string name="dashboard_upload_queue_btn_description">Upload Queue Dashboard Button</string>
     <string name="dashboard_profile_btn_description">Profile Dashboard Button</string>
     <string name="dashboard_mobility_btn_description">Mobility Dashboard Button</string>
+    <string name="dashboard_probe_btn_description">Probe Dashboard Button</string>
     <string name="dashboard_help_btn_description">Help Dashboard Button</string>
     <string name="description_logo_home">Home Button</string>
 

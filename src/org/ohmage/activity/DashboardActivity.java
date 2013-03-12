@@ -27,6 +27,7 @@ public class DashboardActivity extends BaseActivity {
     private Button mProfileBtn;
     private Button mHelpBtn;
     private Button mMobilityBtn;
+    private Button mProbeBtn;
 
     private CampaignReadLoaderCallbacks mCampaignReadLoader;
 
@@ -48,6 +49,7 @@ public class DashboardActivity extends BaseActivity {
         mProfileBtn = (Button) findViewById(R.id.dash_profile_btn);
         mHelpBtn = (Button) findViewById(R.id.dash_help_btn);
         mMobilityBtn = (Button) findViewById(R.id.dash_mobility_btn);
+        mProbeBtn = (Button) findViewById(R.id.dash_probe_btn);
 
         DashboardButtonListener buttonListener = new DashboardButtonListener();
 
@@ -58,6 +60,7 @@ public class DashboardActivity extends BaseActivity {
         mProfileBtn.setOnClickListener(buttonListener);
         mHelpBtn.setOnClickListener(buttonListener);
         mMobilityBtn.setOnClickListener(buttonListener);
+        mProbeBtn.setOnClickListener(buttonListener);
 
         mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
         mCampaignReadLoader.onCreate();
@@ -126,6 +129,7 @@ public class DashboardActivity extends BaseActivity {
         mProfileBtn.setClickable(true);
         mHelpBtn.setClickable(true);
         mMobilityBtn.setClickable(true);
+        mProbeBtn.setClickable(true);
     }
 
     private void disableAllButtons() {
@@ -136,6 +140,7 @@ public class DashboardActivity extends BaseActivity {
         mProfileBtn.setClickable(false);
         mHelpBtn.setClickable(false);
         mMobilityBtn.setClickable(false);
+        mProbeBtn.setClickable(false);
     }
 
     protected class DashboardButtonListener implements OnClickListener {
@@ -161,6 +166,8 @@ public class DashboardActivity extends BaseActivity {
                 startActivity(new Intent(c, HelpActivity.class));
             } else if (id == R.id.dash_mobility_btn) {
                 startActivity(new Intent(c, MobilityActivity.class));
+            } else if (id == R.id.dash_probe_btn) {
+                startActivity(new Intent(c, ProbeActivity.class));
             }
         }
     }

@@ -11,7 +11,6 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.UserPreferencesHelper;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
@@ -19,6 +18,21 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class ProbeManager extends Service {
+
+    /**
+     * Action to view analytics data for a probe
+     */
+    public static final String ACTION_VIEW_ANALYTICS = "org.ohmage.probes.ACTION_VIEW_ANALYTICS";
+
+    /**
+     * Action to view configuration data for a probe
+     */
+    public static final String ACTION_CONFIGURE = "org.ohmage.probes.ACTION_CONFIGURE";
+
+    /**
+     * Meta data for probe supplied in manifest
+     */
+    public static final String PROBE_META_DATA = "org.ohmage.probemanager";
 
     /**
      * Set to true if we want to buffer points

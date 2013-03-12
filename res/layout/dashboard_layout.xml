@@ -46,6 +46,13 @@
         android:text="@string/dashboard_mobility" />
 
     <Button
+        android:id="@+id/dash_probe_btn"
+        style="@style/DashboardButton"
+        android:contentDescription="@string/dashboard_probe_btn_description"
+        android:drawableTop="@drawable/btn_dashboard_mobility"
+        android:text="@string/dashboard_probe" />
+
+    <Button
         android:id="@+id/dash_help_btn"
         style="@style/DashboardButton"
         android:contentDescription="@string/dashboard_help_btn_description"

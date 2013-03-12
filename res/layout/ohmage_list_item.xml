@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:contentDescription="@string/list_item_description"
-    android:minHeight="66dp"
+    android:minHeight="@dimen/normal_list_item_height"
     android:orientation="horizontal" >
 
     <ImageView
