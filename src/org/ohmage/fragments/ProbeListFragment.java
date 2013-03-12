@@ -37,10 +37,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import org.ohmage.fragments.ProbeListFragment.ProbeAppEntry;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 import org.ohmage.probemanager.ProbeManager;
+import org.ohmage.service.ProbeUploadService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -151,6 +154,11 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
                 else
                     Toast.makeText(getActivity(), "Probe Configuration no longer exists",
                             Toast.LENGTH_SHORT).show();
+                return true;
+            case CONTEXT_MENU_UPLOAD_ID:
+                intent = new Intent(getActivity(), ProbeUploadService.class);
+                intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_ID, entry.observerId);
+                WakefulIntentService.sendWakefulWork(getActivity(), intent);
                 return true;
         }
         return super.onContextItemSelected(item);
