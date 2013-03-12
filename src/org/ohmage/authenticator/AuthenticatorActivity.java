@@ -498,7 +498,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         Log.v(TAG, "finishLogin()");
         final Account account = new Account(mUsername, OhmageApplication.ACCOUNT_TYPE);
         Bundle userData = new Bundle();
-        userData.putString(KEY_OHMAGE_SERVER, mServerEdit.getText().toString());
+        userData.putString(KEY_OHMAGE_SERVER, ConfigHelper.serverUrl());
         mAuthtoken = mHashedPassword;
 
         if (mRequestNewAccount) {
