@@ -188,53 +188,14 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
      * This class holds the per-item data in our Loader.
      */
     public static class ProbeAppEntry {
-        public ProbeAppEntry(AppListLoader loader, ApplicationInfo info) {
+        public ProbeAppEntry(AppListLoader loader, ApplicationInfo info, String observerName, String observerId, String observerVersionName) {
             mLoader = loader;
             mInfo = info;
             mApkFile = new File(info.sourceDir);
 
-            PackageManager pm = loader.getContext().getPackageManager();
-            XmlResourceParser parser = null;
-            try {
-                parser = mInfo.loadXmlMetaData(pm, ProbeManager.PROBE_META_DATA);
-                if (parser == null) {
-                    throw new XmlPullParserException("No " + ProbeManager.PROBE_META_DATA
-                            + " meta-data");
-                }
-
-                Resources res = pm.getResourcesForApplication(mInfo);
-
-                AttributeSet attrs = Xml.asAttributeSet(parser);
-
-                int type;
-                while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
-                        && type != XmlPullParser.START_TAG) {
-                }
-
-                String nodeName = parser.getName();
-
-                if (!"probe".equals(nodeName)) {
-                    throw new XmlPullParserException("Meta-data does not start with probe tag");
-                }
-
-                TypedArray sa = res.obtainAttributes(attrs, R.styleable.probe);
-
-                observerId = sa.getString(R.styleable.probe_observerId);
-                observerVersionCode = sa.getInteger(R.styleable.probe_observerVersionCode, 0);
-                observerVersionName = sa.getString(R.styleable.probe_observerVersionName);
-
-                sa.recycle();
-            } catch (NameNotFoundException e) {
-                Log.e(TAG, "Unable to create context for: " + mInfo.packageName, e);
-            } catch (XmlPullParserException e) {
-                Log.e(TAG, "Unable to parse probe metadata", e);
-            } catch (IOException e) {
-                Log.e(TAG, "IOException parsing probe metadata", e);
-            } finally {
-                if (parser != null)
-                    parser.close();
-            }
-
+            this.observerName = observerName;
+            this.observerId = observerId;
+            this.observerVersionName = observerVersionName;
         }
 
         public ApplicationInfo getApplicationInfo() {
@@ -274,15 +235,23 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             return mLabel;
         }
 
-        public String getObserverId() {
-            if (TextUtils.isEmpty(observerId))
+        /**
+         * Formats the observer name nicely
+         * @return
+         */
+        public String getObserverName() {
+            StringBuilder builder = new StringBuilder();
+            if (TextUtils.isEmpty(observerName))
                 return "Unknown probe metadata";
-            else
-                return observerId;
-        }
-
-        public String getProbeVersionName() {
-            return observerVersionName;
+            else {
+                builder.append(observerName).append(" ");
+                if (!TextUtils.isEmpty(observerVersionName)) {
+                    if(!observerVersionName.startsWith("v"))
+                        builder.append("v");
+                    builder.append(observerVersionName);
+                }
+                return builder.toString();
+            }
         }
 
         void loadLabel(Context context) {
@@ -304,9 +273,9 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
         private String mLabel;
         private Drawable mIcon;
         private boolean mMounted;
-        private String observerId;
-        private int observerVersionCode;
-        private String observerVersionName;
+        private final String observerName;
+        private final String observerId;
+        private final String observerVersionName;
     }
 
     /**
@@ -385,6 +354,68 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             mPm = getContext().getPackageManager();
         }
 
+        public List<ProbeAppEntry> parseObserversFromApp(ApplicationInfo info) {
+            ArrayList<ProbeAppEntry> ret = new ArrayList<ProbeAppEntry>();
+
+            final Context context = getContext();
+
+            PackageManager pm = context.getPackageManager();
+            XmlResourceParser parser = null;
+            try {
+                parser = info.loadXmlMetaData(pm, ProbeManager.PROBE_META_DATA);
+                if (parser == null) {
+                    throw new XmlPullParserException("No " + ProbeManager.PROBE_META_DATA
+                            + " meta-data");
+                }
+
+                Resources res = pm.getResourcesForApplication(info);
+
+                AttributeSet attrs = Xml.asAttributeSet(parser);
+
+                int type;
+                while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
+
+                    if (type == XmlPullParser.START_TAG) {
+
+                        String nodeName = parser.getName();
+
+                        if (!"probe".equals(nodeName) && !"probes".equals(nodeName)) {
+                            throw new XmlPullParserException(
+                                    "Meta-data does not start with probe tag");
+                        }
+
+                        if ("probe".equals(nodeName)) {
+                            TypedArray sa = res.obtainAttributes(attrs, R.styleable.probe);
+
+                            String observerName = sa.getString(R.styleable.probe_observerName);
+                            String observerId = sa.getString(R.styleable.probe_observerId);
+                            String observerVersionName = sa
+                                    .getString(R.styleable.probe_observerVersionName);
+
+                            ProbeAppEntry entry = new ProbeAppEntry(this, info, observerName,
+                                    observerId, observerVersionName);
+                            entry.loadLabel(context);
+                            ret.add(entry);
+
+                            sa.recycle();
+                        }
+                    }
+                }
+
+            } catch (XmlPullParserException e) {
+                Log.e(TAG, "Unable to parse probe metadata", e);
+            } catch (IOException e) {
+                Log.e(TAG, "IOException parsing probe metadata", e);
+            } catch (NameNotFoundException e) {
+                Log.e(TAG, "Unable to create context for: " + info.packageName, e);
+            } finally {
+                if (parser != null)
+                    parser.close();
+            }
+
+            return ret;
+        }
+
         /**
          * Find all apps which have metadata describing the probe urn and
          * version. These are the apps we will show in the list
@@ -398,16 +429,12 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
                 apps = new ArrayList<ApplicationInfo>();
             }
 
-            final Context context = getContext();
-
             // Create corresponding array of entries and load their labels.
             List<ProbeAppEntry> entries = new ArrayList<ProbeAppEntry>();
             for (int i = 0; i < apps.size(); i++) {
 
                 if (mPm.checkPermission("org.ohmage.SEND_PROBES", apps.get(i).packageName) == PackageManager.PERMISSION_GRANTED) {
-                    ProbeAppEntry entry = new ProbeAppEntry(this, apps.get(i));
-                    entry.loadLabel(context);
-                    entries.add(entry);
+                    entries.addAll(parseObserversFromApp(apps.get(i)));
                 }
             }
 
@@ -567,7 +594,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             ProbeAppEntry item = getItem(position);
             ((ImageView) view.findViewById(R.id.icon)).setImageDrawable(item.getIcon());
             ((TextView) view.findViewById(R.id.text1)).setText(item.getLabel());
-            ((TextView) view.findViewById(R.id.text2)).setText(item.getObserverId());
+            ((TextView) view.findViewById(R.id.text2)).setText(item.getObserverName());
 
             view.findViewById(R.id.context_menu).setOnClickListener(new View.OnClickListener() {
 
