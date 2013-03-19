@@ -382,16 +382,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 pDialog.setMessage(getString(R.string.login_authenticating,
                         getString(R.string.server_name)));
                 pDialog.setIndeterminate(true);
-                pDialog.setCancelable(true);
-                pDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (mAuthThread != null) {
-                            mAuthThread.interrupt();
-                            finish();
-                        }
-                    }
-                });
+                pDialog.setCancelable(false);
                 dialog = pDialog;
                 break;
             }
