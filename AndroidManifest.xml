@@ -57,7 +57,8 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity android:name="org.ohmage.authenticator.AuthenticatorActivity" >
+        <activity android:name="org.ohmage.authenticator.AuthenticatorActivity"
+            android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
