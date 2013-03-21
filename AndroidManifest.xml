@@ -79,11 +79,6 @@
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name="org.ohmage.activity.SendLogActivity" >
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
 
         <!--
 		================================================
