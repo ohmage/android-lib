@@ -3,17 +3,20 @@ package org.ohmage.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.library.R;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class ResponseListCursorAdapter extends CursorAdapter {
 
@@ -39,10 +42,18 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		// Only show campaign name if we aren't in single campaign mode
 		campaignText.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
-		
+
 		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
-		timeText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_SHOW_TIME));
-		dateText.setText(DateUtils.formatDateTime(context, millis, DateUtils.FORMAT_NUMERIC_DATE));
+		TimeZone timezone = TimeZone.getTimeZone(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+
+		DateFormat date = SimpleDateFormat.getDateInstance(DateFormat.SHORT);
+		date.setTimeZone(timezone);
+
+		DateFormat time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+		time.setTimeZone(timezone);
+
+		timeText.setText(date.format(millis));
+		dateText.setText(time.format(millis));
 		timeText.setVisibility(View.VISIBLE);
 		dateText.setVisibility(View.VISIBLE);
 	}

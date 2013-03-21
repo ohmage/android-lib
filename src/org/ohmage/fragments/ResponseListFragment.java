@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.ohmage.library.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.adapters.ResponseListCursorAdapter;
@@ -23,6 +22,7 @@ import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.DbProvider;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 
@@ -139,6 +139,7 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 				Campaigns.CAMPAIGN_NAME,
 				Surveys.SURVEY_TITLE,
 				Responses.RESPONSE_TIME,
+				Responses.RESPONSE_TIMEZONE,
 				Tables.RESPONSES + "." + Responses.RESPONSE_STATUS,
 				Responses.RESPONSE_UUID
 		};
