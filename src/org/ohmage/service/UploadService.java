@@ -17,8 +17,6 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.MediaPart;
-import org.ohmage.OhmageApi.Result;
-import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -26,10 +24,10 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.prompt.AbstractPrompt;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -138,6 +136,8 @@ public class UploadService extends WakefulIntentService {
             JSONObject responseJson = new JSONObject();
             final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
 
+            OhmageApi.UploadResponse response = null;
+
             try {
                 responseJson.put("survey_key",
                         cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
@@ -200,29 +200,32 @@ public class UploadService extends WakefulIntentService {
 
                 promptsCursor.close();
 
+                responsesJsonArray.put(responseJson);
+
+                String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
+                String campaignCreationTimestamp = cursor.getString(cursor
+                        .getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+
+                response = mApi.surveyUpload(serverUrl, username,
+                        hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp,
+                        responsesJsonArray.toString(), media);
+                response.handleError(this);
+
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                Log.e(TAG, "There was an error parsing the json of the response for upload", e);
             }
 
-            responsesJsonArray.put(responseJson);
+            int responseStatus = Response.STATUS_ERROR_OTHER;
 
-            String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
-            String campaignCreationTimestamp = cursor.getString(cursor
-                    .getColumnIndex(Campaigns.CAMPAIGN_CREATED));
-
-            OhmageApi.UploadResponse response = mApi.surveyUpload(serverUrl, username,
-                    hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp,
-                    responsesJsonArray.toString(), media);
-            response.handleError(this);
-
-            int responseStatus = Response.STATUS_UPLOADED;
-
-            if (response.getResult() == Result.SUCCESS) {
-                NotificationHelper.hideUploadErrorNotification(this);
+            if (response == null) {
+                uploadErrorOccurred = true;
             } else {
-                responseStatus = Response.STATUS_ERROR_OTHER;
-
                 switch (response.getResult()) {
+                    case SUCCESS:
+                        NotificationHelper.hideUploadErrorNotification(this);
+                        responseStatus = Response.STATUS_UPLOADED;
+                        break;
+
                     case FAILURE:
                         if (response.hasAuthError()) {
                             responseStatus = Response.STATUS_ERROR_AUTHENTICATION;
