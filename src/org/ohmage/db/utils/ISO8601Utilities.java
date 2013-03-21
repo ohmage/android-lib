@@ -67,4 +67,14 @@ public class ISO8601Utilities {
     public static String format(Date time) {
         return parser.print(time.getTime());
     }
+
+    /**
+     * Formats a date to an ISO8601 formatted timestamp
+     * 
+     * @param time
+     * @return an ISO8601 formatted timestamp
+     */
+    public static String format(long time) {
+        return parser.print(time);
+    }
 }

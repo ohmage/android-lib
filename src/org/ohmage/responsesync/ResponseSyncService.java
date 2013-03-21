@@ -15,20 +15,20 @@ import org.codehaus.jackson.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
-import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
-import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
+import org.ohmage.db.utils.ISO8601Utilities;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -105,10 +104,6 @@ public class ResponseSyncService extends WakefulIntentService {
 		final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 		// and also create a list to hold some campaigns
 		List<Campaign> campaigns;
-        
-		// helper instance for parsing utc timestamps
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		sdf.setLenient(false);
 
         // if we received a campaign_urn in the intent, only download the data for that one campaign.
     	// the campaign object we create only inclues the mUrn field since we don't use anything else.
@@ -135,7 +130,6 @@ public class ResponseSyncService extends WakefulIntentService {
 		// we need three dates:
 		// 1) far past, to get everything up to the cutoff date
 		// 2) near future, to get everything since the cutoff date
-		final SimpleDateFormat inputSDF = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 		Calendar farPast = new GregorianCalendar();
 		farPast.add(Calendar.YEAR, -10);
 		
@@ -143,8 +137,8 @@ public class ResponseSyncService extends WakefulIntentService {
 		nearFuture.add(Calendar.DAY_OF_MONTH, 1);
 		
 		// and convert times to timestamps we can feed to the api
-		String farPastDate = inputSDF.format(farPast.getTime());
-		String nearFutureDate = inputSDF.format(nearFuture.getTime());
+		String farPastDate = ISO8601Utilities.format(farPast.getTime());
+		String nearFutureDate = ISO8601Utilities.format(nearFuture.getTime());
 		
 		// ==================================================================
 		// === 3. process responses on server for each campaign
@@ -163,7 +157,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			String cutoffDate = null;
 			if (!intent.getBooleanExtra(EXTRA_FORCE_ALL, false)) {
 				// I add 1 second since the request is inclusive of this time
-				cutoffDate = inputSDF.format(c.getLastDownloadedResponseTime(this) + 1000);
+				cutoffDate = ISO8601Utilities.format(c.getLastDownloadedResponseTime(this) + 1000);
 			}
 
 			// ==================================================================
