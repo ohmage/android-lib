@@ -390,6 +390,8 @@
     <!-- Probes -->
 	<string name="probe_list_item_action_button_upload_description">List Item Action Button (Upload Probe)</string>
 
-    <!-- Commit hash is inserted here by the build script -->
-    <string name="commit_hash">meow</string>
+	<!-- This value is here in case the ant script has not run which creates the actual value of the commit hash.
+		 The actual string which is used is in ~hash.xml. The '~' ensures that version of the string is loaded
+		 after this one so it is overwritten -->
+	<string name="commit_hash">meow</string>
 </resources>

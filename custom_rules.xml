@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ohmage">
+<project>
   <target name="-pre-build">
     <!-- put the commit hash in the strings.xml file -->
   	<exec executable="git" outputproperty="git.revision" failifexecutionfails="true">
@@ -7,15 +7,10 @@
       <arg value="--short"/>
       <arg value="HEAD"/>
     </exec>
-    <replaceregexp file="res/values/strings.xml"
-      match="&lt;string name=&quot;commit_hash&quot;&gt;.*&lt;/string&gt;"
-      replace="&lt;string name=&quot;commit_hash&quot;&gt;${git.revision}&lt;/string&gt;" />
-  </target>
-
-  <target name="-post-build">
-    <!-- remove the commit hash from the strings.xml file -->
-    <replaceregexp file="res/values/strings.xml"
-      match="&lt;string name=&quot;commit_hash&quot;&gt;.*&lt;/string&gt;"
-      replace="&lt;string name=&quot;commit_hash&quot;&gt;meow&lt;/string&gt;" />
+    <echoxml file="res/values/~hash.xml">
+      <resources>
+        <string name="commit_hash">${git.revision}</string>
+      </resources>
+    </echoxml>
   </target>
 </project>

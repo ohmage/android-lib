@@ -7,3 +7,5 @@ results
 features/support/Test.apk
 .irbrc
 irb_android.sh
+
+res/values/~hash.xml
