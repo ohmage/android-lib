@@ -35,6 +35,13 @@ public class ProbeUploadService extends WakefulIntentService {
     /** Extra to tell the upload service to only upload one probe **/
     public static final String EXTRA_OBSERVER_ID = "extra_observer_id";
 
+    /**
+     * Extra to tell the upload service to only upload the probe with this
+     * version. Ignored if {@link ProbeUploadService#EXTRA_OBSERVER_ID} is not
+     * specified.
+     */
+    public static final String EXTRA_OBSERVER_VERSION = "extra_observer_version";
+
     /** Uploaded in batches of 0.5 mb */
     private static final int BATCH_SIZE = 1024 * 1024 / 2;
 
@@ -66,6 +73,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     private String mObserverId = null;
 
+    private String mObserverVersion = null;
+
     public ProbeUploadService() {
         super(TAG);
     }
@@ -95,6 +104,8 @@ public class ProbeUploadService extends WakefulIntentService {
         isBackground = intent.getBooleanExtra(EXTRA_BACKGROUND, false);
 
         mObserverId = intent.getStringExtra(EXTRA_OBSERVER_ID);
+        if (mObserverId != null)
+            mObserverVersion = intent.getStringExtra(EXTRA_OBSERVER_VERSION);
 
         Log.d(TAG, "upload probes");
         ProbesUploader probesUploader = new ProbesUploader();
@@ -166,6 +177,9 @@ public class ProbeUploadService extends WakefulIntentService {
             String select = BaseProbeColumns.USERNAME + "=?";
             if (mObserverId != null)
                 select += " AND " + getNameColumn() + "='" + mObserverId + "'";
+
+            if (mObserverVersion != null)
+                select += " AND " + getVersionColumn() + "='" + mObserverVersion + "'";
 
             Cursor observersCursor = getContentResolver().query(getContentURI(), new String[] {
                     "distinct " + getNameColumn(), getVersionColumn()

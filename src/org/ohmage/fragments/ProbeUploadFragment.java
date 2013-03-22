@@ -216,9 +216,10 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
                 TextView observerText = (TextView) view.findViewById(R.id.main_text);
                 TextView countText = (TextView) view.findViewById(R.id.sub_text);
                 final String observer_id = cursor.getString(0);
+                final String observer_version = cursor.getString(1);
 
                 observerText.setText(observer_id);
-                countText.setText(cursor.getString(1));
+                countText.setText(cursor.getString(2));
 
                 view.findViewById(R.id.icon_image).setVisibility(View.GONE);
                 view.findViewById(R.id.action_separator).setVisibility(View.VISIBLE);
@@ -237,6 +238,7 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
                         Analytics.widget(v);
                         Intent intent = new Intent(getActivity(), ProbeUploadService.class);
                         intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_ID, observer_id);
+                        intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_VERSION, observer_version);
                         WakefulIntentService.sendWakefulWork(getActivity(), intent);
                     }
                 });
@@ -250,7 +252,7 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
         }
 
         private static final String[] PROJECTION = new String[] {
-                Probes.OBSERVER_ID + " as _id", "count(*)"
+                Probes.OBSERVER_ID + " as _id", Probes.OBSERVER_VERSION, "count(*)"
         };
 
         private ProbeListCursorAdapter mAdapter;
