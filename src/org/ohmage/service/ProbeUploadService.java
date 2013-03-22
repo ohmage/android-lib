@@ -26,7 +26,6 @@ import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ProbeUploadService extends WakefulIntentService {
 
@@ -174,22 +173,22 @@ public class ProbeUploadService extends WakefulIntentService {
                 mAccount.getUsername()
             }, null);
 
-            HashMap<String, String> observers = new HashMap<String, String>();
+            ArrayList<Observer> observers = new ArrayList<Observer>();
 
             while (observersCursor.moveToNext()) {
-                observers.put(observersCursor.getString(0), observersCursor.getString(1));
+                observers.add(new Observer(observersCursor.getString(0), observersCursor
+                        .getString(1)));
             }
             observersCursor.close();
 
-            for (String currentObserver : observers.keySet()) {
-                String currentVersion = observers.get(currentObserver);
+            for (Observer o : observers) {
 
                 Cursor c = getContentResolver().query(
                         getContentURI(),
                         getProjection(),
                         BaseProbeColumns.USERNAME + "=? AND " + getNameColumn() + "=? AND "
                                 + getVersionColumn() + "=?", new String[] {
-                                mAccount.getUsername(), currentObserver, currentVersion
+                                mAccount.getUsername(), o.observer_id, o.observer_version
                         }, null);
 
                 JsonArray probes = new JsonArray();
@@ -220,8 +219,9 @@ public class ProbeUploadService extends WakefulIntentService {
                     // If we have a batch, upload all
                     // the points we have so far
                     if (payloadSize > BATCH_SIZE || c.isAfterLast()) {
-                        Log.d(TAG, "total payload for " + currentObserver + "=" + payloadSize);
-                        if (!upload(probes, currentObserver, currentVersion)) {
+                        Log.d(TAG, "total payload for " + o.observer_id + " v" + o.observer_version
+                                + "=" + payloadSize);
+                        if (!upload(probes, o.observer_id, o.observer_version)) {
                             c.close();
                             return;
                         }
@@ -484,6 +484,16 @@ public class ProbeUploadService extends WakefulIntentService {
         @Override
         protected String getNameColumn() {
             return Responses.CAMPAIGN_URN;
+        }
+    }
+
+    public static class Observer {
+        String observer_id;
+        String observer_version;
+
+        public Observer(String id, String version) {
+            observer_id = id;
+            observer_version = version;
         }
     }
 }
