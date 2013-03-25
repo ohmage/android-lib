@@ -73,7 +73,8 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 
 		public ResponseLocationSaver(long id) {
 			mId = id;
-			mLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_FREQ, 0, this);
+			if(mLocManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER))
+				mLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_FREQ, 0, this);
 		}
 
 		/**
@@ -143,7 +144,8 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 
 		// Create the location manager and start listening to the GPS
 		mLocManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_FREQ, 0, this);
+		if(mLocManager.getAllProviders().contains(LocationManager.GPS_PROVIDER))
+			mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_FREQ, 0, this);
 	}
 
 	@Override

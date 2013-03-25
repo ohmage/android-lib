@@ -271,7 +271,8 @@ public class SurveyActivity extends Activity implements LocationListener {
         // or until a minute passes and then turn off
         // This is just to warm up the gps for when the response is actually
         // submitted
-        mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        if(mLocManager.getAllProviders().contains(LocationManager.GPS_PROVIDER))
+            mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         mHandler.removeCallbacks(stopUpdates);
         mHandler.postDelayed(stopUpdates, DateUtils.MINUTE_IN_MILLIS);
     }

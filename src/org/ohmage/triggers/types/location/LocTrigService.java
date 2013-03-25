@@ -794,8 +794,10 @@ public class LocTrigService extends Service
 		Log.v(TAG, "LocTrigService: Turning on location updates");
 		
 		LocationManager locMan = (LocationManager) getSystemService(LOCATION_SERVICE);
-		locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-				 						0, 0, this);
+		List<String> providers = locMan.getAllProviders();
+
+		if (providers.contains(LocationManager.GPS_PROVIDER))
+			locMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 		
 		//Use network location as well
 		if(LocTrigConfig.useNetworkLocation) {
@@ -806,8 +808,8 @@ public class LocTrigService extends Service
 				}
 			}
 			
-			locMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 
-						0, 0, this);
+			 if(providers.contains(LocationManager.NETWORK_PROVIDER))
+				 locMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 		}
 		
 		cancelSamplingAlarm(ACTION_ALRM_GPS_SAMPLE);

@@ -88,8 +88,8 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
-import org.ohmage.library.R;
 import org.ohmage.fragments.OhmageMapFragment;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -584,13 +584,15 @@ public class LocTrigMapsActivity extends MapActivity
     	
     	mLatestLoc = null;
     	
-    	mLocMan.requestLocationUpdates(
-				LocationManager.GPS_PROVIDER, 0, 0, this);
-    	
-    	//Use network location as well
-    	mLocMan.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 0, 0, this);
-    	
+        List<String> providers = mLocMan.getAllProviders();
+
+        if (providers.contains(LocationManager.GPS_PROVIDER))
+            mLocMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        // Use network location as well
+        if (providers.contains(LocationManager.NETWORK_PROVIDER))
+            mLocMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+
     	Intent intent = new Intent(ACTION_ALRM_GPS_TIMEOUT);
     	mGpsTimeoutPI = PendingIntent.getBroadcast(this, 0, intent, 
     					   PendingIntent.FLAG_CANCEL_CURRENT);
