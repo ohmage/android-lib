@@ -314,7 +314,7 @@ public class LocTrigMapsActivity extends MapActivity
     	dialog.show();
     	
     	WebView webView = (WebView) dialog.findViewById(R.id.web_view);
-    	webView.loadUrl("file:///android_asset/trigger_loc_maps_help.html");
+    	webView.loadUrl("file:///android_res/raw/trigger_loc_maps_help.html");
     	
     	CheckBox checkBox = (CheckBox) dialog.findViewById(R.id.check_do_not_show);
     	checkBox.setChecked(shouldSkipToolTip());
