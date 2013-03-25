@@ -16,6 +16,7 @@ import org.ohmage.db.utils.ISO8601Utilities;
 import org.ohmage.library.R;
 import org.ohmage.prompt.AbstractPrompt;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -71,7 +72,7 @@ public class TimestampPrompt extends AbstractPrompt {
 		timePicker.setCurrentHour(mTime.get(Calendar.HOUR_OF_DAY));
 		timePicker.setCurrentMinute(mTime.get(Calendar.MINUTE));
 		
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+		final DateFormat dateFormat = SimpleDateFormat.getDateInstance();
 		dateButton.setText(dateFormat.format(mTime.getTime()));
 		
 		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {

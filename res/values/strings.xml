@@ -52,8 +52,8 @@
     <string name="login_account_disabled">This user account has been disabled.</string>
     <string name="login_network_error">Unable to communicate with server. Please try again later.</string>
     <string name="login_server_error">The server returned an unexpected response. Please try again later.</string>
-    <string name="login_authenticating">Authenticating with %s servers...</string>
-    <string name="login_download_campaign">Downloading Campaign...</string>
+    <string name="login_authenticating">Authenticating with %s servers&#8230;</string>
+    <string name="login_download_campaign">Downloading Campaign&#8230;</string>
     <string name="login_error_downloading_campaign">Error downloading campaign</string>
     <string name="login_username_title">Username:</string>
     <string name="login_password_title">Password:</string>
@@ -355,7 +355,7 @@
     <string name="campaign_status_no_exist">deleted on server</string>
     <string name="campaign_status_stopped">stopped</string>
     <string name="campaign_status_invalid_user_role">invalid role</string>
-    <string name="campaign_status_downloading">downloading...</string>
+    <string name="campaign_status_downloading">downloading&#8230;</string>
     <string name="campaign_status_unknown">unknown status</string>
 
     <!-- Campaign Read -->

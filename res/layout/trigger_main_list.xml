@@ -9,22 +9,17 @@
         android:layout_height="40dip"
         layout="@layout/trigger_add_new" />
 
-    <LinearLayout
+    <ListView
+        android:id="@+id/android:list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent" />
 
-        <ListView
-            android:id="@+id/android:list"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="@string/trigger_empty_list"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/trigger_empty_list"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

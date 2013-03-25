@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
-import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.ImageLoader;
@@ -466,9 +465,5 @@ public class ResponseSyncService extends WakefulIntentService {
 		// ==================================================================
 		
 		Log.v(TAG, "Response sync service complete");
-		
-		if (intent.getBooleanExtra(EXTRA_INTERACTIVE, false)) {
-			Toast.makeText(this, "Response sync service complete", Toast.LENGTH_SHORT);
-		}
 	}
 }

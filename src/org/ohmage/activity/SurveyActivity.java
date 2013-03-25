@@ -164,7 +164,6 @@ public class SurveyActivity extends Activity implements LocationListener {
 
         if (instance == null) {
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar now = Calendar.getInstance();
             mLaunchTime = now.getTimeInMillis();
 
