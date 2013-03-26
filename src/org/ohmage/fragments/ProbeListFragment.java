@@ -44,6 +44,7 @@ import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 import org.ohmage.probemanager.ProbeManager;
 import org.ohmage.service.ProbeUploadService;
+import org.ohmage.ui.BaseActivity;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -86,6 +87,49 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
 
         getLoaderManager().initLoader(0, null, this);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().registerReceiver(mProbeUploadReceiver,
+                new IntentFilter(ProbeUploadService.PROBE_UPLOAD_STARTED));
+        getActivity().registerReceiver(mProbeUploadReceiver,
+                new IntentFilter(ProbeUploadService.PROBE_UPLOAD_ERROR));
+        getActivity().registerReceiver(mProbeUploadReceiver,
+                new IntentFilter(ProbeUploadService.RESPONSE_UPLOAD_ERROR));
+        getActivity().registerReceiver(mProbeUploadReceiver,
+                new IntentFilter(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(mProbeUploadReceiver);
+    }
+
+    private final BroadcastReceiver mProbeUploadReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (getActivity() instanceof BaseActivity)
+                ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(
+                        ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
+
+            if (ProbeUploadService.PROBE_UPLOAD_ERROR.equals(action)
+                    || ProbeUploadService.RESPONSE_UPLOAD_ERROR.equals(action)) {
+                String error = intent.getStringExtra(ProbeUploadService.EXTRA_PROBE_ERROR);
+                if (error == null)
+                    Toast.makeText(getActivity(), R.string.mobility_network_error_message,
+                            Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(getActivity(),
+                            getString(R.string.mobility_upload_error_message, error),
+                            Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -188,7 +232,8 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
      * This class holds the per-item data in our Loader.
      */
     public static class ProbeAppEntry {
-        public ProbeAppEntry(AppListLoader loader, ApplicationInfo info, String observerName, String observerId, String observerVersionName) {
+        public ProbeAppEntry(AppListLoader loader, ApplicationInfo info, String observerName,
+                String observerId, String observerVersionName) {
             mLoader = loader;
             mInfo = info;
             mApkFile = new File(info.sourceDir);
@@ -237,6 +282,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
 
         /**
          * Formats the observer name nicely
+         * 
          * @return
          */
         public String getObserverName() {
@@ -246,7 +292,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             else {
                 builder.append(observerName).append(" ");
                 if (!TextUtils.isEmpty(observerVersionName)) {
-                    if(!observerVersionName.startsWith("v"))
+                    if (!observerVersionName.startsWith("v"))
                         builder.append("v");
                     builder.append(observerVersionName);
                 }
