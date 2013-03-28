@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -42,6 +43,8 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import org.ohmage.fragments.ProbeListFragment.ProbeAppEntry;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
+import org.ohmage.probemanager.DbContract.Probe;
+import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.ProbeManager;
 import org.ohmage.service.ProbeUploadService;
 import org.ohmage.ui.BaseActivity;
@@ -204,6 +207,10 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
                 intent.putExtra(ProbeUploadService.EXTRA_OBSERVER_ID, entry.observerId);
                 WakefulIntentService.sendWakefulWork(getActivity(), intent);
                 return true;
+            case CONTEXT_MENU_DELETE_ID:
+                ProbeDeleteTask task = new ProbeDeleteTask();
+                task.execute(new Probe(entry.observerId, entry.observerVersion));
+                return true;
         }
         return super.onContextItemSelected(item);
     }
@@ -233,7 +240,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
      */
     public static class ProbeAppEntry {
         public ProbeAppEntry(AppListLoader loader, ApplicationInfo info, String observerName,
-                String observerId, String observerVersionName) {
+                String observerId, String observerVersionName, String observerVersion) {
             mLoader = loader;
             mInfo = info;
             mApkFile = new File(info.sourceDir);
@@ -241,6 +248,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             this.observerName = observerName;
             this.observerId = observerId;
             this.observerVersionName = observerVersionName;
+            this.observerVersion = observerVersion;
         }
 
         public ApplicationInfo getApplicationInfo() {
@@ -322,6 +330,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
         private final String observerName;
         private final String observerId;
         private final String observerVersionName;
+        private final String observerVersion;
     }
 
     /**
@@ -437,9 +446,10 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
                             String observerId = sa.getString(R.styleable.probe_observerId);
                             String observerVersionName = sa
                                     .getString(R.styleable.probe_observerVersionName);
+                            String observerVersion = sa.getString(R.styleable.probe_observerVersionCode);
 
                             ProbeAppEntry entry = new ProbeAppEntry(this, info, observerName,
-                                    observerId, observerVersionName);
+                                    observerId, observerVersionName, observerVersion);
                             entry.loadLabel(context);
                             ret.add(entry);
 
@@ -651,6 +661,30 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             });
 
             return view;
+        }
+    }
+
+    public class ProbeDeleteTask extends AsyncTask<Probe, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(true);
+        }
+
+        @Override
+        protected Boolean doInBackground(Probe... params) {
+            if (params.length == 1) {
+                return getActivity().getContentResolver().delete(Probes.CONTENT_URI,
+                        Probes.OBSERVER_ID + "=? AND " + Probes.OBSERVER_VERSION + "=?", new String[] {
+                                params[0].observer_id, params[0].observer_version
+                        }) > 0;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            ((BaseActivity) getActivity()).getActionBarControl().setProgressVisible(false);
         }
     }
 }

@@ -22,6 +22,7 @@ import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
+import org.ohmage.probemanager.DbContract.Probe;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
@@ -187,15 +188,15 @@ public class ProbeUploadService extends WakefulIntentService {
                 mAccount.getUsername()
             }, null);
 
-            ArrayList<Observer> observers = new ArrayList<Observer>();
+            ArrayList<Probe> observers = new ArrayList<Probe>();
 
             while (observersCursor.moveToNext()) {
-                observers.add(new Observer(observersCursor.getString(0), observersCursor
+                observers.add(new Probe(observersCursor.getString(0), observersCursor
                         .getString(1)));
             }
             observersCursor.close();
 
-            for (Observer o : observers) {
+            for (Probe o : observers) {
 
                 Cursor c = getContentResolver().query(
                         getContentURI(),
@@ -498,16 +499,6 @@ public class ProbeUploadService extends WakefulIntentService {
         @Override
         protected String getNameColumn() {
             return Responses.CAMPAIGN_URN;
-        }
-    }
-
-    public static class Observer {
-        String observer_id;
-        String observer_version;
-
-        public Observer(String id, String version) {
-            observer_id = id;
-            observer_version = version;
         }
     }
 }

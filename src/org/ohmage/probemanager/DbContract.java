@@ -48,7 +48,19 @@ public class DbContract {
                 .build();
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.ohmage.probe";
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.ohmage.probe";
+    }
 
+    /**
+     * Enough to identify a specific probe
+     */
+    public static final class Probe {
+        public String observer_id;
+        public String observer_version;
+
+        public Probe(String id, String version) {
+            observer_id = id;
+            observer_version = version;
+        }
     }
 
     interface ResponseColumns {
