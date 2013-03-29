@@ -13,6 +13,9 @@
     <dimen name="gutter_thin">3dp</dimen>
     <dimen name="button_padding">8.0dip</dimen>
 
+    <!-- Map Padding -->
+    <dimen name="map_marker_gutter">70dp</dimen>
+
     <!-- Layouts -->
     <dimen name="upload_all_container_height">50dp</dimen>
 

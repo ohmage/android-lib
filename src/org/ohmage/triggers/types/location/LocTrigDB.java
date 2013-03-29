@@ -23,7 +23,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
@@ -219,11 +219,11 @@ public class LocTrigDB {
 	}
 	
 	/* Add a new location */
-	public int addLocation(int categoryId, GeoPoint loc, float radius) {
+	public int addLocation(int categoryId, LatLng loc, float radius) {
 		
 		ContentValues values = new ContentValues();
-		values.put(KEY_LAT, loc.getLatitudeE6());
-		values.put(KEY_LONG, loc.getLongitudeE6());
+		values.put(KEY_LAT, loc.latitude * 1E6);
+		values.put(KEY_LONG, loc.longitude * 1E6);
 		values.put(KEY_CATEGORY_ID, categoryId);
 		values.put(KEY_RADIUS, radius);
 		
@@ -231,7 +231,7 @@ public class LocTrigDB {
 	}
 	
 	/* Delete an existing location */
-	public boolean removeLocation(int locId) {
+	public boolean removeLocation(long locId) {
 	
 		if(mDb.delete(TABLE_LOCATIONS, "" + KEY_ID + " = " + locId , null) != 1) {
 			return false;
@@ -241,7 +241,7 @@ public class LocTrigDB {
 	}
 	
 	/* Update an existing location */
-	public boolean updateLocationRadius(int locId, float radius) {
+	public boolean updateLocationRadius(long locId, double radius) {
 	
 		ContentValues values = new ContentValues();
 		values.put(KEY_RADIUS, radius);

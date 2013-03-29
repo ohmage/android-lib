@@ -296,6 +296,7 @@ public class OhmageApplication extends Application {
 
     /**
      * Determines if this is a build for developers
+     * 
      * @return
      */
     public static boolean isDebugBuild() {

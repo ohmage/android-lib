@@ -23,6 +23,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -422,4 +424,29 @@ public class Utilities {
         return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
     }
 
+    public static Location getCurrentLocation(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        if(locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER))
+            return locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        else {
+            Location gps = null;
+            Location network = null;
+            if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+                gps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+                network = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            if(gps != null && network != null)
+                return (gps.getTime() <= network.getTime()) ? gps : network;
+            else if(gps == null)
+                return network;
+            else
+                return gps;
+        }
+    }
+
+    public static int setAlpha(int color, int alpha) {
+        return color + (alpha << 24);
+    }
 }

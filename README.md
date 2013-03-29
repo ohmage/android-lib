@@ -26,6 +26,9 @@ You will need to download [LogProbe](https://github.com/cens/LogProbe) and make 
 ohmage as a library apk. (Alternatively you could just change all logging functionality to use
 the default android logs instead of using ProbeLog)
 
+You will also need the [Google Play Services](http://developer.android.com/google/play-services/index.html) library apk setup on your system. Information about installing it can be found here: [http://developer.android.com/google/play-services/setup.html](http://developer.android.com/google/play-services/setup.html). In addition, you will need a Google Maps Android API key which you will reference in your manifest. Information on getting a key can be found here: [https://developers.google.com/maps/documentation/android/start](https://developers.google.com/maps/documentation/android/start).
+
+
 All other external libraries which are needed are included in the libs directory of the project,
 but of course you will need the android SDK which can be found here:
 http://developer.android.com/sdk/installing.html.

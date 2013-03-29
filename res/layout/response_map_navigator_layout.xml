@@ -1,28 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content" 
-	android:orientation="horizontal"
-	android:layout_alignParentBottom="true"
-	android:layout_alignParentLeft="true" 
-	android:background="@drawable/map_nav_bkgnd"
-	android:layout_marginBottom="20dp"
-	android:layout_marginLeft="20dp">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-	<Button android:id="@+id/map_pin_previous" android:text="&lt;"
-		android:textSize="30dp" android:textStyle="bold" android:textColor="@color/black"
-		android:background="@drawable/controls_filter_button"
-		android:layout_gravity="center_vertical" android:layout_width="45dp"
-		android:layout_height="40dp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/map_nav_bkgnd"
+        android:orientation="horizontal" >
 
-	<TextView android:id="@+id/map_pin_index" android:text=""
-		android:textSize="22dp" android:gravity="center"
-		android:layout_gravity="center" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/map_pin_previous"
+            android:layout_width="45dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/controls_filter_button"
+            android:text="&lt;"
+            android:textColor="@color/black"
+            android:textSize="30dp"
+            android:textStyle="bold" />
 
-	<Button android:id="@+id/map_pin_next" android:text="&gt;"
-		android:textSize="30dp" android:textStyle="bold" android:textColor="@color/black"
-		android:background="@drawable/controls_filter_button"
-		android:layout_gravity="center_vertical" android:layout_width="45dp"
-		android:layout_height="40dp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/map_pin_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="22dp"
+            tools:ignore="SpUsage" />
+
+        <Button
+            android:id="@+id/map_pin_next"
+            android:layout_width="45dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/controls_filter_button"
+            android:text=">"
+            android:textColor="@color/black"
+            android:textSize="30dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>

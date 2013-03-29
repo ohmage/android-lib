@@ -31,15 +31,6 @@
     <string name="upload_now">Upload Now</string>
     <string name="empty_value">-</string>
 
-    <!-- Menus -->
-    <string name="menu_settings">Settings</string>
-    <string name="menu_map">Map</string>
-    <string name="menu_satellite">Satellite</string>
-
-    <!-- Maps -->
-    <string name="maps_debug_api_key">0EdfpwSqYgf-sUTf8ZKTfeUB2RQihIRqKtfT4HA</string>
-    <string name="maps_release_api_key">0v-wLH9cxlVMxbPMFw81x2mmbeUcsS9rHCFTgkQ</string>
-
     <!-- EULA -->
     <string name="eula_title">Welcome</string>
     <string name="eula_text">Disclaimer/Agreement stuff goes here.</string>

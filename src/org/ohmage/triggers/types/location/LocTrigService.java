@@ -48,7 +48,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
-import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng;
 
 import edu.ucla.cens.accelservice.IAccelService;
 import edu.ucla.cens.wifigpslocation.ILocationChangedCallback;
@@ -1066,8 +1066,8 @@ public class LocTrigService extends Service
 			
 			float[] dist = new float[1];
 			Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), 
-									 item.gp.getLatitudeE6() / 1E6, 
-									 item.gp.getLongitudeE6() / 1E6, 
+									 item.gp.latitude, 
+									 item.gp.longitude, 
 									 dist);
 			
 			//Check if the given location (including its accuracy)
@@ -1165,8 +1165,8 @@ public class LocTrigService extends Service
 				float[] dist = new float[1];
 				Location.distanceBetween(mLastKnownLoc.getLatitude(), 
 										 mLastKnownLoc.getLongitude(), 
-										 item.gp.getLatitudeE6() / 1E6, 
-										 item.gp.getLongitudeE6() / 1E6, 
+										 item.gp.latitude, 
+										 item.gp.longitude, 
 										 dist);
 				
 				float d = dist[0] - item.radius;
@@ -1568,12 +1568,12 @@ public class LocTrigService extends Service
 	/************************ INNER CLASSES ************************/
     /* Class representing an item in the cached location list */
     private class LocListItem {
-		public GeoPoint gp;
+		public LatLng gp;
 		public float radius;
 		public int categoryId;
 
 		public LocListItem(int latE6, int longE6, int cId, float radius) {
-			this.gp = new GeoPoint(latE6, longE6);
+			this.gp = new LatLng(latE6 / 1E6, longE6 / 1E6);
 			this.categoryId = cId;
 			this.radius = radius;
 		}

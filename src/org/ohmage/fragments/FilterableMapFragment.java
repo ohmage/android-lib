@@ -1,12 +1,14 @@
 package org.ohmage.fragments;
 
+import android.os.Bundle;
+
+import com.google.android.gms.maps.SupportMapFragment;
+
 import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 import org.ohmage.ui.OhmageFilterable.FilterableFragmentLoader;
 import org.ohmage.ui.OhmageFilterable.TimeFilter;
 
-import android.os.Bundle;
-
-public abstract class FilterableMapFragment extends OhmageMapFragment implements FilterableFragmentLoader {
+public abstract class FilterableMapFragment extends SupportMapFragment implements FilterableFragmentLoader {
 	CampaignSurveyFilter mCampaignSurveyFilter;
 	TimeFilter mTimeFilter;
 

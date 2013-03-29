@@ -1,12 +1,12 @@
 package org.ohmage.activity;
 
-import org.ohmage.library.R;
-import org.ohmage.fragments.ResponseMapFragment;
-import org.ohmage.ui.BaseActivity;
-
 import android.content.ContentUris;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+
+import org.ohmage.fragments.ResponseMapFragment;
+import org.ohmage.library.R;
+import org.ohmage.ui.BaseActivity;
 
 public class ResponseInfoMapActivity extends BaseActivity {
 
@@ -20,7 +20,7 @@ public class ResponseInfoMapActivity extends BaseActivity {
 
 		if (fm.findFragmentById(R.id.root_container) == null) {
 			ResponseMapFragment map = ResponseMapFragment.newInstance(ContentUris.parseId(getIntent().getData()));
-			fm.beginTransaction().add(R.id.root_container, map).commit();
+			fm.beginTransaction().add(R.id.root_container, map, "map").commit();
 		}
 	}
 }

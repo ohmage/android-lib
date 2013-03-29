@@ -2,11 +2,13 @@
 package org.ohmage.db.utils;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 public class ISO8601Utilities {
     /**
@@ -45,6 +47,19 @@ public class ISO8601Utilities {
      */
     public static String print(DateTime dateTime) {
         return printer.print(dateTime).replace("AM", "am").replace("PM", "pm");
+    }
+
+    /**
+     * Prints a millis time in a human readable way.
+     * 
+     * @param millis
+     * @param timezone
+     * @return a string like 'March 20, 2013 at 2:28pm'
+     */
+    public static String print(long millis, TimeZone timezone) {
+        DateTime date = new DateTime(millis);
+        date.withZone(DateTimeZone.forTimeZone(timezone));
+        return print(date);
     }
 
     /**

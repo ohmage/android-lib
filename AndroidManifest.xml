@@ -25,10 +25,15 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="8" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:name="org.ohmage.OhmageApplication"
@@ -55,8 +60,9 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity android:name="org.ohmage.authenticator.AuthenticatorActivity"
-            android:exported="true">
+        <activity
+            android:name="org.ohmage.authenticator.AuthenticatorActivity"
+            android:exported="true" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -427,7 +433,7 @@
         <service
             android:name="org.ohmage.probemanager.ProbeManager"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.ohmage.probemanager.ACTION_WRITE_PROBE" />
             </intent-filter>
@@ -448,6 +454,10 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAEkUH1FVkCDrETFD-o7xMJ_WpzeHoFOvQ" />
     </application>
 
 </manifest>

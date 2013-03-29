@@ -2,19 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/trigger_add_address"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:textStyle="bold" />
 
-    <Button
-        android:layout_width="100dip"
+    <TextView
+        android:id="@+id/snippet"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/halfgutter"
-        android:text="@string/trigger_loc_add_location" />
+        android:textColor="@color/dkgray" />
 
 </LinearLayout>
