@@ -31,6 +31,9 @@
     <string name="upload_now">Upload Now</string>
     <string name="empty_value">-</string>
 
+    <!-- Menus -->
+    <string name="menu_settings">Settings</string>
+
     <!-- EULA -->
     <string name="eula_title">Welcome</string>
     <string name="eula_text">Disclaimer/Agreement stuff goes here.</string>
@@ -53,7 +56,6 @@
     <string name="login_submit">Login</string>
     <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
-    
     <string name="login_register_new_account"><a href="#">register an account</a></string>
 
     <!-- Mobility -->
@@ -206,12 +208,12 @@
     <string name="campaign_list_campaign_no_exist">This campaign no longer exists.</string>
     <string name="campaign_list_empty">You are not participating in any campaigns.\n\nHit the + icon on the top right to view and download available campaigns.</string>
     <string name="campaign_add_list_empty">No campaigns available at this time.</string>
-	<string name="campaign_list_add_action_button_description">Add Action Button</string>
-	<string name="campaign_list_refresh_action_button_description">Refresh Action Button</string>
-	<string name="campaign_list_item_action_button_error_description">List Item Action Button (Error)</string>
-	<string name="campaign_list_item_action_button_download_description">List Item Action Button (Download)</string>
-	<string name="campaign_list_item_action_button_surveys_description">List Item Action Button (Surveys)</string>
-	<string name="campaign_list_item_action_button_downloading_description">List Item Action Button (Downloading)</string>
+    <string name="campaign_list_add_action_button_description">Add Action Button</string>
+    <string name="campaign_list_refresh_action_button_description">Refresh Action Button</string>
+    <string name="campaign_list_item_action_button_error_description">List Item Action Button (Error)</string>
+    <string name="campaign_list_item_action_button_download_description">List Item Action Button (Download)</string>
+    <string name="campaign_list_item_action_button_surveys_description">List Item Action Button (Surveys)</string>
+    <string name="campaign_list_item_action_button_downloading_description">List Item Action Button (Downloading)</string>
 
     <!-- Response List -->
     <string name="response_list_empty">No responses</string>
@@ -277,7 +279,6 @@
         <item quantity="one">There is &lt;b&gt;1 response&lt;/b&gt; which hasn\'t been uploaded which will also be removed</item>
         <item quantity="other">There are &lt;b&gt;%d responses&lt;/b&gt; which haven\'t been uploaded which will also be removed</item>
     </plurals>
-
     <plurals name="campaign_info_response_count">
         <item quantity="one">1 response submitted</item>
         <item quantity="other">%d responses submitted</item>
@@ -323,6 +324,7 @@
     <string name="profile_info_entity_action_button_logout_description">Logout Button</string>
     <string name="logout_message">Are you sure you wish to clear all user data? Any custom reminders will be lost, and the app will be restored to its initial state.</string>
     <string name="logging_out_message">Clearing local user data…</string>
+
     <plurals name="logout_message_responses">
         <item quantity="one">Are you sure you wish to clear all user data? &lt;b&gt;1 response&lt;/b&gt; will be deleted as well as any custom reminders, and the app will be restored to its initial state.</item>
         <item quantity="other">Are you sure you wish to clear all user data? &lt;b&gt;%d responses&lt;/b&gt; will be deleted as well as any custom reminders, and the app will be restored to its initial state.</item>
@@ -335,10 +337,10 @@
     <string name="surveys_empty_pending">You have no pending surveys.\n\nYou can manage survey reminders via each campaign\'s information screen.</string>
     <string name="surveys_empty_pending_single">You have no pending surveys.\n\nYou can manage survey reminders via the Settings on the Dashboard.</string>
     <string name="single_campaign_error">There is a problem with the campaign setup. \n\nIf the problem continues, please contact an Administrator.</string>
-	<string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
-	<string name="survey_list_item_action_button_description">List Item Action Button (Take Survey)</string>
-	<string name="survey_list_item_action_button_disabled_description">List Item Action Button (Disabled)</string>
-	<string name="survey_list_item_action_button_pending_description">List Item Action Button (Pending)</string>
+    <string name="survey_list_campaign_error">The campaign this survey belongs to is stopped, or otherwise unavailable. Please make sure the campaign it belongs to is up to date.</string>
+    <string name="survey_list_item_action_button_description">List Item Action Button (Take Survey)</string>
+    <string name="survey_list_item_action_button_disabled_description">List Item Action Button (Disabled)</string>
+    <string name="survey_list_item_action_button_pending_description">List Item Action Button (Pending)</string>
 
     <!-- Campaign -->
     <string name="campaign_status_ready">participating</string>
@@ -356,10 +358,6 @@
     <string name="campaign_read_unexpected_response">Unexpected response received from server while trying to read campaigns from server.</string>
     <string name="campaign_read_network_error">Network error occurred while trying to read campaigns from server.</string>
     <string name="campaign_read_internal_error">Internal error occurred while trying to read campaigns from server.</string>
-    <string name="campaign_xml_auth_error">Authentication error while trying to download campaign xml.</string>
-    <string name="campaign_xml_unexpected_response">Unexpected response received from server while trying to download campaign xml.</string>
-    <string name="campaign_xml_network_error">Network error occurred while trying to download campaign xml.</string>
-    <string name="campaign_xml_internal_error">Internal error occurred while trying to download campaign xml.</string>
 
     <!-- Single Campaign Mode -->
     <string name="single_campaign_changed_title">Campaign changed</string>
@@ -370,21 +368,15 @@
     <string name="survey_activity_previous_description">Survey Previous Button</string>
     <string name="survey_activity_skip_description">Survey Skip Button</string>
     <string name="survey_activity_next_description">Survey Next Button</string>
- 
-    <!-- Crash Reporting -->
-    <string name="crash_report_label">Send Force-Close Report</string>
-    <string name="crash_report_preference_summary">Send a force-close report by email.</string>
-    <string name="crash_report_error">Couldn\'t find configured email client.</string>
-    <string name="crash_report_more">Please enter a short description of what you were doing when ohmage crashed:</string>
-    <string name="crash_report_subject">Ohmage Crash Report: %1$s</string>
-    <string name="crash_report_acquiring_logs">Collecting logs from system…</string>
-    <string name="crash_report_chooser_title">Ohmage Force-Close Report</string>
 
     <!-- Probes -->
-	<string name="probe_list_item_action_button_upload_description">List Item Action Button (Upload Probe)</string>
+    <string name="probe_list_item_action_button_upload_description">List Item Action Button (Upload Probe)</string>
 
-	<!-- This value is here in case the ant script has not run which creates the actual value of the commit hash.
+    <!--
+         This value is here in case the ant script has not run which creates the actual value of the commit hash.
 		 The actual string which is used is in ~hash.xml. The '~' ensures that version of the string is loaded
-		 after this one so it is overwritten -->
-	<string name="commit_hash">meow</string>
+		 after this one so it is overwritten
+    -->
+    <string name="commit_hash">meow</string>
+
 </resources>
