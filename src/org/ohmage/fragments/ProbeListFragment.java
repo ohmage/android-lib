@@ -479,8 +479,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
         @Override
         public List<ProbeAppEntry> loadInBackground() {
             // Retrieve all known applications.
-            List<ApplicationInfo> apps = mPm.getInstalledApplications(PackageManager.GET_META_DATA
-                    | PackageManager.GET_PERMISSIONS);
+            List<ApplicationInfo> apps = mPm.getInstalledApplications(PackageManager.GET_META_DATA);
             if (apps == null) {
                 apps = new ArrayList<ApplicationInfo>();
             }
@@ -489,7 +488,7 @@ public class ProbeListFragment extends ListFragment implements LoaderCallbacks<L
             List<ProbeAppEntry> entries = new ArrayList<ProbeAppEntry>();
             for (int i = 0; i < apps.size(); i++) {
 
-                if (mPm.checkPermission("org.ohmage.SEND_PROBES", apps.get(i).packageName) == PackageManager.PERMISSION_GRANTED) {
+                if (apps.get(i).metaData != null && apps.get(i).metaData.containsKey(ProbeManager.PROBE_META_DATA)) {
                     entries.addAll(parseObserversFromApp(apps.get(i)));
                 }
             }
