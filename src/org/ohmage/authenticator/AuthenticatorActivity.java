@@ -41,7 +41,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.BackgroundManager;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi.AuthenticateResponse;
@@ -514,16 +513,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
         if (mAppPrefs.isFirstRun()) {
             Log.v(TAG, "this is the first run");
-
-            BackgroundManager.initComponents(this);
-
-            // cancel get started notification. this works regardless of how we
-            // start the app (notification or launcher)
-            // NotificationHelper.cancel(this,
-            // NotificationHelper.NOTIFY_GET_STARTED, null);
-
-            // show intro dialog
-            // showDialog(DIALOG_FIRST_RUN);
             mAppPrefs.setFirstRun(false);
         }
 
