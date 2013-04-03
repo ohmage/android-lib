@@ -13,35 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.ohmage.BackgroundManager;
-import org.ohmage.ConfigHelper;
-import org.ohmage.logprobe.Log;
-
 public class BootReceiver extends BroadcastReceiver {
-	
-	public static final String TAG = "BOOT_RECEIVER";
-	
-	@Override
-	public void onReceive(final Context context, Intent intent) {
-		
-		final ConfigHelper preferencesHelper = new ConfigHelper(context);
-		boolean isFirstRun = preferencesHelper.isFirstRun();
-		
-		if (isFirstRun) {
-			Log.v(TAG, "this is the first run");
-			
-		} else {
-			Log.v(TAG, "this is not the first run");
-			
-			//start components
-			BackgroundManager.initComponents(context);
-		}
-	}
+
+    public static final String TAG = "BOOT_RECEIVER";
+
+    @Override
+    public void onReceive(final Context context, Intent intent) {
+
+        // Don't actually have to do anything here. The fact that this starts
+        // the OhmageApplication is enough. The initialization is done there.
+    }
 
 }

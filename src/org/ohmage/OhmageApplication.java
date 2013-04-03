@@ -25,7 +25,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.os.Handler;
@@ -115,21 +114,8 @@ public class OhmageApplication extends Application {
 
         mImageLoader = createImageLoader(this);
 
-        int currentVersionCode = 0;
-
-        try {
-            currentVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (NameNotFoundException e) {
-            Log.e(TAG, "unable to retrieve current version code", e);
-        }
-
-        int lastVersionCode = config.getLastVersionCode();
-        boolean isFirstRun = config.isFirstRun();
-
-        if (currentVersionCode != lastVersionCode && !isFirstRun) {
-            BackgroundManager.initComponents(this);
-            config.setLastVersionCode(currentVersionCode);
-        }
+        // Initialize background components which consists of triggers
+        BackgroundManager.initComponents(this);
 
         verifyState();
 

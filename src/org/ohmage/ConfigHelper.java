@@ -30,7 +30,6 @@ import org.ohmage.library.R;
  */
 public class ConfigHelper {
 
-    private static final String KEY_VERSION_CODE = "version_code";
     private static final String KEY_IS_FIRST_RUN = "is_first_run";
     private static final String KEY_MOBILITY_VERSION = "mobility_version";
     private static final String KEY_SERVER_URL = "key_server_url";
@@ -49,14 +48,6 @@ public class ConfigHelper {
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    public int getLastVersionCode() {
-        return mPreferences.getInt(KEY_VERSION_CODE, -1);
-    }
-
-    public boolean setLastVersionCode(int versionCode) {
-        return mPreferences.edit().putInt(KEY_VERSION_CODE, versionCode).commit();
     }
 
     public boolean isFirstRun() {
