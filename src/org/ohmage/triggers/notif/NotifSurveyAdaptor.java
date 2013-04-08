@@ -103,7 +103,7 @@ public class NotifSurveyAdaptor {
 		}
 		
 		if(!rtDesc.hasTriggerTimeStamp()) {
-			Log.e(TAG, "NotifSurveyAdaptor: Trigger time stamp is invalid");
+			Log.v(TAG, "NotifSurveyAdaptor: Trigger has not gone off");
 			
 			return actSurveys;
 		}
