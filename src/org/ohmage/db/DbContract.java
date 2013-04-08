@@ -102,6 +102,8 @@ public class DbContract {
         String RESPONSE_STATUS = "response_status";
         /** read-only, a UUID that uniquely identifies this response */
         String RESPONSE_UUID = "response_uuid";
+        /** json array encoded string of the names of media for this response **/
+        String RESPONSE_MEDIA = "response_media";
     }
 
     interface PromptResponseColumns {

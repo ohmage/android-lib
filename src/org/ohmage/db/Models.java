@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageCache;
@@ -19,6 +21,7 @@ import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.DbProvider.Qualified;
 import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomDbAdapter;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomDbAdapter;
 import org.ohmage.service.SurveyGeotagService;
@@ -34,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Models {
+
+    private static final String TAG = "Models";
 
     public static class DbModel {
         public long _id;
@@ -569,6 +574,7 @@ public class Models {
         public String response;
         public int status;
         public String hashcode;
+        public String media;
 
         /**
          * Returns a list of Response objects from the given cursor.
@@ -612,6 +618,7 @@ public class Models {
                 r.surveyLaunchContext = cursor.getString(cursor
                         .getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT));
                 r.response = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON));
+                r.media = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_MEDIA));
                 r.status = cursor.getInt(cursor.getColumnIndex(Responses.RESPONSE_STATUS));
                 responses.add(r);
 
@@ -645,6 +652,7 @@ public class Models {
             values.put(Responses.SURVEY_ID, surveyId);
             values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
             values.put(Responses.RESPONSE_JSON, response);
+            values.put(Responses.RESPONSE_MEDIA, media);
             values.put(Responses.RESPONSE_STATUS, status);
 
             return values;
@@ -658,6 +666,21 @@ public class Models {
          */
         public static File getTemporaryResponsesMedia(String uuid) {
             return new File(getResponseMediaUploadDir(), uuid);
+        }
+
+        @Override
+        public void cleanUp(Context context) {
+            // Delete any media associated with this prompt
+            if (TextUtils.isEmpty(media))
+                return;
+            try {
+                JSONArray media = new JSONArray(this.media);
+                for (int i = 0; i < media.length(); i++) {
+                    getTemporaryResponsesMedia(media.getString(i)).delete();
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Error reading response json to delete unused media", e);
+            }
         }
 
         /**

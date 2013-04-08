@@ -58,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbHelper";
 
 	private static final String DB_NAME = "ohmage.db";
-	private static final int DB_VERSION = 34;
+	private static final int DB_VERSION = 35;
 	
 	private final Context mContext;
 
@@ -171,6 +171,7 @@ public class DbHelper extends SQLiteOpenHelper {
 				+ Responses.SURVEY_ID + " TEXT, "
 				+ Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT + " TEXT, "
 				+ Responses.RESPONSE_JSON + " TEXT, "
+				+ Responses.RESPONSE_MEDIA + " TEXT,"
 				+ Responses.RESPONSE_STATUS + " INTEGER DEFAULT 0"
 				+ ");");
 
@@ -249,6 +250,9 @@ public class DbHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if(oldVersion < 33) {
 			db.execSQL("ALTER TABLE " + Tables.CAMPAIGNS + " ADD COLUMN " +  Campaigns.CAMPAIGN_UPDATED + " INTEGER NOT NULL DEFAULT 0");
+		}
+		if(oldVersion < 35) {
+			db.execSQL("ALTER TABLE " + Tables.RESPONSES + " ADD COLUMN " +  Responses.RESPONSE_MEDIA + " TEXT");
 		}
 	}
 

@@ -1139,10 +1139,17 @@ public class SurveyActivity extends Activity implements LocationListener {
         JSONArray responseJson = new JSONArray();
         JSONArray repeatableSetResponseJson = new JSONArray();
         JSONArray iterationResponseJson = new JSONArray();
+        JSONArray media = new JSONArray();
         JSONObject itemJson = null;
         boolean inRepeatableSet = false;
 
         for (int i = 0; i < surveyElements.size(); i++) {
+            if (surveyElements.get(i) instanceof MediaPrompt) {
+                MediaPrompt m = (MediaPrompt) surveyElements.get(i);
+                if(m.isDisplayed() && !m.isSkipped())
+                media.put(((MediaPrompt)surveyElements.get(i)).getResponseObject());
+            }
+
             if (surveyElements.get(i) instanceof Prompt) {
                 if (!inRepeatableSet) {
                     itemJson = new JSONObject();
@@ -1240,6 +1247,7 @@ public class SurveyActivity extends Activity implements LocationListener {
         candidate.surveyId = surveyId;
         candidate.surveyLaunchContext = surveyLaunchContext;
         candidate.response = response;
+        candidate.media = media.toString();
         candidate.locationStatus = SurveyGeotagService.LOCATION_UNAVAILABLE;
         candidate.locationLatitude = -1;
         candidate.locationLongitude = -1;
