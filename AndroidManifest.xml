@@ -442,7 +442,7 @@
 
         <!-- Watch for timezone changes so we can update the parser objects -->
         <receiver
-            android:name=".TimeZoneChangedReceiver"
+            android:name="org.ohmage.TimeZoneChangedReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
