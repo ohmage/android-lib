@@ -1223,6 +1223,11 @@ public class OhmageApi {
 					result = Result.HTTP_ERROR;
 				}
 
+			    try {
+			        responseEntity.consumeContent();
+			    } catch (IOException e) {
+			        Log.e(TAG, "Error consuming content", e);
+			    }
 			} else {
 				Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
 				result = Result.HTTP_ERROR;
