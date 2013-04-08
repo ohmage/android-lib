@@ -1,13 +1,24 @@
 package org.ohmage.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TabHost;
+import android.widget.TextView;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import org.ohmage.library.R;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.controls.DateFilterControl;
 import org.ohmage.fragments.ResponseHistoryCalendarFragment;
 import org.ohmage.fragments.ResponseMapFragment;
+import org.ohmage.library.R;
 import org.ohmage.responsesync.ResponseSyncService;
 import org.ohmage.ui.CampaignSurveyFilterActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
@@ -17,15 +28,6 @@ import org.ohmage.ui.OhmageFilterable.SurveyFilterable;
 import org.ohmage.ui.OhmageFilterable.TimeFilter;
 import org.ohmage.ui.OhmageFilterable.TimeFilterable;
 import org.ohmage.ui.TabManager;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TabHost;
-import android.widget.TextView;
 
 import java.util.Calendar;
 
@@ -50,11 +52,24 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 	private DateFilterControl mTimeFilter;
 
+	private final BroadcastReceiver mResponseSyncStatus = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+
+			getActionBarControl().setProgressVisible(
+						ResponseSyncService.RESPONSE_SYNC_STARTED.equals(action));
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.response_history_layout);
+
+		getActionBarControl().setProgressVisible(ResponseSyncService.isRunning());
 
 		mTimeFilter = (DateFilterControl) findViewById(R.id.date_filter);
 		mTimeFilter.setMonth(getIntent().getIntExtra(TimeFilter.EXTRA_MONTH, -1), getIntent().getIntExtra(TimeFilter.EXTRA_YEAR, -1));
@@ -113,6 +128,21 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		registerReceiver(mResponseSyncStatus,
+				new IntentFilter(ResponseSyncService.RESPONSE_SYNC_STARTED));
+		registerReceiver(mResponseSyncStatus,
+				new IntentFilter(ResponseSyncService.RESPONSE_SYNC_FINISHED));
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		unregisterReceiver(mResponseSyncStatus);
 	}
 
 	private View createTabView(final int textResource){

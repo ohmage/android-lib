@@ -56,10 +56,19 @@ public class ResponseSyncService extends WakefulIntentService {
 	/** If present, the last synced time will be ignored */
 	public static final String EXTRA_FORCE_ALL = "extra_force_all";
 
+	public static final String RESPONSE_SYNC_STARTED = "org.ohmage.RESPONSE_SYNC_STARTED";
+	public static final String RESPONSE_SYNC_FINISHED = "org.ohmage.RESPONSE_SYNC_FINISHED";
+
 	private AccountHelper mPrefs;
+
+	private static boolean mRunning;
 
 	public ResponseSyncService() {
 		super(TAG);
+	}
+
+	public static boolean isRunning() {
+		return mRunning;
 	}
 
 	@Override
@@ -71,11 +80,24 @@ public class ResponseSyncService extends WakefulIntentService {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		mRunning = false;
 		Analytics.service(this, Status.OFF);
 	}
 
 	@Override
+	public void onStart(Intent intent, int startId) {
+		// Only start the task if we aren't running, or its a non interactive request
+		// This way the user can't start more than one request at a time
+		if(!mRunning || !intent.getBooleanExtra(EXTRA_INTERACTIVE, false)) {
+			super.onStart(intent, startId);
+		}
+	}
+
+	@Override
 	protected void doWakefulWork(Intent intent) {
+		mRunning = true;
+		sendBroadcast(new Intent(RESPONSE_SYNC_STARTED));
+
 		// for the time being, we just pull all the surveys and update our feedback cache with them
 		// FIXME: in the future, we should only download what we need...two strategies for that:
 		// 1) maintain a timestamp of the most recent refresh and request only things after it
@@ -465,5 +487,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		// ==================================================================
 		
 		Log.v(TAG, "Response sync service complete");
+		sendBroadcast(new Intent(RESPONSE_SYNC_FINISHED));
+		mRunning = false;
 	}
 }
