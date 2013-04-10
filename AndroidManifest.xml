@@ -140,7 +140,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.ohmage.activity.OhmagePreferenceActivity"
+            android:name="org.ohmage.activity.OhmageSettingsActivity"
             android:theme="@android:style/Theme.Black" />
         <activity
             android:name="org.ohmage.activity.AdminSettingsActivity"

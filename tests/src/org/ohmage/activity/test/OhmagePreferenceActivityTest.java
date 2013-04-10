@@ -23,21 +23,21 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.activity.AdminSettingsActivity;
-import org.ohmage.activity.OhmagePreferenceActivity;
+import org.ohmage.activity.OhmageSettingsActivity;
 import org.ohmage.library.R;
 
 /**
- * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
+ * <p>This class contains tests for the {@link OhmageSettingsActivity}</p>
  * 
  * @author cketcham
  *
  */
-public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCase2<OhmagePreferenceActivity> {
+public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCase2<OhmageSettingsActivity> {
 
 	private Solo solo;
 
 	public OhmagePreferenceActivityTest() {
-		super(OhmagePreferenceActivity.class);
+		super(OhmageSettingsActivity.class);
 	}
 
 	@Override

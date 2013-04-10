@@ -22,11 +22,11 @@ import com.jayway.android.robotium.solo.Solo;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.CampaignListActivity;
-import org.ohmage.activity.OhmagePreferenceActivity;
+import org.ohmage.activity.OhmageSettingsActivity;
 import org.ohmage.authenticator.AuthenticatorActivity;
 
 /**
- * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
+ * <p>This class contains tests for the {@link OhmageSettingsActivity}</p>
  * 
  * @author cketcham
  *

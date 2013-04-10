@@ -19,8 +19,8 @@ import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 
-public class OhmagePreferenceActivity extends PreferenceActivity  {
-	private static final String TAG = "OhmagePreferenceActivity";
+public class OhmageSettingsActivity extends PreferenceActivity  {
+	private static final String TAG = "OhmageSettingsActivity";
 
 	private static final String KEY_REMINDERS = "key_reminders";
 	private static final String KEY_ADMIN_SETTINGS = "key_admin_settings";
@@ -59,12 +59,12 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				String urn = Campaign.getSingleCampaign(OhmagePreferenceActivity.this);
+				String urn = Campaign.getSingleCampaign(OhmageSettingsActivity.this);
 				if(!TextUtils.isEmpty(urn)) {
-					Intent triggers = Campaign.launchTriggerIntent(OhmagePreferenceActivity.this, Campaign.getSingleCampaign(OhmagePreferenceActivity.this));
+					Intent triggers = Campaign.launchTriggerIntent(OhmageSettingsActivity.this, Campaign.getSingleCampaign(OhmageSettingsActivity.this));
 					startActivity(triggers);
 				} else
-					Toast.makeText(OhmagePreferenceActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
+					Toast.makeText(OhmageSettingsActivity.this, R.string.preferences_no_single_campaign, Toast.LENGTH_LONG).show();
 				return true;
 			}
 		});
@@ -74,7 +74,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				startActivityForResult(new Intent(OhmagePreferenceActivity.this, AdminPincodeActivity.class), CODE_ADMIN_SETTINGS);
+				startActivityForResult(new Intent(OhmageSettingsActivity.this, AdminPincodeActivity.class), CODE_ADMIN_SETTINGS);
 				return true;
 			}
 		});
@@ -142,7 +142,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		switch(requestCode) {
 			case CODE_ADMIN_SETTINGS:
 				if(resultCode == RESULT_OK)
-					startActivity(new Intent(OhmagePreferenceActivity.this, AdminSettingsActivity.class));
+					startActivity(new Intent(OhmageSettingsActivity.this, AdminSettingsActivity.class));
 				break;
 		}
 	}

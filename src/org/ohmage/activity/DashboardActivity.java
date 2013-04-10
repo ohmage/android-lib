@@ -183,7 +183,7 @@ public class DashboardActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 1:
-                startActivity(new Intent(this, OhmagePreferenceActivity.class));
+                startActivity(new Intent(this, OhmageSettingsActivity.class));
                 return true;
         }
         return false;

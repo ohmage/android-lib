@@ -21,7 +21,7 @@ import org.ohmage.activity.CampaignListActivity;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.activity.HelpActivity;
 import org.ohmage.activity.MobilityActivity;
-import org.ohmage.activity.OhmagePreferenceActivity;
+import org.ohmage.activity.OhmageSettingsActivity;
 import org.ohmage.activity.ProfileActivity;
 import org.ohmage.activity.ResponseHistoryActivity;
 import org.ohmage.activity.SurveyListActivity;
@@ -120,7 +120,7 @@ public class DashboardActivityFlowTest extends ActivityInstrumentationTestCase2<
 	@Smoke
 	public void testFlowSettings() {
 		solo.clickOnMenuItem("Settings");
-		solo.assertCurrentActivity("Expected Settings Activity", OhmagePreferenceActivity.class);
+		solo.assertCurrentActivity("Expected Settings Activity", OhmageSettingsActivity.class);
 		solo.goBack();
 	}
 }
