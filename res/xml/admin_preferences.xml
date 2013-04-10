@@ -85,4 +85,10 @@
 			android:title="@string/preferences_querytest_title" />
 	</PreferenceCategory>
 
+	<PreferenceScreen
+		android:key="key_reset_preferences"
+		android:persistent="false"
+		android:summary="@string/preferences_reset_summary"
+		android:title="@string/preferences_reset_title" />
+
 </PreferenceScreen>

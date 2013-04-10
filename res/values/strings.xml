@@ -241,6 +241,8 @@
     <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
     <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
     <string name="preferences_querytest_summary">Run queries against the content provider and view the results</string>
+    <string name="preferences_reset_title">Reset Preferences</string>
+    <string name="preferences_reset_summary">Sets preferences back to the default values</string>
     <string name="admin_settings">Admin Settings</string>
     <string name="preferences_no_single_campaign">Invalid campaign setup</string>
     <string name="preferences_single_campaign_status">Single-Campaign Mode</string>

@@ -22,7 +22,8 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 	private static final String KEY_QUERY_TEST = "key_querytest";
 	private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
 	private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
-	private static final CharSequence KEY_BASELINE_CLEAR = "key_baseline_clear";
+	private static final String KEY_RESET_PREFERENCES = "key_reset_preferences";
+	private static final String KEY_BASELINE_CLEAR = "key_baseline_clear";
 
 	private PreferenceScreen mUpdatePassword;
 	private PreferenceScreen mLogout;
@@ -46,15 +47,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.admin_preferences);
 
-		// We should make sure the state is always consistant with the UserPrefHelper since the defaults are set there
-		UserPreferencesHelper userPrefHelper = UserPreferencesHelper.getInstance();
-		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_FEEDBACK)).setChecked(userPrefHelper.showFeedback());
-		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
-		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
-		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
-        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY_FEEDBACK)).setChecked(userPrefHelper.showMobilityFeedback());
-
-		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(userPrefHelper.isSingleCampaignMode());
+		setPreferences();
 
 		mUpdatePassword = (PreferenceScreen) findPreference(KEY_UPDATE_PASSWORD);
 		mUpdatePassword.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -97,6 +90,31 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 				return true;
 			}
 		});
+
+		Preference reset = findPreference(KEY_RESET_PREFERENCES);
+		reset.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                UserPreferencesHelper.clearAll();
+                findPreference(KEY_BASELINE_START_TIME).setSummary(null);
+                findPreference(KEY_BASELINE_END_TIME).setSummary(null);
+                setPreferences();
+                return true;
+            }
+        });
+	}
+
+	private void setPreferences() {
+	       // We should make sure the state is always consistant with the UserPrefHelper since the defaults are set there
+        UserPreferencesHelper userPrefHelper = UserPreferencesHelper.getInstance();
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_FEEDBACK)).setChecked(userPrefHelper.showFeedback());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY)).setChecked(userPrefHelper.showMobility());
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_MOBILITY_FEEDBACK)).setChecked(userPrefHelper.showMobilityFeedback());
+
+        ((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SINGLE_CAMPAIGN_MODE)).setChecked(userPrefHelper.isSingleCampaignMode());
 	}
 
 	@Override
