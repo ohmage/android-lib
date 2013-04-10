@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.ohmage.ConfigHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
@@ -41,7 +41,7 @@ public class ResponseListCursorAdapter extends CursorAdapter {
 		surveyText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		// Only show campaign name if we aren't in single campaign mode
-		campaignText.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
+		campaignText.setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 
 		long millis = cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME));
 		TimeZone timezone = TimeZone.getTimeZone(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));

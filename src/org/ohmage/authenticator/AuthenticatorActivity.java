@@ -46,6 +46,7 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi.AuthenticateResponse;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApplication;
+import org.ohmage.PreferenceStore;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.activity.DashboardActivity;
@@ -68,14 +69,13 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     private static final String TAG = "AuthenticatorActivity";
 
     private static final int LOGIN_FINISHED = 0;
-    private static final int DIALOG_FIRST_RUN = 1;
-    private static final int DIALOG_LOGIN_ERROR = 2;
-    private static final int DIALOG_NETWORK_ERROR = 3;
-    private static final int DIALOG_LOGIN_PROGRESS = 4;
-    private static final int DIALOG_INTERNAL_ERROR = 5;
-    private static final int DIALOG_USER_DISABLED = 6;
-    private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 7;
-    private static final int DIALOG_SERVER_LIST = 8;
+    private static final int DIALOG_LOGIN_ERROR = 1;
+    private static final int DIALOG_NETWORK_ERROR = 2;
+    private static final int DIALOG_LOGIN_PROGRESS = 3;
+    private static final int DIALOG_INTERNAL_ERROR = 4;
+    private static final int DIALOG_USER_DISABLED = 5;
+    private static final int DIALOG_DOWNLOADING_CAMPAIGNS = 6;
+    private static final int DIALOG_SERVER_LIST = 7;
 
     public static final String PARAM_CONFIRMCREDENTIALS = "confirmCredentials";
     public static final String PARAM_PASSWORD = "password";
@@ -113,8 +113,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     private EditText mUsernameEdit;
 
     private EditText mServerEdit;
-    private UserPreferencesHelper mPreferencesHelper;
-    private ConfigHelper mAppPrefs;
+    private PreferenceStore mPreferencesHelper;
     private CampaignReadTask mCampaignDownloadTask;
     private String mHashedPassword;
 
@@ -139,8 +138,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         mRequestNewAccount = mUsername == null;
         mConfirmCredentials = intent.getBooleanExtra(PARAM_CONFIRMCREDENTIALS, false);
 
-        mPreferencesHelper = new UserPreferencesHelper(this);
-        mAppPrefs = new ConfigHelper(this);
+        mPreferencesHelper = new PreferenceStore(this);
 
         if (mPreferencesHelper.isUserDisabled()) {
             ((OhmageApplication) getApplication()).resetAll();
@@ -290,27 +288,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         Dialog dialog = super.onCreateDialog(id);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         switch (id) {
-            case DIALOG_FIRST_RUN:
-                dialogBuilder
-                        .setTitle(R.string.eula_title)
-                        .setMessage(R.string.eula_text)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.eula_accept,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mAppPrefs.setFirstRun(false);
-                                    }
-                                })
-                        .setNegativeButton(R.string.eula_cancel,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        AuthenticatorActivity.this.finish();
-                                    }
-                                });
-                dialog = dialogBuilder.create();
-                break;
 
             case DIALOG_LOGIN_ERROR:
                 dialogBuilder.setTitle(R.string.login_error)
@@ -440,7 +417,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
         String server = mServerEdit.getText().toString();
         ConfigHelper.setServerUrl(server.split("\\(")[0].trim());
-        ((OhmageApplication) getApplication()).configureForDeployment(server);
+        ((OhmageApplication) getApplication()).updateLogLevel();
 
         if (mRequestNewAccount) {
             mUsername = mUsernameEdit.getText().toString();
@@ -511,12 +488,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
 
-        if (mAppPrefs.isFirstRun()) {
-            Log.v(TAG, "this is the first run");
-            mAppPrefs.setFirstRun(false);
-        }
-
-        mPreferencesHelper.putLoginTimestamp(System.currentTimeMillis());
+        mPreferencesHelper.edit().putLoginTimestamp(System.currentTimeMillis()).commit();
 
         if (mConfirmCredentials)
             finish();
@@ -543,7 +515,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 Log.v(TAG, "login success");
                 mHashedPassword = response.getHashedPassword();
                 if (!mConfirmCredentials) {
-                    if (ConfigHelper.isSingleCampaignMode()) {
+                    if (UserPreferencesHelper.isSingleCampaignMode()) {
                         final String hashedPassword = response.getHashedPassword();
                         // Download the single campaign
                         showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
@@ -561,7 +533,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
                 // show error dialog
                 if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
-                    mPreferencesHelper.setUserDisabled(true);
+                    mPreferencesHelper.edit().setUserDisabled(true).commit();
                     showDialog(DIALOG_USER_DISABLED);
                 } else {
                     showDialog(DIALOG_LOGIN_ERROR);

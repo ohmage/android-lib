@@ -1,14 +1,5 @@
 package org.ohmage.activity;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.fragments.SurveyListFragment;
-import org.ohmage.fragments.SurveyListFragment.OnSurveyActionListener;
-import org.ohmage.ui.CampaignFilterActivity;
-import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
-import org.ohmage.ui.TabsAdapter;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -18,6 +9,15 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.widget.TabHost;
 import android.widget.Toast;
+
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.fragments.SurveyListFragment;
+import org.ohmage.fragments.SurveyListFragment.OnSurveyActionListener;
+import org.ohmage.library.R;
+import org.ohmage.ui.CampaignFilterActivity;
+import org.ohmage.ui.OhmageFilterable.CampaignFilterable;
+import org.ohmage.ui.TabsAdapter;
 
 public class SurveyListActivity extends CampaignFilterActivity implements OnSurveyActionListener {
 
@@ -35,7 +35,7 @@ public class SurveyListActivity extends CampaignFilterActivity implements OnSurv
 
 		setContentView(R.layout.survey_list_layout);
 
-		if(ConfigHelper.isSingleCampaignMode())
+		if(UserPreferencesHelper.isSingleCampaignMode())
 			setActionBarShadowVisibility(false);
 
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);

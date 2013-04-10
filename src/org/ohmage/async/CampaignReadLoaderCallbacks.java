@@ -1,21 +1,21 @@
 package org.ohmage.async;
 
-import org.ohmage.AccountHelper;
-import org.ohmage.OhmageApi.CampaignReadResponse;
-import org.ohmage.OhmageApi.Result;
-import org.ohmage.UserPreferencesHelper;
-import org.ohmage.ui.BaseActivity;
-
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
 
+import org.ohmage.AccountHelper;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Result;
+import org.ohmage.PreferenceStore;
+import org.ohmage.ui.BaseActivity;
+
 public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallbacks<CampaignReadResponse> {
 
 	private final BaseActivity mActivity;
 	private AccountHelper mAccount;
-	private UserPreferencesHelper mSharedPreferencesHelper;
+	private PreferenceStore mPrefs;
 	private String mHashedPassword;
 
 	public CampaignReadLoaderCallbacks(BaseActivity activity) {
@@ -24,7 +24,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 
 	public void onCreate() {
 	    mAccount = new AccountHelper(mActivity);
-	    mSharedPreferencesHelper = new UserPreferencesHelper(mActivity);
+	    mPrefs = new PreferenceStore(mActivity);
 		mActivity.getSupportLoaderManager().initLoader(0, null, this);
 	}
 
@@ -47,7 +47,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	@Override
 	public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
 		// We should pause the task if it is within 5 minutes of the last request
-		boolean pause = mSharedPreferencesHelper.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 > System.currentTimeMillis();
+		boolean pause = mPrefs.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 > System.currentTimeMillis();
 		mActivity.getActionBarControl().setProgressVisible(!pause);
 		mHashedPassword = mAccount.getAuthToken();
 		CampaignReadTask loader = new CampaignReadTask(mActivity, mAccount.getUsername(), mHashedPassword);
@@ -59,7 +59,7 @@ public class CampaignReadLoaderCallbacks implements LoaderManager.LoaderCallback
 	public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
 		if(data.getResult() == Result.SUCCESS) {
 			((PauseableTaskLoader<CampaignReadResponse>) loader).pause(true);
-			mSharedPreferencesHelper.setLastCampaignRefreshTime(System.currentTimeMillis());
+			mPrefs.edit().setLastCampaignRefreshTime(System.currentTimeMillis()).commit();
 		} else
 			((AuthenticatedTaskLoader<CampaignReadResponse>) loader).clearCredentials();
 

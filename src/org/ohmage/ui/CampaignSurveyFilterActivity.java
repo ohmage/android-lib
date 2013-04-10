@@ -1,18 +1,18 @@
 package org.ohmage.ui;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
-import org.ohmage.controls.FilterControl;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
-
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
+
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.controls.FilterControl;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.library.R;
+import org.ohmage.ui.OhmageFilterable.CampaignSurveyFilter;
 
 /**
  * CampaignSurveyFilterActivity can be extended by classes which have campaign and survey filters
@@ -47,7 +47,7 @@ public class CampaignSurveyFilterActivity extends CampaignFilterActivity impleme
 		mDefaultSurvey = getIntent().getStringExtra(CampaignSurveyFilter.EXTRA_SURVEY_ID);
 		//		mDefaultSurvey = "alcohol";
 
-		if(mDefaultCampaign != null || ConfigHelper.isSingleCampaignMode()) {
+		if(mDefaultCampaign != null || UserPreferencesHelper.isSingleCampaignMode()) {
 			setLoadingVisibility(true);
 			getSupportLoaderManager().initLoader(SURVEY_LOADER, null, this);
 		} else {

@@ -95,10 +95,6 @@ public class OhmageApplication extends Application {
 
     private static AccountManager mAccountManager;
 
-    private ConfigHelper config;
-
-    private UserPreferencesHelper userPrefs;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -106,10 +102,7 @@ public class OhmageApplication extends Application {
 
         self = this;
 
-        config = new ConfigHelper(this);
-        userPrefs = new UserPreferencesHelper(this);
-
-        LogProbe.setLevel(config.getLogAnalytics(), config.getLogLevel());
+        updateLogLevel();
         LogProbe.get(this);
 
         mImageLoader = createImageLoader(this);
@@ -129,63 +122,8 @@ public class OhmageApplication extends Application {
         }
     }
 
-    /**
-     * Configures some settings based on the deployment. Looks at the server url
-     * and deployment name to figure out what the settings should be
-     * 
-     * @param server
-     */
-    public void configureForDeployment(String server) {
-        if (server == null)
-            return;
-
-        server = server.split(" ")[0];
-
-        ConfigHelper config = new ConfigHelper(this);
-
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            userPrefs.setShowFeedback(true);
-            userPrefs.setShowMobility(false);
-            userPrefs.setUploadResponsesWifiOnly(false);
-            userPrefs.setUploadProbesWifiOnly(true);
-            config.setAdminMode(false);
-            config.setLogLevel("verbose");
-            config.setLogAnalytics(true);
-            updateLogLevel();
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            userPrefs.setShowFeedback(true);
-            userPrefs.setShowMobility(false);
-            userPrefs.setUploadResponsesWifiOnly(false);
-            userPrefs.setUploadProbesWifiOnly(true);
-            config.setAdminMode(false);
-            config.setLogLevel("error");
-            config.setLogAnalytics(false);
-            updateLogLevel();
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            userPrefs.setShowFeedback(true);
-            userPrefs.setShowMobility(true);
-            userPrefs.setUploadResponsesWifiOnly(false);
-            userPrefs.setUploadProbesWifiOnly(false);
-            config.setAdminMode(true);
-            config.setLogLevel("verbose");
-            config.setLogAnalytics(true);
-            updateLogLevel();
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            userPrefs.setShowFeedback(true);
-            userPrefs.setShowMobility(true);
-            userPrefs.setUploadResponsesWifiOnly(false);
-            userPrefs.setUploadProbesWifiOnly(true);
-            config.setAdminMode(true);
-            config.setLogLevel("error");
-            config.setLogAnalytics(false);
-            updateLogLevel();
-        }
-    }
-
     public void updateLogLevel() {
-        ConfigHelper config = new ConfigHelper(this);
-        LogProbe.setLevel(config.getLogAnalytics(), config.getLogLevel());
+        LogProbe.setLevel(ConfigHelper.getLogAnalytics(), ConfigHelper.getLogLevel());
     }
 
     /**
@@ -238,10 +176,10 @@ public class OhmageApplication extends Application {
         }
 
         // clear user prefs
-        new UserPreferencesHelper(this).clearAll();
+        UserPreferencesHelper.clearAll();
 
-        // clear all deployment settings
-        new ConfigHelper(this).clearDeploymentSettings();
+        // clear all global preferences
+        new PreferenceStore(this).edit().clear().commit();
 
         // clear triggers
         TriggerFramework.resetAllTriggerSettings(this);

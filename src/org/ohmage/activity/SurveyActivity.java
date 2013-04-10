@@ -49,8 +49,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.AccountHelper;
 import org.ohmage.CampaignPreferencesHelper;
-import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApplication;
+import org.ohmage.PreferenceStore;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.conditionevaluator.DataPoint;
@@ -145,7 +145,7 @@ public class SurveyActivity extends Activity implements LocationListener {
 
         if (getIntent().hasExtra("campaign_urn")) {
             mCampaignUrn = getIntent().getStringExtra("campaign_urn");
-        } else if (ConfigHelper.isSingleCampaignMode()) {
+        } else if (UserPreferencesHelper.isSingleCampaignMode()) {
             mCampaignUrn = Campaign.getSingleCampaign(this);
         } else {
             throw new RuntimeException("The campaign urn must be passed to the Survey Activity");
@@ -167,7 +167,7 @@ public class SurveyActivity extends Activity implements LocationListener {
             Calendar now = Calendar.getInstance();
             mLaunchTime = now.getTimeInMillis();
 
-            final UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
+            final PreferenceStore preferencesHelper = new PreferenceStore(this);
 
             if (preferencesHelper.isUserDisabled()) {
                 ((OhmageApplication) getApplication()).resetAll();
@@ -358,8 +358,8 @@ public class SurveyActivity extends Activity implements LocationListener {
                         Analytics.widget(v, null, uuid);
                         TriggerFramework.notifySurveyTaken(SurveyActivity.this, mCampaignUrn,
                                 mSurveyTitle);
-                        UserPreferencesHelper prefs = new UserPreferencesHelper(SurveyActivity.this);
-                        prefs.putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis());
+                        PreferenceStore prefs = new PreferenceStore(SurveyActivity.this);
+                        prefs.edit().putLastSurveyTimestamp(mSurveyId, System.currentTimeMillis()).commit();
                         finish();
                     }
                 } else {

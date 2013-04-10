@@ -16,55 +16,18 @@
 
 package org.ohmage;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.ohmage.library.R;
-
 /**
- * Preference helper for application wide settings. Any user specific settings
- * are specified in {@link UserPreferencesHelper} which is cleared on logout
+ * Server Configuration Helper
  * 
  * @author cketcham
  */
 public class ConfigHelper {
 
-    private static final String KEY_IS_FIRST_RUN = "is_first_run";
-    private static final String KEY_MOBILITY_VERSION = "mobility_version";
     private static final String KEY_SERVER_URL = "key_server_url";
-    private static final String KEY_ADMIN_MODE = "key_admin_mode";
-    private static final String KEY_LOG_LEVEL = "key_log_level";
-    private static final String KEY_LOG_ANALYTICS = "keg_log_analytics";
 
     private static String serverUrl;
-    private final SharedPreferences mPreferences;
-    private final Context mContext;
-
-    public ConfigHelper(Context context) {
-        mContext = context;
-        mPreferences = getSharedPreferences(context);
-    }
-
-    private static SharedPreferences getSharedPreferences(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    public boolean isFirstRun() {
-        return mPreferences.getBoolean(KEY_IS_FIRST_RUN, true);
-    }
-
-    public boolean setFirstRun(boolean isFirstRun) {
-        return mPreferences.edit().putBoolean(KEY_IS_FIRST_RUN, isFirstRun).commit();
-    }
-
-    public int getLastMobilityVersion() {
-        return mPreferences.getInt(KEY_MOBILITY_VERSION, -1);
-    }
-
-    public boolean setMobilityVersion(int mobilityVersion) {
-        return mPreferences.edit().putInt(KEY_MOBILITY_VERSION, mobilityVersion).commit();
-    }
 
     public static void setServerUrl(String url) {
         serverUrl = url;
@@ -79,44 +42,94 @@ public class ConfigHelper {
         return serverUrl;
     }
 
-    public static boolean isSingleCampaignMode() {
-        UserPreferencesHelper prefHelper = new UserPreferencesHelper(OhmageApplication.getContext());
-        return prefHelper.isSingleCampaignMode();
+    public static boolean getDefaultShowFeedback() {
+        return true;
     }
 
-    public boolean adminMode() {
-        return mPreferences.getBoolean(KEY_ADMIN_MODE,
-                mContext.getResources().getBoolean(R.bool.admin_mode));
+    public static boolean getDefaultShowMobility() {
+        String server = serverUrl();
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            return false;
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            return false;
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            return true;
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            return true;
+        }
+        return true;
     }
 
-    public void setAdminMode(Boolean value) {
-        mPreferences.edit().putBoolean(KEY_ADMIN_MODE, value).commit();
+    public static boolean getDefaultUploadResponsesWifiOnly() {
+        return false;
     }
 
-    public String getLogLevel() {
-        return mPreferences.getString(KEY_LOG_LEVEL,
-                mContext.getResources().getString(R.string.log_level));
+    public static boolean getDefaultUploadProbesWifiOnly() {
+        String server = serverUrl();
+
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            return true;
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            return true;
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            return false;
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            return true;
+        }
+        return true;
     }
 
-    public void setLogLevel(String level) {
-        mPreferences.edit().putString(KEY_LOG_LEVEL, level).commit();
+    public static boolean getAdminMode() {
+        String server = serverUrl();
+
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            return false;
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            return false;
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            return true;
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            return true;
+        }
+        return true;
     }
 
-    public Boolean getLogAnalytics() {
-        return mPreferences.getBoolean(KEY_LOG_ANALYTICS,
-                mContext.getResources().getBoolean(R.bool.log_analytics));
+    public static boolean getReminderAdminMode() {
+        return true;
     }
 
-    public void setLogAnalytics(Boolean value) {
-        mPreferences.edit().putBoolean(KEY_LOG_ANALYTICS, value).commit();
+    public static String getLogLevel() {
+        String server = serverUrl();
+
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            return "verbose";
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            return "error";
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            return "verbose";
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            return "error";
+        }
+        return "none";
     }
 
-    /**
-     * Clears all settings specific to deployments
-     */
-    public void clearDeploymentSettings() {
-        setLogAnalytics(mContext.getResources().getBoolean(R.bool.log_analytics));
-        setLogLevel(mContext.getResources().getString(R.string.log_level));
-        setAdminMode(mContext.getResources().getBoolean(R.bool.admin_mode));
+    public static boolean getLogAnalytics() {
+        String server = serverUrl();
+
+        if ("https://lausd.mobilizingcs.org/".equals(server)) {
+            return true;
+        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
+            return false;
+        } else if ("https://dev.ohmage.org/".equals(server)
+                || "https://test.ohmage.org/".equals(server)) {
+            return true;
+        } else if ("https://play.ohmage.org/".equals(server)) {
+            return false;
+        }
+        return false;
     }
 }

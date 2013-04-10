@@ -17,7 +17,7 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.UploadResponse;
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.PreferenceStore;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -70,7 +70,7 @@ public class ProbeUploadService extends WakefulIntentService {
     private boolean mError = false;
 
     private AccountHelper mAccount;
-    private UserPreferencesHelper mPrefs;
+    private PreferenceStore mPrefs;
 
     private String mObserverId = null;
 
@@ -97,7 +97,7 @@ public class ProbeUploadService extends WakefulIntentService {
     protected void doWakefulWork(Intent intent) {
 
         mAccount = new AccountHelper(ProbeUploadService.this);
-        mPrefs = new UserPreferencesHelper(this);
+        mPrefs = new PreferenceStore(this);
 
         if (mApi == null)
             setOhmageApi(new OhmageApi(this));
@@ -117,7 +117,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
         // If there were no internal errors, we can say it was successful
         if (!probesUploader.hadError() && !responsesUploader.hadError())
-            mPrefs.putLastProbeUploadTimestamp(System.currentTimeMillis());
+            mPrefs.edit().putLastProbeUploadTimestamp(System.currentTimeMillis()).commit();
 
         sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
     }

@@ -49,7 +49,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
         prefMgr.setSharedPreferencesName(UserPreferencesHelper.getPreferencesName(this));
         prefMgr.setSharedPreferencesMode(MODE_PRIVATE);
 
-		mUserPreferenceHelper = new UserPreferencesHelper(this);
+		mUserPreferenceHelper = UserPreferencesHelper.getInstance();
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.preferences);
@@ -104,7 +104,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 		Analytics.activity(this, Status.ON);
 
 		// Hide and show reminders setting if we are in single campaign mode or not
-		if(ConfigHelper.isSingleCampaignMode()) {
+		if(mUserPreferenceHelper.isSingleCampaignMode()) {
 			getPreferenceScreen().addPreference(mReminders);
 		} else {
 			getPreferenceScreen().removePreference(mReminders);
@@ -121,7 +121,7 @@ public class OhmagePreferenceActivity extends PreferenceActivity  {
 
 	private void setStatusInfo() {
 		Preference campaignUrnStatus = findPreference(STATUS_CAMPAIGN_URN);
-		if(ConfigHelper.isSingleCampaignMode()) {
+		if(mUserPreferenceHelper.isSingleCampaignMode()) {
 			campaignUrnStatus.setTitle(R.string.preferences_single_campaign_status);
 			campaignUrnStatus.setSummary(Campaign.getSingleCampaign(this));
 			if(campaignUrnStatus.getSummary() == null)

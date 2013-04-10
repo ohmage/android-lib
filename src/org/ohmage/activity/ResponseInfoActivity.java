@@ -44,10 +44,10 @@ import com.google.android.imageloader.ImageLoader.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageMarkdown;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -197,7 +197,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		mHeadertext.setText(surveyName);
 		mSubtext.setText(data.getString(ResponseQuery.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
-		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
+		mSubtext.setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 
 		DateFormat df = SimpleDateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT);
 		df.setTimeZone(TimeZone.getTimeZone(data.getString(ResponseQuery.TIMEZONE)));

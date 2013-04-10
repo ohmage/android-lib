@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.TabHost;
 
 import org.ohmage.MobilityHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.fragments.MobilityControlFragment;
 import org.ohmage.fragments.RecentMobilityChartFragment;
+import org.ohmage.library.R;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
 
@@ -26,15 +26,11 @@ public class MobilityActivity extends BaseActivity {
     ViewPager mViewPager;
     TabsAdapter mTabsAdapter;
 
-    private UserPreferencesHelper mUserPrefs;
-
     private boolean mobilityConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mUserPrefs = new UserPreferencesHelper(this);
 
         if (!MobilityHelper.isMobilityInstalled(this)) {
             setContentView(R.layout.mobility_missing);
@@ -84,7 +80,7 @@ public class MobilityActivity extends BaseActivity {
 
             mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-            if (mUserPrefs.showMobilityFeedback()) {
+            if (UserPreferencesHelper.showMobilityFeedback()) {
                 mTabsAdapter.addTab("Analytics", RecentMobilityChartFragment.class, null);
             } else {
                 findViewById(android.R.id.tabs).setVisibility(View.GONE);

@@ -21,12 +21,12 @@ import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 
 import java.util.ArrayList;
@@ -41,18 +41,15 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 	private static final String TAG = "CampaignReadTask";
 	private OhmageApi mApi;
 	private final Context mContext;
-	private final UserPreferencesHelper mPrefs;
 
 	public CampaignReadTask(Context context) {
 		super(context);
 		mContext = context;
-		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	public CampaignReadTask(Context context, String username, String hashedPassword) {
 		super(context, username, hashedPassword);
 		mContext = context;
-		mPrefs = new UserPreferencesHelper(mContext);
 	}
 
 	@Override
@@ -184,7 +181,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
 			}
 
 			// If we are in single campaign mode, we should automatically download the xml for the best campaign
-			if(ConfigHelper.isSingleCampaignMode()) {
+			if(UserPreferencesHelper.isSingleCampaignMode()) {
 				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
 				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it

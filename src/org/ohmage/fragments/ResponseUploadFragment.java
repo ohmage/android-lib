@@ -17,7 +17,7 @@ import android.widget.Button;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-import org.ohmage.ConfigHelper;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.adapters.ResponseListCursorAdapter;
 import org.ohmage.adapters.UploadingResponseListCursorAdapter;
 import org.ohmage.controls.FilterControl;
@@ -72,7 +72,7 @@ public class ResponseUploadFragment extends Fragment implements
             mCampaignFilter.add(0, new Pair<String, String>(
                     getString(R.string.filter_all_campaigns), null));
 
-        if (!ConfigHelper.isSingleCampaignMode())
+        if (!UserPreferencesHelper.isSingleCampaignMode())
             getLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
         else {
             mCampaignFilter.setVisibility(View.GONE);
@@ -80,7 +80,7 @@ public class ResponseUploadFragment extends Fragment implements
 
         // Show the upload button immediately in single campaign mode since we
         // don't query for the campaign
-        if (ConfigHelper.isSingleCampaignMode())
+        if (UserPreferencesHelper.isSingleCampaignMode())
             ensureButtons(view);
 
         return view;

@@ -20,10 +20,11 @@ import android.test.ActivityInstrumentationTestCase2;
 import com.jayway.android.robotium.solo.Solo;
 
 import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.AdminPincodeActivity;
 import org.ohmage.activity.AdminSettingsActivity;
 import org.ohmage.activity.OhmagePreferenceActivity;
+import org.ohmage.library.R;
 
 /**
  * <p>This class contains tests for the {@link OhmagePreferenceActivity}</p>
@@ -78,7 +79,7 @@ public class OhmagePreferenceActivityTest extends ActivityInstrumentationTestCas
 	}
 
 	public void testCampaignStatus() {
-		if(ConfigHelper.isSingleCampaignMode()) {
+		if(UserPreferencesHelper.isSingleCampaignMode()) {
 			assertTrue(solo.searchText("Single-Campaign Mode", true));
 		} else {
 			assertTrue(solo.searchText("Multi-Campaign Mode", true));

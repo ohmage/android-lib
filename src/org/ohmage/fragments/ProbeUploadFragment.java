@@ -28,7 +28,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.PreferenceStore;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.probemanager.DbContract.BaseProbeColumns;
@@ -45,7 +45,7 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
 
     private Button mUploadButton;
 
-    private UserPreferencesHelper mPrefHelper;
+    private PreferenceStore mPrefHelper;
 
     private AccountHelper mAccount;
 
@@ -59,7 +59,7 @@ public class ProbeUploadFragment extends Fragment implements LoaderCallbacks<Cur
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mPrefHelper = new UserPreferencesHelper(getActivity());
+        mPrefHelper = new PreferenceStore(getActivity());
         mAccount = new AccountHelper(getActivity());
 
         setLastUploadTimestamp();

@@ -31,12 +31,10 @@ public class AdminPincodeActivity extends FragmentActivity implements AdminCodeL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ConfigHelper config = new ConfigHelper(this);
-
         if (savedInstanceState == null) {
 
             // If we have admin mode set, we don't need to show the pincode
-            if (config.adminMode()) {
+            if (ConfigHelper.getAdminMode()) {
                 setResult(RESULT_OK);
                 finish();
             }

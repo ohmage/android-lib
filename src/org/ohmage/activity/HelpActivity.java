@@ -25,10 +25,9 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TabHost;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
+import org.ohmage.library.R;
 import org.ohmage.ui.BaseActivity;
 import org.ohmage.ui.TabsAdapter;
 
@@ -166,11 +165,11 @@ public class HelpActivity extends BaseActivity {
 
             data.insert(data.length() - 8, getString(R.string.help_dashboard_header_text));
 
-            if (!ConfigHelper.isSingleCampaignMode())
+            UserPreferencesHelper userPrefs = UserPreferencesHelper.getInstance();
+
+            if (!userPrefs.isSingleCampaignMode())
                 addSection(data, "dash_campaigns.png", R.string.help_dashboard_campaigns_title,
                         R.string.help_dashboard_campaigns_text);
-
-            UserPreferencesHelper userPrefs = new UserPreferencesHelper(getActivity());
 
             addSection(data, "dash_surveys.png", R.string.help_dashboard_surveys_title,
                     R.string.help_dashboard_surveys_text);
@@ -220,7 +219,7 @@ public class HelpActivity extends BaseActivity {
             StringBuilder data = super.loadData();
             int start = data.indexOf(FILTER_SUB);
             String image = FILTER_SINGLE_CAMPAIGN;
-            if (ConfigHelper.isSingleCampaignMode())
+            if (UserPreferencesHelper.isSingleCampaignMode())
                 image = FILTER_MULTI_CAMPAIGN;
             data.replace(start, start + FILTER_SUB.length(), image);
             return data;

@@ -32,7 +32,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.PreferenceStore;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
@@ -64,7 +64,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
 
     private SimpleCursorAdapter mAdapter;
 
-    private UserPreferencesHelper mPrefHelper;
+    private PreferenceStore mPrefHelper;
     private AccountHelper mAccount;
     private IMobility mMobility = null;
     private boolean isBound = false;
@@ -75,7 +75,7 @@ public class MobilityControlFragment extends Fragment implements LoaderCallbacks
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mPrefHelper = new UserPreferencesHelper(getActivity());
+        mPrefHelper = new PreferenceStore(getActivity());
         mAccount = new AccountHelper(getActivity());
 
         setLastUploadTimestamp();

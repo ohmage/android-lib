@@ -1,18 +1,5 @@
 package org.ohmage.fragments;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
-
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
-import org.ohmage.db.DbContract.Responses;
-import org.ohmage.db.DbContract.Surveys;
-import org.ohmage.feedback.visualization.MapOverlayItem;
-import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
-import org.ohmage.service.SurveyGeotagService;
-
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -23,6 +10,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
+
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.db.DbContract.Responses;
+import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.feedback.visualization.MapOverlayItem;
+import org.ohmage.feedback.visualization.MapViewItemizedOverlay;
+import org.ohmage.library.R;
+import org.ohmage.service.SurveyGeotagService;
 
 import java.util.List;
 
@@ -150,7 +150,7 @@ public class ResponseMapFragment extends FilterableMapFragment  {
 			String title = cursor.getString(ResponseMapQuery.TITLE);
 			StringBuilder text = new StringBuilder();
 			// Only show the campaign urn if we aren't in single campaign mode
-			if(!ConfigHelper.isSingleCampaignMode())
+			if(!UserPreferencesHelper.isSingleCampaignMode())
 				text.append(cursor.getString(ResponseMapQuery.CAMPAIGN_URN) + "\n");
 			text.append(cursor.getString(ResponseMapQuery.DATE));
 			String id = cursor.getString(ResponseMapQuery.ID);

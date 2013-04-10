@@ -10,10 +10,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignReadLoaderCallbacks;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.BaseActivity;
 
@@ -67,13 +66,13 @@ public class DashboardActivity extends BaseActivity {
     }
 
     private void ensureUI() {
-        if (ConfigHelper.isSingleCampaignMode()) {
+        UserPreferencesHelper userPrefs = UserPreferencesHelper.getInstance();
+
+        if (userPrefs.isSingleCampaignMode()) {
             mCampaignBtn.setVisibility(View.GONE);
         } else {
             mCampaignBtn.setVisibility(View.VISIBLE);
         }
-
-        UserPreferencesHelper userPrefs = new UserPreferencesHelper(this);
 
         if (userPrefs.showProfile())
             mProfileBtn.setVisibility(View.VISIBLE);

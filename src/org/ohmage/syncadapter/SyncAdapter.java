@@ -70,7 +70,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             return;
 
         // Check if user wants uploads to only happen over wifi
-        UserPreferencesHelper user = new UserPreferencesHelper(mContext);
+        UserPreferencesHelper user = UserPreferencesHelper.getInstance();
         ConnectivityManager connManager = (ConnectivityManager) mContext
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

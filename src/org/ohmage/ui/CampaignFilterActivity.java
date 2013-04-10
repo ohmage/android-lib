@@ -1,12 +1,5 @@
 package org.ohmage.ui;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
-import org.ohmage.controls.FilterControl;
-import org.ohmage.db.DbContract.Campaigns;
-import org.ohmage.db.Models.Campaign;
-import org.ohmage.ui.OhmageFilterable.CampaignFilter;
-
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +7,13 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
 import android.view.View;
+
+import org.ohmage.UserPreferencesHelper;
+import org.ohmage.controls.FilterControl;
+import org.ohmage.db.DbContract.Campaigns;
+import org.ohmage.db.Models.Campaign;
+import org.ohmage.library.R;
+import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 /**
  * CampaignFilterActivity can be extended by classes which have a campaign filter
@@ -52,7 +52,7 @@ public class CampaignFilterActivity extends BaseActivity implements LoaderManage
 		if(mDefaultCampaign == null)
 			mCampaignFilter.add(0, new Pair<String, String>(getString(R.string.filter_all_campaigns), null));
 
-		if(!ConfigHelper.isSingleCampaignMode())
+		if(!UserPreferencesHelper.isSingleCampaignMode())
 			getSupportLoaderManager().initLoader(CAMPAIGN_LOADER, null, this);
 		else {
 			setLoadingVisibility(false);

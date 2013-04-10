@@ -11,13 +11,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Survey;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 
 public class SurveyListCursorAdapter extends CursorAdapter{
@@ -48,7 +48,7 @@ public class SurveyListCursorAdapter extends CursorAdapter{
 		titleText.setText(cursor.getString(cursor.getColumnIndex(Surveys.SURVEY_TITLE)));
 		campaignText.setText(campaignName);
 		// Only show campaign name if we aren't in single campaign mode
-		campaignText.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
+		campaignText.setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		actionButton.setFocusable(false);
 		actionButton.setOnClickListener(new OnClickListener() {
 			

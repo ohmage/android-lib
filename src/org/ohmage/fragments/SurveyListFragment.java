@@ -13,14 +13,14 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
+import org.ohmage.UserPreferencesHelper;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.adapters.SurveyListCursorAdapter;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.utils.SelectionBuilder;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
@@ -123,12 +123,12 @@ public class SurveyListFragment extends FilterableListFragment implements SubAct
 	
 	private void setShowPending() {
 		if (mShowPending) {
-			if(ConfigHelper.isSingleCampaignMode())
+			if(UserPreferencesHelper.isSingleCampaignMode())
 				setEmptyText(getString(R.string.surveys_empty_pending_single));
 			else
 				setEmptyText(getString(R.string.surveys_empty_pending));
 		} else {
-			if(ConfigHelper.isSingleCampaignMode())
+			if(UserPreferencesHelper.isSingleCampaignMode())
 				setEmptyText(getString(R.string.single_campaign_error));
 			else
 				setEmptyText(getString(R.string.surveys_empty_all));

@@ -45,7 +45,7 @@ public class AdminSettingsActivityTest extends ActivityInstrumentationTestCase2<
 		super.setUp();
 
 		solo = new Solo(getInstrumentation(), getActivity());
-		mPrefs = new UserPreferencesHelper(getActivity());
+		mPrefs = UserPreferencesHelper.getInstance();
 	}
 
 	@Override

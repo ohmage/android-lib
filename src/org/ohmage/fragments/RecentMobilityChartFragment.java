@@ -15,11 +15,11 @@ import android.widget.TextView;
 
 import org.achartengine.GraphicalView;
 import org.ohmage.AccountHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.charts.Histogram;
 import org.ohmage.charts.HistogramBase.HistogramRenderer;
+import org.ohmage.library.R;
 import org.ohmage.loader.MobilityAggregateLoader;
 import org.ohmage.loader.PromptFeedbackLoader.FeedbackItem;
 import org.ohmage.mobility.glue.MobilityInterface;
@@ -102,8 +102,8 @@ public class RecentMobilityChartFragment extends Fragment implements LoaderManag
 				}, MobilityInterface.KEY_DAY + " DESC");
 			case LOAD_MOBILITY_BASELINE_AGGREGATE:
 				return new MobilityAggregateLoader(getActivity(),
-						UserPreferencesHelper.getBaseLineStartTime(getActivity()),
-						UserPreferencesHelper.getBaseLineEndTime(getActivity()),
+						UserPreferencesHelper.getBaseLineStartTime(),
+						UserPreferencesHelper.getBaseLineEndTime(),
 						mAccount.getUsername());
 			case LOAD_MOBILITY_LASTWEEK_AGGREGATE:
 				Calendar cal = Calendar.getInstance();

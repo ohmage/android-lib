@@ -10,8 +10,8 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 import org.ohmage.AccountActivityHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.LogProbe.Status;
 
@@ -47,7 +47,7 @@ public class AdminSettingsActivity extends PreferenceActivity  {
 		addPreferencesFromResource(R.xml.admin_preferences);
 
 		// We should make sure the state is always consistant with the UserPrefHelper since the defaults are set there
-		UserPreferencesHelper userPrefHelper = new UserPreferencesHelper(this);
+		UserPreferencesHelper userPrefHelper = UserPreferencesHelper.getInstance();
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_FEEDBACK)).setChecked(userPrefHelper.showFeedback());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_PROFILE)).setChecked(userPrefHelper.showProfile());
 		((CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_SHOW_UPLOAD_QUEUE)).setChecked(userPrefHelper.showUploadQueue());

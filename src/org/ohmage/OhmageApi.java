@@ -134,7 +134,7 @@ public class OhmageApi {
 				Log.e(TAG, "Failed due to error codes: " + mErrorCodes.toString());
 
 				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
-					new UserPreferencesHelper(context).setUserDisabled(true);
+					new PreferenceStore(context).edit().setUserDisabled(true).commit();
 				}
 
 				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {

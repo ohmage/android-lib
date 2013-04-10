@@ -13,9 +13,9 @@ import android.widget.LinearLayout;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
-import org.ohmage.library.R;
-import org.ohmage.UserPreferencesHelper;
+import org.ohmage.PreferenceStore;
 import org.ohmage.controls.ActionBarControl;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -41,7 +41,7 @@ public abstract class BaseActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		UserPreferencesHelper preferencesHelper = new UserPreferencesHelper(this);
+		PreferenceStore preferencesHelper = new PreferenceStore(this);
 
 		if (preferencesHelper.isUserDisabled()) {
 			((OhmageApplication) getApplication()).resetAll();

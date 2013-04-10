@@ -19,13 +19,13 @@ import android.widget.TextView;
 import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.AccountHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
@@ -148,7 +148,7 @@ public class CampaignInfoActivity extends BaseInfoActivity implements LoaderMana
 		if (campaignStatus != Campaign.STATUS_REMOTE) {
 			// only show data-related actions if it's ready
 			if (campaignStatus == Campaign.STATUS_READY) {
-			    if(new UserPreferencesHelper(this).showFeedback())
+			    if(UserPreferencesHelper.showFeedback())
 			        actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
 				actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 				

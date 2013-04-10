@@ -17,8 +17,6 @@ import android.widget.TextView;
 
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.ConfigHelper;
-import org.ohmage.library.R;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.controls.ActionBarControl;
 import org.ohmage.controls.ActionBarControl.ActionListener;
@@ -27,6 +25,7 @@ import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Survey;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.triggers.base.TriggerDB;
 import org.ohmage.ui.BaseInfoActivity;
@@ -45,7 +44,6 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 	
 	// helpers
 	private FragmentActivity mContext;
-	private ConfigHelper mSharedPreferencesHelper;
 	private ImageLoader mImageLoader;
 
 	// handles to views we'll be manipulating
@@ -72,7 +70,6 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		
 		// save the context so the action bar can use it to fire off intents
 		mContext = this;
-		mSharedPreferencesHelper = new ConfigHelper(this);
 		mImageLoader = ImageLoader.get(this);
 		// and create a handler attached to this thread for contentobserver events
 		mHandler = new Handler();
@@ -103,7 +100,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 				findViewById(R.id.survey_info_campaign_urn_row),
 				campaignUrnDetails);
 		// If we aren't in single campaign mode, show the campaign urn details
-		findViewById(R.id.survey_info_campaign_urn_row).setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
+		findViewById(R.id.survey_info_campaign_urn_row).setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 
 		TextView statusDetails = (TextView)findViewById(R.id.survey_info_status_details);
 		statusDetails.setText(Html.fromHtml(getString(R.string.survey_info_status_details)));
@@ -162,7 +159,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		// this applies both to the action bar and to the command tray
 		if (campaignStatus == Campaign.STATUS_READY) {
 			// only add response history if show feedback is true
-			if(new UserPreferencesHelper(this).showFeedback())
+			if(UserPreferencesHelper.showFeedback())
 				actionBar.addActionBarCommand(ACTION_VIEW_RESPHISTORY, getString(R.string.response_history_action_button_description), R.drawable.btn_title_resphist);
 			actionBar.addActionBarCommand(ACTION_SETUP_TRIGGERS, getString(R.string.reminder_action_button_description), R.drawable.btn_title_trigger);
 			
@@ -259,7 +256,7 @@ public class SurveyInfoActivity extends BaseInfoActivity implements LoaderManage
 		mHeadertext.setText(data.getString(QueryParams.TITLE));
 		mSubtext.setText(data.getString(QueryParams.CAMPAIGN_NAME));
 		// If we aren't in single campaign mode, show the campaign name
-		mSubtext.setVisibility((ConfigHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
+		mSubtext.setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 		
 		final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
 		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
