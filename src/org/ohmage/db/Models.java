@@ -231,6 +231,9 @@ public class Models {
                 SelectionBuilder builder = new SelectionBuilder();
                 builder.where(Campaigns.CAMPAIGN_URN + "!=?", campaignUrn);
                 setRemote(context, builder);
+            } else {
+                // If there are no new campaigns, everything should be remote
+                setRemote(context);
             }
         }
 
