@@ -33,8 +33,8 @@ public class UserPreferencesHelper {
     private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
     private static final boolean DEFAULT_SHOW_MOBILITY_FEEDBACK = true;
 
-    private static final String KEY_UPLOAD_PROBES_WIFI_ONLY = "key_upload_probes_wifi_only";
-    private static final String KEY_UPLOAD_RESPONSES_WIFI_ONLY = "key_upload_responses_wifi_only";
+    public static final String KEY_UPLOAD_PROBES_WIFI_ONLY = "key_upload_probes_wifi_only";
+    public static final String KEY_UPLOAD_RESPONSES_WIFI_ONLY = "key_upload_responses_wifi_only";
     public static final String KEY_SINGLE_CAMPAIGN_MODE = "key_single_campaign_mode";
     public static final String KEY_SHOW_FEEDBACK = "key_show_feedback";
     public static final String KEY_SHOW_PROFILE = "key_show_profile";

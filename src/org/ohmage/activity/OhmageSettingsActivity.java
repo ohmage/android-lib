@@ -2,6 +2,7 @@ package org.ohmage.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -109,6 +110,12 @@ public class OhmageSettingsActivity extends PreferenceActivity  {
 		} else {
 			getPreferenceScreen().removePreference(mReminders);
 		}
+
+        CheckBoxPreference v = (CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_UPLOAD_PROBES_WIFI_ONLY);
+        v.setChecked(UserPreferencesHelper.getUploadProbesWifiOnly());
+
+        v = (CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_UPLOAD_RESPONSES_WIFI_ONLY);
+        v.setChecked(UserPreferencesHelper.getUploadResponsesWifiOnly());
 
 		setStatusInfo();
 	}
