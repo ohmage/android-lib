@@ -29,9 +29,12 @@ import java.util.Calendar;
  */
 public class UserPreferencesHelper {
 
+    private static final boolean DEFAULT_SHOW_FEEDBACK = true;
     private static final boolean DEFAULT_SHOW_PROFILE = true;
     private static final boolean DEFAULT_SHOW_UPLOAD_QUEUE = true;
     private static final boolean DEFAULT_SHOW_MOBILITY_FEEDBACK = true;
+
+    private static final boolean DEFAULT_UPLOAD_RESPONSES_WIFI_ONLY = false;
 
     public static final String KEY_UPLOAD_PROBES_WIFI_ONLY = "key_upload_probes_wifi_only";
     public static final String KEY_UPLOAD_RESPONSES_WIFI_ONLY = "key_upload_responses_wifi_only";
@@ -72,8 +75,7 @@ public class UserPreferencesHelper {
     }
 
     public static boolean showFeedback() {
-        return getInstance().mPreferences.getBoolean(KEY_SHOW_FEEDBACK,
-                ConfigHelper.getDefaultShowFeedback());
+        return getInstance().mPreferences.getBoolean(KEY_SHOW_FEEDBACK, DEFAULT_SHOW_FEEDBACK);
     }
 
     public static boolean showProfile() {
@@ -102,7 +104,7 @@ public class UserPreferencesHelper {
 
     public static boolean getUploadResponsesWifiOnly() {
         return getInstance().mPreferences.getBoolean(KEY_UPLOAD_RESPONSES_WIFI_ONLY,
-                ConfigHelper.getDefaultUploadResponsesWifiOnly());
+                DEFAULT_UPLOAD_RESPONSES_WIFI_ONLY);
     }
 
     public static boolean isSingleCampaignMode() {

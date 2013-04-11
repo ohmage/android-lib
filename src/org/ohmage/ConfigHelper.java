@@ -18,6 +18,12 @@ package org.ohmage;
 
 import android.preference.PreferenceManager;
 
+import org.ohmage.library.R;
+import org.yaml.snakeyaml.Yaml;
+
+import java.net.URI;
+import java.util.HashMap;
+
 /**
  * Server Configuration Helper
  * 
@@ -25,9 +31,13 @@ import android.preference.PreferenceManager;
  */
 public class ConfigHelper {
 
+    private static final String TAG = "ConfigHelper";
+
     private static final String KEY_SERVER_URL = "key_server_url";
 
     private static String serverUrl;
+
+    private static ServerConfigMap mServerConf;
 
     public static void setServerUrl(String url) {
         serverUrl = url;
@@ -42,94 +52,63 @@ public class ConfigHelper {
         return serverUrl;
     }
 
-    public static boolean getDefaultShowFeedback() {
-        return true;
-    }
-
     public static boolean getDefaultShowMobility() {
-        String server = serverUrl();
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            return false;
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            return false;
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            return true;
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            return true;
-        }
-        return true;
-    }
-
-    public static boolean getDefaultUploadResponsesWifiOnly() {
-        return false;
+        return getConfigBoolean("show_mobility", R.bool.show_mobility);
     }
 
     public static boolean getDefaultUploadProbesWifiOnly() {
-        String server = serverUrl();
-
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            return true;
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            return true;
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            return false;
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            return true;
-        }
-        return true;
+        return getConfigBoolean("upload_probes_wifi", R.bool.upload_probes_wifi);
     }
 
     public static boolean getAdminMode() {
-        String server = serverUrl();
-
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            return false;
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            return false;
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            return true;
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            return true;
-        }
-        return true;
-    }
-
-    public static boolean getReminderAdminMode() {
-        return true;
+        return getConfigBoolean("admin_mode", R.bool.admin_mode);
     }
 
     public static String getLogLevel() {
-        String server = serverUrl();
-
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            return "verbose";
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            return "error";
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            return "verbose";
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            return "error";
-        }
-        return "none";
+        return getConfigString("log_level", R.string.log_level);
     }
 
     public static boolean getLogAnalytics() {
-        String server = serverUrl();
+        return getConfigBoolean("log_analytics", R.bool.log_analytics);
+    }
 
-        if ("https://lausd.mobilizingcs.org/".equals(server)) {
-            return true;
-        } else if ("https://pilots.mobilizelabs.org/".equals(server)) {
-            return false;
-        } else if ("https://dev.ohmage.org/".equals(server)
-                || "https://test.ohmage.org/".equals(server)) {
-            return true;
-        } else if ("https://play.ohmage.org/".equals(server)) {
-            return false;
+    private static String getConfigString(String key, int defValueId) {
+        return (String) getConfigValue(key, OhmageApplication.getContext().getResources()
+                .getString(defValueId));
+    }
+
+    private static boolean getConfigBoolean(String key, int defValueId) {
+        return (Boolean) getConfigValue(key, OhmageApplication.getContext().getResources()
+                .getBoolean(defValueId));
+    }
+
+    private static Object getConfigValue(String key, Object defValue) {
+        HashMap<String, Object> config = getConfig();
+        if (config != null && config.containsKey(key)) {
+            return config.get(key);
         }
-        return false;
+        return defValue;
+    }
+
+    private static HashMap<String, Object> getConfig() {
+        if (serverUrl() == null)
+            return null;
+        String host = URI.create(serverUrl()).getHost();
+        if (host != null && getServerConfig().servers.containsKey(host))
+            return getServerConfig().servers.get(host);
+        return null;
+    }
+
+    private static ServerConfigMap getServerConfig() {
+        if (mServerConf == null) {
+            Yaml yaml = new Yaml();
+            mServerConf = yaml.loadAs(OhmageApplication.getContext().getResources()
+                    .openRawResource(R.raw.config), ServerConfigMap.class);
+        }
+        return mServerConf;
+    }
+
+    public static class ServerConfigMap {
+        public HashMap<String, HashMap<String, Object>> servers;
     }
 }

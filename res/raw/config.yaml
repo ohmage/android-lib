@@ -1,0 +1,21 @@
+servers:
+  play.ohmage.org:
+    log_level: error
+  lausd.mobilizingcs.org:
+    admin_mode: false
+    log_analytics: true
+    log_level: verbose
+    show_mobility: false
+    upload_probes_wifi: false
+  pilots.mobilizelabs.org:
+    admin_mode: false
+    log_level: error
+    show_mobility: false
+  dev.ohmage.org:
+    log_analytics: true
+    log_level: verbose
+    upload_probes_wifi: false
+  test.ohmage.org:
+    log_analytics: true
+    log_level: verbose
+    upload_probes_wifi: false

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- List of default servers to be used with this build -->
-    <!-- We are now using a hack to convert deployment name to configuration -->
-    <!-- Make sure these names match the names in LoginActivity#configureForDeployment -->
+    <!--
+         List of default servers to be used with this build. Information about the server
+         Can be included in parenthesis after the server name. The server name here is used
+         to set the server url. If you have a configuration for a specific server, put
+         it in /res/raw/config.yaml
+    -->
     <string-array name="servers">
         <item>https://play.ohmage.org/ (Public)</item>
         <item>https://pilots.mobilizelabs.org/</item>
@@ -41,6 +44,12 @@
     <item name="log_analytics" type="bool">false</item>
 
     <!-- Determines the log level to be logged to systemlog -->
-    <item name="log_level" type="string">error</item>
+    <item name="log_level" type="string">none</item>
+
+    <!-- Show mobility by default -->
+    <item name="show_mobility" type="bool">true</item>
+
+    <!-- Upload probes over wifi only by default -->
+    <item name="upload_probes_wifi" type="bool">true</item>
 
 </resources>
