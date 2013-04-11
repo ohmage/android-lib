@@ -10,6 +10,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.ohmage.db.DbContract.Campaigns;
@@ -247,7 +248,7 @@ public class DbProvider extends ContentProvider {
 
 		// Only update the campaign if it hasn't been updated more recently
 		if(values.containsKey(Campaigns.CAMPAIGN_UPDATED)) {
-			if(selection != null)
+			if(!TextUtils.isEmpty(selection))
 				selection += " AND ";
 			else
 				selection = "";
