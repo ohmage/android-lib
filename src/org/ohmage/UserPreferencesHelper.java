@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 
 import org.ohmage.db.DbContract.Responses;
+import org.ohmage.library.R;
 
 import java.util.Calendar;
 
@@ -108,7 +109,8 @@ public class UserPreferencesHelper {
     }
 
     public static boolean isSingleCampaignMode() {
-        return getInstance().mPreferences.getBoolean(KEY_SINGLE_CAMPAIGN_MODE, false);
+        return getInstance().mPreferences.getBoolean(KEY_SINGLE_CAMPAIGN_MODE, OhmageApplication
+                .getContext().getResources().getBoolean(R.bool.single_campaign_mode));
     }
 
     /**
