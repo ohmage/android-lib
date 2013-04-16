@@ -6,8 +6,11 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 
-import org.ohmage.AccountHelper;
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.async.CampaignReadTask;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl.ActionListener;
 import org.ohmage.db.DbContract.Campaigns;
@@ -18,49 +21,27 @@ import org.ohmage.ui.BaseSingleFragmentActivity;
 import org.ohmage.ui.OhmageFilterable.CampaignFilter;
 
 public class BaseCampaignListActivity extends BaseSingleFragmentActivity implements
-        OnCampaignActionListener, ActionListener {
+        OnCampaignActionListener, ActionListener,
+        LoaderManager.LoaderCallbacks<CampaignReadResponse> {
 
     static final String TAG = "BaseCampaignListActivity";
 
     // action bar commands
     protected static final int ACTION_REFRESH_CAMPAIGNS = 0;
 
-    AccountHelper mAccount;
-
-    private CampaignReadLoaderCallbacks mCampaignReadLoader;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mAccount = new AccountHelper(this);
-
-        mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mCampaignReadLoader.onResume();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mCampaignReadLoader.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mCampaignReadLoader.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
     public void onContentChanged() {
         super.onContentChanged();
-
-        mCampaignReadLoader.onCreate();
 
         // throw some actions on it
         getActionBarControl().addActionBarCommand(ACTION_REFRESH_CAMPAIGNS,
@@ -80,8 +61,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
     @Override
     public void onCampaignActionDownload(final String campaignUrn) {
-        new CampaignXmlDownloadTask(BaseCampaignListActivity.this, campaignUrn,
-                mAccount.getUsername(), mAccount.getAuthToken()).startLoading();
+        new CampaignXmlDownloadTask(BaseCampaignListActivity.this, campaignUrn).startLoading();
     }
 
     @Override
@@ -148,8 +128,24 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
     public void onActionClicked(int commandID) {
         switch (commandID) {
             case ACTION_REFRESH_CAMPAIGNS:
-                mCampaignReadLoader.forceLoad();
+                getSupportLoaderManager().restartLoader(0, null, this);
+                getActionBarControl().setProgressVisible(true);
                 break;
         }
+    }
+
+    @Override
+    public Loader<CampaignReadResponse> onCreateLoader(int arg0, Bundle arg1) {
+        return new CampaignReadTask(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
+        getActionBarControl().setProgressVisible(false);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<CampaignReadResponse> arg0) {
+        // Nothing to reset
     }
 }

@@ -222,7 +222,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
                     @Override
                     public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-                        return new CampaignReadTask(AuthenticatorActivity.this, null, null);
+                        return new CampaignReadTask(AuthenticatorActivity.this);
                     }
 
                     @Override
@@ -234,9 +234,10 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                                     R.string.login_error_downloading_campaign, Toast.LENGTH_LONG)
                                     .show();
                         } else {
-                            finishLogin();
+                            createAccount();
                         }
                         dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+                        finishLogin();
                     }
 
                     @Override
@@ -461,7 +462,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
      * @param the confirmCredentials result.
      */
 
-    protected void finishLogin() {
+    protected void createAccount() {
         Log.v(TAG, "finishLogin()");
         final Account account = new Account(mUsername, OhmageApplication.ACCOUNT_TYPE);
         Bundle userData = new Bundle();
@@ -490,6 +491,16 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
         mPreferencesHelper.edit().putLoginTimestamp(System.currentTimeMillis()).commit();
 
+        if (UserPreferencesHelper.isSingleCampaignMode()) {
+            // Download the single campaign
+            showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+            mCampaignDownloadTask.forceLoad();
+        } else {
+            finishLogin();
+        }
+    }
+
+    protected void finishLogin() {
         if (mConfirmCredentials)
             finish();
         else
@@ -515,15 +526,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 Log.v(TAG, "login success");
                 mHashedPassword = response.getHashedPassword();
                 if (!mConfirmCredentials) {
-                    if (UserPreferencesHelper.isSingleCampaignMode()) {
-                        final String hashedPassword = response.getHashedPassword();
-                        // Download the single campaign
-                        showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-                        mCampaignDownloadTask.setCredentials(mUsername, mHashedPassword);
-                        mCampaignDownloadTask.forceLoad();
-                    } else {
-                        finishLogin();
-                    }
+                    createAccount();
                 } else {
                     finishConfirmCredentials(true);
                 }

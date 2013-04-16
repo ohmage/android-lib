@@ -36,9 +36,8 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     private final Context mContext;
     private OhmageApi mApi;
 
-    public CampaignXmlDownloadTask(Context context, String campaignUrn, String username,
-            String hashedPassword) {
-        super(context, username, hashedPassword);
+    public CampaignXmlDownloadTask(Context context, String campaignUrn) {
+        super(context);
         mCampaignUrn = campaignUrn;
         mContext = context;
     }

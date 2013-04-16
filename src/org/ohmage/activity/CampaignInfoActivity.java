@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.google.android.imageloader.ImageLoader;
 
-import org.ohmage.AccountHelper;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.controls.ActionBarControl;
@@ -38,7 +37,6 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
 
     // helpers
     private FragmentActivity mContext;
-    private AccountHelper mAccount;
     private ImageLoader mImageLoader;
 
     // action bar commands
@@ -68,7 +66,6 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
 
         // save the context so the action bar can use it to fire off intents
         mContext = this;
-        mAccount = new AccountHelper(this);
         mImageLoader = ImageLoader.get(this);
 
         setContentView(R.layout.campaign_info_details);
@@ -271,8 +268,8 @@ public class CampaignInfoActivity extends BaseInfoActivity implements
                     // when clicked, it fires off a download task,
                     // waits for it to finish, then goes back to the list when
                     // it's done
-                    new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn, mAccount
-                            .getUsername(), mAccount.getAuthToken()).startLoading();
+                    new CampaignXmlDownloadTask(CampaignInfoActivity.this, campaignUrn)
+                            .startLoading();
                 }
             });
         }

@@ -72,11 +72,6 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
         mContext = context;
     }
 
-    public CampaignReadTask(Context context, String username, String hashedPassword) {
-        super(context, username, hashedPassword);
-        mContext = context;
-    }
-
     @Override
     public CampaignReadResponse loadInBackground() {
         if (mApi == null)
@@ -120,7 +115,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
             // state changes. This is used to determine if there is a better
             // choice for the single campaign mode after the download is
             // complete.
-            oldUrn = Campaign.getSingleCampaign(getContext());
+            final String oldUrn = Campaign.getSingleCampaign(getContext());
 
             ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
@@ -245,7 +240,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
                     // Download the new xml
                     if (newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
                         CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(
-                                getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+                                getContext(), newCampaign.mUrn);
                         campaignDownloadTask.registerListener(0, mCompleteListener);
                         campaignDownloadTask.startLoading();
                         campaignDownloadTask.waitForLoader();

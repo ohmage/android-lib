@@ -4,19 +4,26 @@ package org.ohmage.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import org.ohmage.OhmageApi.CampaignReadResponse;
+import org.ohmage.OhmageApi.Result;
+import org.ohmage.PreferenceStore;
 import org.ohmage.UserPreferencesHelper;
-import org.ohmage.async.CampaignReadLoaderCallbacks;
+import org.ohmage.async.CampaignReadTask;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.ui.BaseActivity;
 
-public class DashboardActivity extends BaseActivity {
+public class DashboardActivity extends BaseActivity implements
+        LoaderManager.LoaderCallbacks<CampaignReadResponse> {
     private static final String TAG = "DashboardActivity";
 
     private Button mCampaignBtn;
@@ -28,7 +35,7 @@ public class DashboardActivity extends BaseActivity {
     private Button mMobilityBtn;
     private Button mProbeBtn;
 
-    private CampaignReadLoaderCallbacks mCampaignReadLoader;
+    private PreferenceStore mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +43,8 @@ public class DashboardActivity extends BaseActivity {
 
         setContentView(R.layout.dashboard_layout);
         getActionBarControl().setShowLogo(true);
+
+        mPrefs = new PreferenceStore(this);
 
         // gather up all the buttons and tie them to the dashboard button
         // listener
@@ -60,9 +69,6 @@ public class DashboardActivity extends BaseActivity {
         mHelpBtn.setOnClickListener(buttonListener);
         mMobilityBtn.setOnClickListener(buttonListener);
         mProbeBtn.setOnClickListener(buttonListener);
-
-        mCampaignReadLoader = new CampaignReadLoaderCallbacks(this);
-        mCampaignReadLoader.onCreate();
     }
 
     private void ensureUI() {
@@ -99,25 +105,17 @@ public class DashboardActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
-        mCampaignReadLoader.onResume();
+        if (mPrefs.getLastCampaignRefreshTime() + DateUtils.MINUTE_IN_MILLIS * 5 < System
+                .currentTimeMillis()) {
+            getSupportLoaderManager().restartLoader(0, null, this);
+            getActionBarControl().setProgressVisible(true);
+        }
 
         // This is to prevent users from clicking an icon multiple times when
         // there is delay on Dashboard somehow.
         enableAllButtons();
 
         ensureUI();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mCampaignReadLoader.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mCampaignReadLoader.onRestoreInstanceState(savedInstanceState);
     }
 
     private void enableAllButtons() {
@@ -187,5 +185,23 @@ public class DashboardActivity extends BaseActivity {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public Loader<CampaignReadResponse> onCreateLoader(int arg0, Bundle arg1) {
+        return new CampaignReadTask(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
+        if (data.getResult() == Result.SUCCESS) {
+            mPrefs.edit().setLastCampaignRefreshTime(System.currentTimeMillis()).commit();
+        }
+        getActionBarControl().setProgressVisible(false);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<CampaignReadResponse> arg0) {
+        // Nothing to reset
     }
 }
