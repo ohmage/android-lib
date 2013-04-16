@@ -27,7 +27,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
@@ -65,7 +65,8 @@ import java.util.Arrays;
 /**
  * Activity which displays login screen to the user.
  */
-public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity {
+public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity implements
+        LoaderCallbacks<CampaignReadResponse> {
     private static final String TAG = "AuthenticatorActivity";
 
     private static final int LOGIN_FINISHED = 0;
@@ -114,7 +115,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
     private EditText mServerEdit;
     private PreferenceStore mPreferencesHelper;
-    private CampaignReadTask mCampaignDownloadTask;
     private String mHashedPassword;
 
     /**
@@ -216,34 +216,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 showDialog(DIALOG_SERVER_LIST);
             }
         });
-
-        mCampaignDownloadTask = (CampaignReadTask) getSupportLoaderManager().initLoader(0, null,
-                new LoaderManager.LoaderCallbacks<CampaignReadResponse>() {
-
-                    @Override
-                    public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
-                        return new CampaignReadTask(AuthenticatorActivity.this);
-                    }
-
-                    @Override
-                    public void onLoadFinished(Loader<CampaignReadResponse> loader,
-                            CampaignReadResponse data) {
-                        String urn = Campaign.getSingleCampaign(AuthenticatorActivity.this);
-                        if (urn == null) {
-                            Toast.makeText(AuthenticatorActivity.this,
-                                    R.string.login_error_downloading_campaign, Toast.LENGTH_LONG)
-                                    .show();
-                        } else {
-                            createAccount();
-                        }
-                        dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-                        finishLogin();
-                    }
-
-                    @Override
-                    public void onLoaderReset(Loader<CampaignReadResponse> loader) {
-                    }
-                });
     }
 
     @Override
@@ -494,7 +466,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         if (UserPreferencesHelper.isSingleCampaignMode()) {
             // Download the single campaign
             showDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
-            mCampaignDownloadTask.forceLoad();
+            getSupportLoaderManager().restartLoader(0, null, this);
         } else {
             finishLogin();
         }
@@ -594,5 +566,27 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         }
 
         return false;
+    }
+
+    @Override
+    public Loader<CampaignReadResponse> onCreateLoader(int id, Bundle args) {
+        return new CampaignReadTask(AuthenticatorActivity.this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<CampaignReadResponse> loader, CampaignReadResponse data) {
+        String urn = Campaign.getSingleCampaign(AuthenticatorActivity.this);
+        if (urn == null) {
+            Toast.makeText(AuthenticatorActivity.this, R.string.login_error_downloading_campaign,
+                    Toast.LENGTH_LONG).show();
+        } else {
+            createAccount();
+        }
+        dismissDialog(DIALOG_DOWNLOADING_CAMPAIGNS);
+        finishLogin();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<CampaignReadResponse> loader) {
     }
 }
