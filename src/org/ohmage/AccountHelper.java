@@ -6,22 +6,13 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Html;
+import android.util.Log;
 
 import org.ohmage.activity.OhmageLauncher;
-import org.ohmage.activity.UploadQueueActivity;
-import org.ohmage.authenticator.AuthenticatorActivity;
-import org.ohmage.db.Models.Campaign;
 
 import java.io.IOException;
 
@@ -33,6 +24,8 @@ import java.io.IOException;
  */
 public class AccountHelper {
 
+    private static final String TAG = "AccountHelper";
+    
     protected final AccountManager mAccountManager;
 
     public AccountHelper(Context context) {
@@ -80,9 +73,9 @@ public class AccountHelper {
         if (Thread.currentThread() == Looper.getMainLooper().getThread())
             return mAccountManager.peekAuthToken(getAccount(), OhmageApplication.AUTHTOKEN_TYPE);
 
-        AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(getAccount(),
-                OhmageApplication.AUTHTOKEN_TYPE, false, null, null);
         try {
+            AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(getAccount(),
+                    OhmageApplication.AUTHTOKEN_TYPE, false, null, null);
             Bundle result = future.getResult();
             if (result != null)
                 return result.getString(AccountManager.KEY_AUTHTOKEN);
@@ -92,6 +85,8 @@ public class AccountHelper {
         } catch (AuthenticatorException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Account no longer exists");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

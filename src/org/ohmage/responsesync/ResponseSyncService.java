@@ -112,14 +112,14 @@ public class ResponseSyncService extends WakefulIntentService {
 		// grab an instance of the api connector so we can do calls to the server for responses
 		OhmageApi api = new OhmageApi(this);
 		mPrefs = new AccountHelper(this);
-		String username = mPrefs.getUsername();
-		String hashedPassword = mPrefs.getAuthToken();
 
-		if(!AccountHelper.accountExists()) {
+		if (!AccountHelper.accountExists()) {
 			Log.e(TAG, "User isn't logged in, terminating task");
-
 			return;
 		}
+
+		String username = mPrefs.getUsername();
+		String hashedPassword = mPrefs.getAuthToken();
 
 		final ContentResolver cr = getContentResolver();
 		final ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
