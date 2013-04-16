@@ -1,3 +1,4 @@
+
 package org.ohmage.async;
 
 import android.content.ContentProviderOperation;
@@ -38,189 +39,228 @@ import java.util.HashSet;
  */
 public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadResponse> {
 
-	private static final String TAG = "CampaignReadTask";
-	private OhmageApi mApi;
-	private final Context mContext;
+    private static final String TAG = "CampaignReadTask";
+    private OhmageApi mApi;
+    private final Context mContext;
 
-	public CampaignReadTask(Context context) {
-		super(context);
-		mContext = context;
-	}
+    private final OnLoadCompleteListener<Response> mCompleteListener = new OnLoadCompleteListener<OhmageApi.Response>() {
 
-	public CampaignReadTask(Context context, String username, String hashedPassword) {
-		super(context, username, hashedPassword);
-		mContext = context;
-	}
+        @Override
+        public void onLoadComplete(Loader<Response> loader, Response data) {
+            // If it was successful then we can set the single campaign
+            if (data.getResult() == Result.SUCCESS) {
 
-	@Override
-	public CampaignReadResponse loadInBackground() {
-		if(mApi == null)
-			mApi = new OhmageApi(mContext);
+                if (!TextUtils.isEmpty(oldUrn)) {
+                    // If we are removing the old campaign show the notification
+                    Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
+                    intent.putExtra(ErrorDialogActivity.EXTRA_TITLE,
+                            getContext().getString(R.string.single_campaign_changed_title));
+                    intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE,
+                            getContext().getString(R.string.single_campaign_changed_message));
+                    NotificationHelper.showGeneralNotification(getContext(), getContext()
+                            .getString(R.string.single_campaign_changed_title), getContext()
+                            .getString(R.string.click_more_info), intent);
+                }
+            }
+        }
+    };
 
-		CampaignReadResponse response = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
+    private String oldUrn;
 
-		if (response.getResult() == Result.SUCCESS) {
-			ContentResolver cr = getContext().getContentResolver();
+    public CampaignReadTask(Context context) {
+        super(context);
+        mContext = context;
+    }
 
-			//build list of urns of all campaigns
-			Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String [] {Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED, Campaigns.CAMPAIGN_STATUS}, null, null, null);
-			cursor.moveToFirst();
+    public CampaignReadTask(Context context, String username, String hashedPassword) {
+        super(context, username, hashedPassword);
+        mContext = context;
+    }
 
-			HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
-			HashSet<String> toDelete = new HashSet<String>();
+    @Override
+    public CampaignReadResponse loadInBackground() {
+        if (mApi == null)
+            mApi = new OhmageApi(mContext);
 
-			for (int i = 0; i < cursor.getCount(); i++) {
-				if(cursor.getInt(2) != Campaign.STATUS_REMOTE) {
-					// Here we store a list of campaigns we have downloaded
-					Campaign c = new Campaign();
-					c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
-					c.mCreationTimestamp = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_CREATED));
-					localCampaignUrns.put(c.mUrn, c);
-				} else {
-					// Here we store a list of campaigns we may have to delete if the server doesn't return them
-					toDelete.add(cursor.getString(0));
-				}
-				cursor.moveToNext();
-			}
+        CampaignReadResponse response = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(),
+                getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
-			cursor.close();
+        if (response.getResult() == Result.SUCCESS) {
+            ContentResolver cr = getContext().getContentResolver();
 
-			// The old urn thats used for single campaign mode. This has to be determined before the new data is downloaded in case the
-			// state changes. This is used to determine if there is a better choice for the single campaign mode after the download is complete.
-			final String oldUrn = Campaign.getSingleCampaign(getContext());
+            // build list of urns of all campaigns
+            Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String[] {
+                    Campaigns.CAMPAIGN_URN, Campaigns.CAMPAIGN_CREATED, Campaigns.CAMPAIGN_STATUS
+            }, null, null, null);
+            cursor.moveToFirst();
 
-			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+            HashMap<String, Campaign> localCampaignUrns = new HashMap<String, Campaign>();
+            HashSet<String> toDelete = new HashSet<String>();
 
-			try { // parse response
-				JSONArray jsonItems = response.getMetadata().getJSONArray("items");
+            for (int i = 0; i < cursor.getCount(); i++) {
+                if (cursor.getInt(2) != Campaign.STATUS_REMOTE) {
+                    // Here we store a list of campaigns we have downloaded
+                    Campaign c = new Campaign();
+                    c.mUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
+                    c.mCreationTimestamp = cursor.getString(cursor
+                            .getColumnIndex(Campaigns.CAMPAIGN_CREATED));
+                    localCampaignUrns.put(c.mUrn, c);
+                } else {
+                    // Here we store a list of campaigns we may have to delete
+                    // if the server doesn't return them
+                    toDelete.add(cursor.getString(0));
+                }
+                cursor.moveToNext();
+            }
 
-				for(int i = 0; i < jsonItems.length(); i++) {
-					Campaign c = new Campaign();
-					JSONObject data = response.getData();
-					try {
-						c.mUrn = jsonItems.getString(i); 
-						c.mName = data.getJSONObject(c.mUrn).getString("name");
-						c.mDescription = data.getJSONObject(c.mUrn).getString("description");
-						c.mCreationTimestamp = data.getJSONObject(c.mUrn).getString("creation_timestamp");
-						c.mDownloadTimestamp = null;
-						c.mXml = null;
-						c.mStatus = Campaign.STATUS_REMOTE;
-						c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state", Campaign.PRIVACY_UNKNOWN);
-						c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
-						c.updated = startTime;
-						boolean running = data.getJSONObject(c.mUrn).getString("running_state").equalsIgnoreCase("running");
-						boolean participant = false;
-						JSONArray roles = data.getJSONObject(c.mUrn).getJSONArray("user_roles");
-						for(int j=0;j<roles.length();j++) {
-							if("participant".equals(roles.getString(j))) {
-								participant = true;
-								break;
-							}
-						}
+            cursor.close();
 
-						if (localCampaignUrns.containsKey(c.mUrn)) { //campaign has already been downloaded
+            // The old urn thats used for single campaign mode. This has to be
+            // determined before the new data is downloaded in case the
+            // state changes. This is used to determine if there is a better
+            // choice for the single campaign mode after the download is
+            // complete.
+            oldUrn = Campaign.getSingleCampaign(getContext());
 
-							Campaign old = localCampaignUrns.get(c.mUrn);
-							localCampaignUrns.remove(c.mUrn);
+            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
-							ContentValues values = new ContentValues();
-							// FAISAL: include things here that may change at any time on the server
-							values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
-							values.put(Campaigns.CAMPAIGN_UPDATED, c.updated);
+            try { // parse response
+                JSONArray jsonItems = response.getMetadata().getJSONArray("items");
 
-							if(!c.mCreationTimestamp.equals(old.mCreationTimestamp))
-								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
-							else if(running && !participant)
-								values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_INVALID_USER_ROLE);
-							else
-								values.put(Campaigns.CAMPAIGN_STATUS, (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
+                for (int i = 0; i < jsonItems.length(); i++) {
+                    Campaign c = new Campaign();
+                    JSONObject data = response.getData();
+                    try {
+                        c.mUrn = jsonItems.getString(i);
+                        c.mName = data.getJSONObject(c.mUrn).getString("name");
+                        c.mDescription = data.getJSONObject(c.mUrn).getString("description");
+                        c.mCreationTimestamp = data.getJSONObject(c.mUrn).getString(
+                                "creation_timestamp");
+                        c.mDownloadTimestamp = null;
+                        c.mXml = null;
+                        c.mStatus = Campaign.STATUS_REMOTE;
+                        c.mPrivacy = data.getJSONObject(c.mUrn).optString("privacy_state",
+                                Campaign.PRIVACY_UNKNOWN);
+                        c.mIcon = data.getJSONObject(c.mUrn).optString("icon_url", null);
+                        c.updated = startTime;
+                        boolean running = data.getJSONObject(c.mUrn).getString("running_state")
+                                .equalsIgnoreCase("running");
+                        boolean participant = false;
+                        JSONArray roles = data.getJSONObject(c.mUrn).getJSONArray("user_roles");
+                        for (int j = 0; j < roles.length(); j++) {
+                            if ("participant".equals(roles.getString(j))) {
+                                participant = true;
+                                break;
+                            }
+                        }
 
-							operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(c.mUrn)).withValues(values).build());
+                        // campaign has already been downloaded
+                        if (localCampaignUrns.containsKey(c.mUrn)) {
 
-						} else { //campaign has not been downloaded
+                            Campaign old = localCampaignUrns.get(c.mUrn);
+                            localCampaignUrns.remove(c.mUrn);
 
-							if (running && participant) { //campaign is running and we are a participant
-								// We don't need to delete it
-								toDelete.remove(c.mUrn);
-								operations.add(ContentProviderOperation.newInsert(Campaigns.CONTENT_URI).withValues(c.toCV()).build());
-							}
-						}
-					} catch (JSONException e) {
-						Log.e(TAG, "Error parsing json data for " + jsonItems.getString(i), e);
-					}
-				}
-			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing response json: 'items' key doesn't exist or is not a JSONArray", e);
-			}
+                            ContentValues values = new ContentValues();
+                            // FAISAL: include things here that may change at
+                            // any time on the server
+                            values.put(Campaigns.CAMPAIGN_PRIVACY, c.mPrivacy);
+                            values.put(Campaigns.CAMPAIGN_UPDATED, c.updated);
 
-			for(String urn : toDelete) {
-				operations.add(ContentProviderOperation.newDelete(Campaigns.buildCampaignUri(urn)).build());
-			}
+                            if (!c.mCreationTimestamp.equals(old.mCreationTimestamp))
+                                values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_OUT_OF_DATE);
+                            else if (running && !participant)
+                                values.put(Campaigns.CAMPAIGN_STATUS,
+                                        Campaign.STATUS_INVALID_USER_ROLE);
+                            else
+                                values.put(Campaigns.CAMPAIGN_STATUS,
+                                        (running) ? Campaign.STATUS_READY : Campaign.STATUS_STOPPED);
 
-			//leftover local campaigns were not returned by campaign read, therefore must be in some unavailable state
-			for (String urn : localCampaignUrns.keySet()) {
-				ContentValues values = new ContentValues();
-				values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
-				values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
-				operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn)).withValues(values).build());
-			}
+                            operations.add(ContentProviderOperation
+                                    .newUpdate(Campaigns.buildCampaignUri(c.mUrn))
+                                    .withValues(values).build());
 
-			if(!AccountHelper.accountExists()) {
-				Log.e(TAG, "User isn't logged in, terminating task");
-				return response;
-			}
+                        } else { // campaign has not been downloaded
 
-			try {
-				cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (OperationApplicationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                            // campaign is running and we are a participant
+                            if (running && participant) {
+                                // We don't need to delete it
+                                toDelete.remove(c.mUrn);
+                                operations.add(ContentProviderOperation
+                                        .newInsert(Campaigns.CONTENT_URI).withValues(c.toCV())
+                                        .build());
+                            }
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing json data for " + jsonItems.getString(i), e);
+                    }
+                }
+            } catch (JSONException e) {
+                Log.e(TAG,
+                        "Error parsing response json: 'items' key doesn't exist or is not a JSONArray",
+                        e);
+            }
 
-			// If we are in single campaign mode, we should automatically download the xml for the best campaign
-			if(UserPreferencesHelper.isSingleCampaignMode()) {
-				Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
+            for (String urn : toDelete) {
+                operations.add(ContentProviderOperation.newDelete(Campaigns.buildCampaignUri(urn))
+                        .build());
+            }
 
-				// If there is no good new campaign, the new campaign is different from the old one, or the old one is out of date, we should update it
-				if(newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn) || !newCampaign.mUrn.equals(oldUrn) || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
+            // leftover local campaigns were not returned by campaign read,
+            // therefore must be in some unavailable state
+            for (String urn : localCampaignUrns.keySet()) {
+                ContentValues values = new ContentValues();
+                values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_NO_EXIST);
+                values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+                operations.add(ContentProviderOperation.newUpdate(Campaigns.buildCampaignUri(urn))
+                        .withValues(values).build());
+            }
 
-					// Download the new xml
-					if(newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
-						CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
-						campaignDownloadTask.registerListener(0, new OnLoadCompleteListener<OhmageApi.Response>() {
+            if (!AccountHelper.accountExists()) {
+                Log.e(TAG, "User isn't logged in, terminating task");
+                return response;
+            }
 
-							@Override
-							public void onLoadComplete(Loader<Response> loader, Response data) {
-								// If it was successful then we can set the single campaign
-								if(data.getResult() == Result.SUCCESS) {
+            try {
+                cr.applyBatch(DbContract.CONTENT_AUTHORITY, operations);
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (OperationApplicationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-									if(!TextUtils.isEmpty(oldUrn)) {
-										// If we are removing the old campaign show the notification
-										Intent intent = new Intent(getContext(), ErrorDialogActivity.class);
-										intent.putExtra(ErrorDialogActivity.EXTRA_TITLE, getContext().getString(R.string.single_campaign_changed_title));
-										intent.putExtra(ErrorDialogActivity.EXTRA_MESSAGE, getContext().getString(R.string.single_campaign_changed_message));
-										NotificationHelper.showGeneralNotification(getContext(), getContext().getString(R.string.single_campaign_changed_title), getContext().getString(R.string.click_more_info), intent);
-									}
-								}
-							}
-						});
-						campaignDownloadTask.startLoading();
-						campaignDownloadTask.waitForLoader();
-					}
-				}
+            // If we are in single campaign mode, we should automatically
+            // download the xml for the best campaign
+            if (UserPreferencesHelper.isSingleCampaignMode()) {
+                Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
-				// Make all other campaigns remote
-				Campaign.ensureSingleCampaign(getContext());
-			}
-		} 
+                // If there is no good new campaign, the new campaign is
+                // different from the old one, or the old one is out of date, we
+                // should update it
+                if (newCampaign == null || TextUtils.isEmpty(newCampaign.mUrn)
+                        || !newCampaign.mUrn.equals(oldUrn)
+                        || newCampaign.mStatus == Campaign.STATUS_OUT_OF_DATE) {
 
-		return response;
-	}
+                    // Download the new xml
+                    if (newCampaign != null && !TextUtils.isEmpty(newCampaign.mUrn)) {
+                        CampaignXmlDownloadTask campaignDownloadTask = new CampaignXmlDownloadTask(
+                                getContext(), newCampaign.mUrn, getUsername(), getHashedPassword());
+                        campaignDownloadTask.registerListener(0, mCompleteListener);
+                        campaignDownloadTask.startLoading();
+                        campaignDownloadTask.waitForLoader();
+                    }
+                }
 
-	public void setOhmageApi(OhmageApi api) {
-		mApi = api;
-	}
+                // Make all other campaigns remote
+                Campaign.ensureSingleCampaign(getContext());
+            }
+        }
+
+        return response;
+    }
+
+    public void setOhmageApi(OhmageApi api) {
+        mApi = api;
+    }
 }

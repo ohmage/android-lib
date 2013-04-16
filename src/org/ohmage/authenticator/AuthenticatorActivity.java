@@ -574,12 +574,12 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     private boolean ensureServerUrl() {
         String text = mServerEdit.getText().toString();
 
-        if(TextUtils.isEmpty(text))
+        if (TextUtils.isEmpty(text))
             return false;
 
         // Assume they want https by default
         URI uri = URI.create(text.split(" ")[0]);
-        if(uri.getScheme() == null) {
+        if (uri.getScheme() == null) {
             text = "https://" + text;
         }
 
