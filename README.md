@@ -6,7 +6,9 @@ analyzes, and visualizes data from both prompted experience samples entered by t
 user, as well as continuous streams of data passively collected from sensors or 
 applications onboard the mobile device. 
 
-This is the library project which is required by any app which would like to use ohmage. The idea behind this library is that you can easily replace files in a custom project forked from [ohmageApp](https://github.com/ohmage/ohmageApp) without having to update any files in this library. Any resources in your res directory will override resources in the library (such as the server url). You can also override applications in the android manifest to launch custom activities instead of the ones provided by this library. etc. Take a look at the projects to see examples of how to override the resources of this library project.
+Due to the requirement that each study will usually require slight modifications to the application, we made this library project. It makes it easy to create new apks with different package names which can be deployed independently to the play store if needed. The library project allows us to easily make slight modifications for specific deployments while still keeping a consistent code base.
+
+This library project allows files or resources to be replaced by the apk which uses it. A simple example project which uses this library can be forked from here [ohmageApp](https://github.com/ohmage/ohmageApp). Any resources with the same name that you define in your project will override the same resources in this library. This allows for simple configuration for different deployments.
 
 Projects
 --------
@@ -14,7 +16,7 @@ Projects
 These are the projects which currently use the ohmageAndroidLib
 
 * [ohmageApp](https://github.com/ohmage/ohmageApp) - The basic wrapper around the library project.
-Fork this project if you which to make your own changes.
+Fork this project if you want to make .
 * [MobilizeApp](https://github.com/ohmage/MobilizeApp) - The mobilize version of the app.
 
 Dependencies
