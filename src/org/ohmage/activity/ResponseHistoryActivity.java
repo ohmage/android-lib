@@ -69,8 +69,6 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 
 		setContentView(R.layout.response_history_layout);
 
-		getActionBarControl().setProgressVisible(ResponseSyncService.isRunning());
-
 		mTimeFilter = (DateFilterControl) findViewById(R.id.date_filter);
 		mTimeFilter.setMonth(getIntent().getIntExtra(TimeFilter.EXTRA_MONTH, -1), getIntent().getIntExtra(TimeFilter.EXTRA_YEAR, -1));
 		mTimeFilter.setOnChangeListener(new DateFilterControl.DateFilterChangeListener() {
@@ -133,6 +131,7 @@ public class ResponseHistoryActivity extends CampaignSurveyFilterActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
+	    getActionBarControl().setProgressVisible(ResponseSyncService.isRunning());
 		registerReceiver(mResponseSyncStatus,
 				new IntentFilter(ResponseSyncService.RESPONSE_SYNC_STARTED));
 		registerReceiver(mResponseSyncStatus,
