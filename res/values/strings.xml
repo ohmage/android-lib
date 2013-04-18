@@ -38,12 +38,6 @@
     <string name="feedback">Feedback</string>
     <string name="triggers">Triggers</string>
 
-    <!-- EULA -->
-    <string name="eula_title">Welcome</string>
-    <string name="eula_text">Disclaimer/Agreement stuff goes here.</string>
-    <string name="eula_accept">Accept</string>
-    <string name="eula_cancel">Cancel</string>
-
     <!-- Login -->
     <string name="login_error">Login Error</string>
     <string name="login_invalid_password">Unable to authenticate. Please check username and update the password.</string>
