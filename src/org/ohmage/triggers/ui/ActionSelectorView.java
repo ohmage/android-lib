@@ -37,7 +37,6 @@ public class ActionSelectorView extends RelativeLayout {
 				View v = super.getView(position, convertView, parent);
 				CheckedTextView cv = (CheckedTextView)v;
 				cv.setChecked(actSelected[position]);
-				cv.setCheckMarkDrawable(R.drawable.btn_check_ohmage);
 				return v;
 			}
 		};

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="OhmageTheme" parent="Theme.Sherlock.Light">
-        <item name="android:checkMark">@drawable/btn_check_ohmage</item>
-    </style>
+    <style name="OhmageTheme" parent="Theme.Sherlock.Light" />
 
     <style name="OhmageTheme.LogoActionBar" parent="OhmageTheme">
         <item name="actionBarStyle">@style/Widget.Logo.ActionBar</item>
