@@ -223,14 +223,6 @@
     <!-- Preferences -->
     <string name="preferences_reminders_setup_title">Reminders</string>
     <string name="preferences_reminders_setup_summary">Set up reminders so you never forget to take a survey</string>
-    <string name="preferences_update_password_title">Sync Password</string>
-    <string name="preferences_update_password_summary">Sync your password if you changed it on the server</string>
-    <string name="preferences_logout_title">Logout and Wipe</string>
-    <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
-    <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
-    <string name="preferences_querytest_summary">Run queries against the content provider and view the results</string>
-    <string name="preferences_reset_title">Reset Preferences</string>
-    <string name="preferences_reset_summary">Sets preferences back to the default values</string>
     <string name="admin_settings">Admin Settings</string>
     <string name="preferences_no_single_campaign">Invalid campaign setup</string>
     <string name="preferences_single_campaign_status">Single-Campaign Mode</string>
@@ -242,10 +234,40 @@
     <string name="preferences_profile_title">Profile</string>
     <string name="preferences_upload_queue_title">Upload Queue</string>
     <string name="preferences_mobility_title">Mobility</string>
+    <string name="preferences_ohamage_version_title">Version</string>
+
+    <string name="preferences_campaign_management">Campaign Management</string>
+    <string name="preferences_single_campaign_mode">Single Campaign Mode</string>
+    <string name="preferences_user_management">User Action Management</string>
+    <string name="preferences_show_feedback_summary_off">Show Feedback including the Response History</string>
+    <string name="preferences_show_feedback_summary_on">Hide Feedback including the Response History</string>
+    <string name="preferences_show_feedback_title">Show Feedback</string>
+    <string name="preferences_show_profile_summary_off">Show Profile on Dashboard</string>
+    <string name="preferences_show_profile_summary_on">Hide Profile from Dashboard</string>
+    <string name="preferences_show_profile_title">Show Profile</string>
+    <string name="preferences_show_upload_queue_summary_off">Show Upload Queue on Dashboard</string>
+    <string name="preferences_show_upload_queue_summary_on">Hide Upload Queue from Dashboard</string>
+    <string name="preferences_show_upload_queue_title">Show Upload Queue</string>
+    <string name="preferences_show_mobility_summary_off">Show Mobility on Dashboard</string>
+    <string name="preferences_show_mobility_summary_on">Hide Mobility from Dashboard</string>
+    <string name="preferences_show_mobility_title">Show Mobility</string>
+    <string name="preferences_show_mobility_feedback_summary_off">Show Mobility Feedback</string>
+    <string name="preferences_show_mobility_feedback_summary_on">Hide Mobility Feedback</string>
+    <string name="preferences_show_mobility_feedback_title">Show Mobility Feedback</string>
+    <string name="preferences_account_management">Account Management</string>
+    <string name="preferences_update_password_title">Sync Password</string>
+    <string name="preferences_update_password_summary">Sync your password if you changed it on the server</string>
+    <string name="preferences_logout_title">Logout and Wipe</string>
+    <string name="preferences_logout_summary">Logging out will remove all data from the phone including any data that has not been uploaded</string>
+    <string name="preferences_feedback">Feedback</string>
     <string name="preferences_baseline_starttime_title">Baseline Start Date</string>
     <string name="preferences_baseline_endtime_title">Baseline End Date</string>
     <string name="preferences_baseline_clear_title">Clear Baseline</string>
-    <string name="preferences_ohamage_version_title">Version</string>
+    <string name="preferences_debugging">Debugging</string>
+    <string name="preferences_querytest_title">Test Queries (DEBUG)</string>
+    <string name="preferences_querytest_summary">Run queries against the content provider and view the results</string>
+    <string name="preferences_reset_title">Reset Preferences</string>
+    <string name="preferences_reset_summary">Sets preferences back to the default values</string>
 
     <!-- Campaign Info -->
     <string name="campaign_info_remove_text">Are you sure that you want to remove this campaign?</string>

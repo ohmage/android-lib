@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceScreen android:title="Campaign Management">
+	<PreferenceScreen android:title="@string/preferences_campaign_management">
 
 		<intent
 			android:action="android.intent.action.VIEW"
@@ -10,43 +10,43 @@
 
 	<CheckBoxPreference
 		android:key="key_single_campaign_mode"
-		android:title="Single Campaign Mode" />
+		android:title="@string/preferences_single_campaign_mode" />
 
-	<PreferenceCategory android:title="User Action Management">
+	<PreferenceCategory android:title="@string/preferences_user_management">
 
 		<CheckBoxPreference
 			android:key="key_show_feedback"
-			android:summaryOff="Show Feedback including the Response History"
-			android:summaryOn="Hide Feedback including the Response History"
-			android:title="Show Feedback" />
+			android:summaryOff="@string/preferences_show_feedback_summary_off"
+			android:summaryOn="@string/preferences_show_feedback_summary_on"
+			android:title="@string/preferences_show_feedback_title" />
 
 		<CheckBoxPreference
 			android:key="key_show_profile"
-			android:summaryOff="Show Profile on Dashboard"
-			android:summaryOn="Hide Profile from Dashboard"
-			android:title="Show Profile" />
+			android:summaryOff="@string/preferences_show_profile_summary_off"
+			android:summaryOn="@string/preferences_show_profile_summary_on"
+			android:title="@string/preferences_show_profile_title" />
 
 		<CheckBoxPreference
 			android:key="key_show_upload_queue"
-			android:summaryOff="Show Upload Queue on Dashboard"
-			android:summaryOn="Hide Upload Queue from Dashboard"
-			android:title="Show Upload Queue" />
+			android:summaryOff="@string/preferences_show_upload_queue_summary_off"
+			android:summaryOn="@string/preferences_show_upload_queue_summary_on"
+			android:title="@string/preferences_show_upload_queue_title" />
 
 		<CheckBoxPreference
 			android:key="key_show_mobility"
-			android:summaryOff="Show Mobility on Dashboard"
-			android:summaryOn="Hide Mobility from Dashboard"
-			android:title="Show Mobility" />
+			android:summaryOff="@string/preferences_show_mobility_summary_off"
+			android:summaryOn="@string/preferences_show_mobility_summary_on"
+			android:title="@string/preferences_show_mobility_title" />
 		
 		<CheckBoxPreference
 			android:key="key_show_mobility_feedback"
-			android:summaryOff="Show Mobility Feedback"
-			android:summaryOn="Hide Mobility Feedback"
-			android:title="Show Mobility Feedback"
+			android:summaryOff="@string/preferences_show_mobility_feedback_summary_off"
+			android:summaryOn="@string/preferences_show_mobility_feedback_summary_on"
+			android:title="@string/preferences_show_mobility_feedback_title"
 			android:dependency="key_show_mobility" />
 	</PreferenceCategory>
 
-	<PreferenceCategory android:title="Account Management">
+	<PreferenceCategory android:title="@string/preferences_account_management">
 
 		<PreferenceScreen
 			android:key="key_update_password"
@@ -61,7 +61,7 @@
 			android:title="@string/preferences_logout_title" />
 	</PreferenceCategory>
 
-	<PreferenceCategory android:title="Feedback">
+	<PreferenceCategory android:title="@string/preferences_feedback">
 
 	    <org.ohmage.widget.DatePreference
 			android:key="key_baseline_start_time"
@@ -77,7 +77,7 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory android:title="Debugging">
+	<PreferenceCategory android:title="@string/preferences_debugging">
 		<PreferenceScreen
 			android:key="key_querytest"
 			android:persistent="false"
