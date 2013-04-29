@@ -49,7 +49,7 @@
         android:id="@+id/dash_probe_btn"
         style="@style/DashboardButton"
         android:contentDescription="@string/dashboard_probe_btn_description"
-        android:drawableTop="@drawable/btn_dashboard_mobility"
+        android:drawableTop="@drawable/btn_dashboard_probes"
         android:text="@string/dashboard_probe" />
 
     <Button

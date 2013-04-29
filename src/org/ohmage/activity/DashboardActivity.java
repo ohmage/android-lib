@@ -59,9 +59,6 @@ public class DashboardActivity extends BaseActivity implements
         mMobilityBtn = (Button) findViewById(R.id.dash_mobility_btn);
         mProbeBtn = (Button) findViewById(R.id.dash_probe_btn);
 
-        // We decided to hide the probe button for now
-        mProbeBtn.setVisibility(View.GONE);
-
         DashboardButtonListener buttonListener = new DashboardButtonListener();
 
         mCampaignBtn.setOnClickListener(buttonListener);
