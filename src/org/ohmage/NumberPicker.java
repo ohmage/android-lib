@@ -32,6 +32,8 @@ import android.widget.TextView;
 
 import org.ohmage.library.R;
 
+import java.math.BigDecimal;
+
 /**
  * A view for selecting a number
  *
@@ -49,14 +51,14 @@ public class NumberPicker extends LinearLayout {
          * @param oldVal The previous value.
          * @param newVal The new value.
          */
-        void onChanged(NumberPicker picker, int oldVal, int newVal);
+        void onChanged(NumberPicker picker, double oldVal, double newVal);
     }
 
     /**
      * Interface used to format the number into a string for presentation
      */
     public interface Formatter {
-        String toString(int value);
+        String toString(double value);
     }
 
     /*
@@ -72,7 +74,7 @@ public class NumberPicker extends LinearLayout {
                         mBuilder, java.util.Locale.US);
                 final Object[] mArgs = new Object[1];
                 @Override
-				public String toString(int value) {
+				public String toString(double value) {
                     mArgs[0] = value;
                     mBuilder.delete(0, mBuilder.length());
                     mFmt.format("%02d", mArgs);
@@ -86,10 +88,10 @@ public class NumberPicker extends LinearLayout {
 		public void run() {
             validateInput(mText);
             if (mIncrement) {
-                changeCurrent(mCurrent + 1);
+                changeCurrent(mCurrent.add(new BigDecimal(1)));
                 mHandler.postDelayed(this, mSpeed);
             } else if (mDecrement) {
-                changeCurrent(mCurrent - 1);
+                changeCurrent(mCurrent.subtract(new BigDecimal(1)));
                 mHandler.postDelayed(this, mSpeed);
             }
         }
@@ -98,27 +100,25 @@ public class NumberPicker extends LinearLayout {
     private final EditText mText;
     private final InputFilter mNumberInputFilter;
 
-    private String[] mDisplayedValues;
-
     /**
      * Lower value of the range of numbers allowed for the NumberPicker
      */
-    private int mStart;
+    private BigDecimal mStart;
 
     /**
      * Upper value of the range of numbers allowed for the NumberPicker
      */
-    private int mEnd;
+    private BigDecimal mEnd;
 
     /**
      * Current value of this NumberPicker
      */
-    private int mCurrent;
+    private BigDecimal mCurrent;
 
     /**
      * Previous value of this NumberPicker.
      */
-    private int mPrevious;
+    private BigDecimal mPrevious;
     private OnChangedListener mListener;
     private Formatter mFormatter;
     private long mSpeed = 300;
@@ -155,9 +155,9 @@ public class NumberPicker extends LinearLayout {
 
                 // now perform the increment/decrement
                 if (R.id.increment == v.getId()) {
-                    changeCurrent(mCurrent + 1);
+                    changeCurrent(mCurrent.add(new BigDecimal(1)));
                 } else if (R.id.decrement == v.getId()) {
-                    changeCurrent(mCurrent - 1);
+                    changeCurrent(mCurrent.subtract(new BigDecimal(1)));
                 }
             }
         };
@@ -258,31 +258,11 @@ public class NumberPicker extends LinearLayout {
      * @param start the start of the range (inclusive)
      * @param end the end of the range (inclusive)
      */
-    public void setRange(int start, int end) {
-        setRange(start, end, null/*displayedValues*/);
-    }
-
-    /**
-     * Set the range of numbers allowed for the number picker. The current
-     * value will be automatically set to the start. Also provide a mapping
-     * for values used to display to the user.
-     *
-     * @param start the start of the range (inclusive)
-     * @param end the end of the range (inclusive)
-     * @param displayedValues the values displayed to the user.
-     */
-    public void setRange(int start, int end, String[] displayedValues) {
-        mDisplayedValues = displayedValues;
-        mStart = start;
-        mEnd = end;
-        mCurrent = start;
+    public void setRange(double start, double end) {
+        mStart = new BigDecimal(start);
+        mEnd = new BigDecimal(end);
+        mCurrent = new BigDecimal(start);
         updateView();
-
-        if (displayedValues != null) {
-            // Allow text entry rather than strictly numeric entry.
-            mText.setRawInputType(InputType.TYPE_CLASS_TEXT |
-                    InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        }
     }
 
     /**
@@ -292,12 +272,12 @@ public class NumberPicker extends LinearLayout {
      * @throws IllegalArgumentException when current is not within the range
      *         of of the number picker
      */
-    public void setCurrent(int current) {
-        if (current < mStart || current > mEnd) {
+    public void setCurrent(double current) {
+        if (current < mStart.doubleValue() || current > mEnd.doubleValue()) {
             throw new IllegalArgumentException(
                     "current should be >= start and <= end");
         }
-        mCurrent = current;
+        mCurrent = new BigDecimal(current);
         updateView();
     }
 
@@ -312,7 +292,7 @@ public class NumberPicker extends LinearLayout {
         mSpeed = speed;
     }
 
-    private String formatNumber(int value) {
+    private String formatNumber(double value) {
         return (mFormatter != null)
                 ? mFormatter.toString(value)
                 : String.valueOf(value);
@@ -327,11 +307,11 @@ public class NumberPicker extends LinearLayout {
      *
      * @param current the new value of the NumberPicker
      */
-    protected void changeCurrent(int current) {
+    protected void changeCurrent(BigDecimal current) {
         // Don't wrap around the values if we go past the start or end
-        if (current > mEnd) {
+        if (current.compareTo(mEnd) > 0) {
             current = mEnd;
-        } else if (current < mStart) {
+        } else if (current.compareTo(mStart) < 0) {
             current = mStart;
         }
         mPrevious = mCurrent;
@@ -346,7 +326,7 @@ public class NumberPicker extends LinearLayout {
      */
     private void notifyChange() {
         if (mListener != null) {
-            mListener.onChanged(this, mPrevious, mCurrent);
+            mListener.onChanged(this, mPrevious.doubleValue(), mCurrent.doubleValue());
         }
     }
 
@@ -363,21 +343,13 @@ public class NumberPicker extends LinearLayout {
      * in {@link setFormatter} will be used to format the number.
      */
     private void updateView() {
-        /* If we don't have displayed values then use the
-         * current number else find the correct value in the
-         * displayed values for the current number.
-         */
-        if (mDisplayedValues == null) {
-            mText.setText(formatNumber(mCurrent));
-        } else {
-            mText.setText(mDisplayedValues[mCurrent - mStart]);
-        }
+        mText.setText(formatNumber(mCurrent.doubleValue()));
         mText.setSelection(mText.getText().length());
     }
 
     private boolean validateCurrentView(CharSequence str) {
-        int val = getSelectedPos(str.toString());
-        if ((val >= mStart) && (val <= mEnd)) {
+        BigDecimal val = getSelectedPos(str.toString());
+        if ((val.compareTo(mStart) >= 0) && (val.compareTo(mEnd) <= 0)) {
             if (mCurrent != val) {
                 mPrevious = mCurrent;
                 mCurrent = val;
@@ -385,7 +357,7 @@ public class NumberPicker extends LinearLayout {
             }
         }
         updateView();
-        return (val >= mStart) && (val <= mEnd);
+        return (val.compareTo(mStart) >= 0) && (val.compareTo(mEnd) <= 0);
     }
 
     private boolean validateInput(View v) {
@@ -417,7 +389,7 @@ public class NumberPicker extends LinearLayout {
     }
 
     private static final char[] DIGIT_CHARACTERS = new char[] {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
     };
 
     private NumberPickerButton mIncrementButton;
@@ -427,21 +399,7 @@ public class NumberPicker extends LinearLayout {
         @Override
 		public CharSequence filter(CharSequence source, int start, int end,
                 Spanned dest, int dstart, int dend) {
-            if (mDisplayedValues == null) {
-                return mNumberInputFilter.filter(source, start, end, dest, dstart, dend);
-            }
-            CharSequence filtered = String.valueOf(source.subSequence(start, end));
-            String result = String.valueOf(dest.subSequence(0, dstart))
-                    + filtered
-                    + dest.subSequence(dend, dest.length());
-            String str = String.valueOf(result).toLowerCase();
-            for (String val : mDisplayedValues) {
-                val = val.toLowerCase();
-                if (val.startsWith(str)) {
-                    return filtered;
-                }
-            }
-            return "";
+            return mNumberInputFilter.filter(source, start, end, dest, dstart, dend);
         }
     }
 
@@ -468,8 +426,12 @@ public class NumberPicker extends LinearLayout {
                 filtered = source.subSequence(start, end);
             }
 
+            // Remove .0 if that is all that is there
+            if(filtered.toString().matches(".*\\.0$"))
+                filtered = filtered.subSequence(0, filtered.length()-2);
+
             // Add the negative sign back in to the front if it was there if we accept negative numbers
-            if(mStart < 0 && source.length() > 0 && source.charAt(0) == '-')
+            if(mStart.signum() == -1 && source.length() > 0 && source.charAt(0) == '-')
                 filtered = "-" + filtered;
 
             String result = String.valueOf(dest.subSequence(0, dstart))
@@ -479,14 +441,14 @@ public class NumberPicker extends LinearLayout {
             if ("".equals(result)) {
                 return result;
             }
-            int val = getSelectedPos(result);
+            BigDecimal val = getSelectedPos(result);
 
             /* Ensure the user can't type in a value greater
              * than the max allowed. We have to allow less than min
              * as the user might want to delete some numbers
              * and then type a new number.
              */
-            if (val > mEnd) {
+            if (val.compareTo(mEnd) > 0) {
                 return "";
             } else {
                 return filtered;
@@ -494,31 +456,11 @@ public class NumberPicker extends LinearLayout {
         }
     }
 
-    private int getSelectedPos(String str) {
-        if (mDisplayedValues == null) {
-            try {
-                return Integer.parseInt(str);
-            } catch (NumberFormatException e) {
-                /* Ignore as if it's not a number we don't care */
-            }
-        } else {
-            for (int i = 0; i < mDisplayedValues.length; i++) {
-                /* Don't force the user to type in jan when ja will do */
-                str = str.toLowerCase();
-                if (mDisplayedValues[i].toLowerCase().startsWith(str)) {
-                    return mStart + i;
-                }
-            }
-
-            /* The user might have typed in a number into the month field i.e.
-             * 10 instead of OCT so support that too.
-             */
-            try {
-                return Integer.parseInt(str);
-            } catch (NumberFormatException e) {
-
-                /* Ignore as if it's not a number we don't care */
-            }
+    private BigDecimal getSelectedPos(String str) {
+        try {
+            return new BigDecimal(str);
+        } catch (NumberFormatException e) {
+            /* Ignore as if it's not a number we don't care */
         }
         return mStart;
     }
@@ -527,24 +469,24 @@ public class NumberPicker extends LinearLayout {
      * Returns the current value of the NumberPicker
      * @return the current value.
      */
-    public int getCurrent() {
-        return mCurrent;
+    public double getCurrent() {
+        return mCurrent.doubleValue();
     }
 
     /**
      * Returns the upper value of the range of the NumberPicker
      * @return the uppper number of the range.
      */
-    protected int getEndRange() {
-        return mEnd;
+    protected double getEndRange() {
+        return mEnd.doubleValue();
     }
 
     /**
      * Returns the lower value of the range of the NumberPicker
      * @return the lower number of the range.
      */
-    protected int getBeginRange() {
-        return mStart;
+    protected double getBeginRange() {
+        return mStart.doubleValue();
     }
 
 	public boolean forceValidateInput() {

@@ -28,8 +28,9 @@
     <EditText
         android:id="@+id/timepicker_input"
         style="?android:attr/textAppearanceLargeInverse"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="120dp"
         android:background="@drawable/timepicker_input"
         android:gravity="center"
         android:singleLine="true"

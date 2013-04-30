@@ -15,43 +15,43 @@
  ******************************************************************************/
 package org.ohmage.prompt.number;
 
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+
 import org.ohmage.NumberPicker;
 import org.ohmage.NumberPicker.OnChangedListener;
 import org.ohmage.library.R;
 import org.ohmage.prompt.AbstractPrompt;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-
 public class NumberPrompt extends AbstractPrompt {
 
-	private int mMinimum;
-	private int mMaximum;
-	private int mValue;
+	private double mMinimum;
+	private double mMaximum;
+	private double mValue;
 	private NumberPicker mNumberPicker;
 
 	public NumberPrompt() {
 		super();
 	}
 
-	public void setMinimum(int value) {
+	public void setMinimum(double value) {
 		mMinimum = value;
 	}
 
-	public void setMaximum(int value) {
+	public void setMaximum(double value) {
 		mMaximum = value;
 	}
 
-	public int getMinimum(){
+	public double getMinimum(){
 		return mMinimum;
 	}
 
-	public int getMaximum(){
+	public double getMaximum(){
 		return mMaximum;
 	}
 
-	public int getValue(){
+	public double getValue(){
 		return mValue;
 	}
 
@@ -79,7 +79,7 @@ public class NumberPrompt extends AbstractPrompt {
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
-		return Integer.valueOf(mValue);
+		return Double.valueOf(mValue);
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class NumberPrompt extends AbstractPrompt {
 		mNumberPicker.setOnChangeListener(new OnChangedListener() {
 
 			@Override
-			public void onChanged(NumberPicker picker, int oldVal, int newVal) {
+			public void onChanged(NumberPicker picker, double oldVal, double newVal) {
 				mValue = newVal;				
 			}
 		});
