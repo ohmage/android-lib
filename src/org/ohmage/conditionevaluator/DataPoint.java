@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage.conditionevaluator;
 
+import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.PromptFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +26,7 @@ public class DataPoint {
     // List of data fields in a data point, add more if necessary for extended data points
     private String id;
     private Object value;  
-    private DataPoint.PromptType promptType;
+    private PromptType promptType;
     
     // Need to know whether the DataPoint was "SKIPPED" or "NOT_DISPLAYED"
     // If so the value is meaningless
@@ -35,7 +38,7 @@ public class DataPoint {
 
     // Possible prompt types
     public static enum PromptType {
-        timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo, video
+        number, hours_before_now, multi_choice, single_choice, single_choice_custom, multi_choice_custom
     }
    
     // Nothing to do here!
@@ -118,53 +121,14 @@ public class DataPoint {
         return (List<Integer>) metadata.get("indexes");
     }
 
-    public void setPromptType(PromptType _promptType) {
-        promptType = _promptType;
-    }
-    
-    /**
-     * Convenience function to set prompt type directly from a String
-     * 
-     * @param _promptType A String representing a type from PromptType
-     */
-    public void setPromptType(String _promptType) {
-        // timestamp, number, hours_before_now, text, multi_choice, single_choice, single_choice_custom, multi_choice_custom, photo
-        
-        if (PromptType.timestamp.toString().equals(_promptType)) {
-            promptType = PromptType.timestamp;
-        }
-        else if (PromptType.number.toString().equals(_promptType)) {
-            promptType = PromptType.number;
-        }
-        else if (PromptType.hours_before_now.toString().equals(_promptType)) {
-            promptType = PromptType.hours_before_now;
-        }
-        else if (PromptType.text.toString().equals(_promptType)) {
-            promptType = PromptType.text;
-        }
-        else if (PromptType.multi_choice.toString().equals(_promptType)) {
-            promptType = PromptType.multi_choice;
-        }
-        else if (PromptType.single_choice.toString().equals(_promptType)) {
-            promptType = PromptType.single_choice;
-        }
-        else if (PromptType.single_choice_custom.toString().equals(_promptType)) {
-            promptType = PromptType.single_choice_custom;
-        }
-        else if (PromptType.multi_choice_custom.toString().equals(_promptType)) {
-            promptType = PromptType.multi_choice_custom;
-        }
-        else if (PromptType.photo.toString().equals(_promptType)) {
-            promptType = PromptType.photo;
-        }
-        else if (PromptType.video.toString().equals(_promptType)) {
-            promptType = PromptType.video;
-        }
-        else {
-            throw new IllegalArgumentException("Prompt type does not exist: " + _promptType);
+    public void setPromptType(AbstractPrompt prompt) {
+        try {
+            promptType = PromptType.valueOf(PromptFactory.promptType(prompt));
+        } catch(IllegalArgumentException e) {
+            // This will happen for prompts which use the basic comparator
         }
     }
-    
+
     public PromptType getPromptType() {
         return promptType;
     }

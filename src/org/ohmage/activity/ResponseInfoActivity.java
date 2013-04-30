@@ -61,6 +61,7 @@ import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.PromptFactory;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
@@ -351,27 +352,27 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public int getItemViewType(Cursor cursor) {
 				String promptType = getItemPromptType(cursor);
 				
-				if("photo".equals(promptType))
+				if(PromptFactory.PHOTO.equals(promptType))
 					return IMAGE_RESPONSE;
-				else if ("video".equals(promptType))
+				else if (PromptFactory.VIDEO.equals(promptType))
 					return VIDEO_RESPONSE;
-				else if ("text".equals(promptType))
+				else if (PromptFactory.TEXT.equals(promptType))
 					return TEXT_RESPONSE;
-				else if ("hours_before_now".equals(promptType))
+				else if (PromptFactory.HOURS_BEFORE_NOW.equals(promptType))
 					return HOURSBEFORENOW_RESPONSE;
-				else if ("timestamp".equals(promptType))
+				else if (PromptFactory.TIMESTAMP.equals(promptType))
 					return TIMESTAMP_RESPONSE;
-				else if ("single_choice".equals(promptType))
+				else if (PromptFactory.SINGLE_CHOICE.equals(promptType))
 					return SINGLECHOICE_RESPONSE;
-				else if ("single_choice_custom".equals(promptType))
+				else if (PromptFactory.SINGLE_CHOICE_CUSTOM.equals(promptType))
 					return SINGLECHOICE_CUSTOM_RESPONSE;
-				else if ("multi_choice".equals(promptType))
+				else if (PromptFactory.MULTI_CHOICE.equals(promptType))
 					return MULTICHOICE_RESPONSE;
-				else if ("multi_choice_custom".equals(promptType))
+				else if (PromptFactory.MULTI_CHOICE_CUSTOM.equals(promptType))
 					return MULTICHOICE_CUSTOM_RESPONSE;
-				else if ("number".equals(promptType))
+				else if (PromptFactory.NUMBER.equals(promptType))
 					return NUMBER_RESPONSE;
-				else if ("remote_activity".equals(promptType))
+				else if (PromptFactory.REMOTE_ACTIVITY.equals(promptType))
 					return REMOTE_RESPONSE;
 				else
 					return UNKNOWN_RESPONSE;

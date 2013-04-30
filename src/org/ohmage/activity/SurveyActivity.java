@@ -71,16 +71,10 @@ import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.RepeatableSetHeader;
 import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
-import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
 import org.ohmage.prompt.media.MediaPrompt;
 import org.ohmage.prompt.media.PhotoPrompt;
-import org.ohmage.prompt.media.VideoPrompt;
-import org.ohmage.prompt.multichoice.MultiChoicePrompt;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import org.ohmage.prompt.text.TextPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.WakefulService;
 import org.ohmage.triggers.glue.TriggerFramework;
@@ -1020,25 +1014,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
 
                 DataPoint dataPoint = new DataPoint(prompt.getId());
 
-                if (prompt instanceof SingleChoicePrompt) {
-                    dataPoint.setPromptType("single_choice");
-                } else if (prompt instanceof MultiChoicePrompt) {
-                    dataPoint.setPromptType("multi_choice");
-                } else if (prompt instanceof MultiChoiceCustomPrompt) {
-                    dataPoint.setPromptType("multi_choice_custom");
-                } else if (prompt instanceof SingleChoiceCustomPrompt) {
-                    dataPoint.setPromptType("single_choice_custom");
-                } else if (prompt instanceof NumberPrompt) {
-                    dataPoint.setPromptType("number");
-                } else if (prompt instanceof HoursBeforeNowPrompt) {
-                    dataPoint.setPromptType("hours_before_now");
-                } else if (prompt instanceof TextPrompt) {
-                    dataPoint.setPromptType("text");
-                } else if (prompt instanceof PhotoPrompt) {
-                    dataPoint.setPromptType("photo");
-                } else if (prompt instanceof VideoPrompt) {
-                    dataPoint.setPromptType("video");
-                }
+                dataPoint.setPromptType(prompt);
 
                 if (prompt.isSkipped()) {
                     dataPoint.setSkipped();
@@ -1093,10 +1069,6 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
                     } else if (PromptType.number.equals(dataPoint.getPromptType())) {
                         dataPoint.setValue(prompt.getResponseObject());
                     } else if (PromptType.hours_before_now.equals(dataPoint.getPromptType())) {
-                        dataPoint.setValue(prompt.getResponseObject());
-                    } else if (PromptType.text.equals(dataPoint.getPromptType())) {
-                        dataPoint.setValue(prompt.getResponseObject());
-                    } else if (PromptType.photo.equals(dataPoint.getPromptType())) {
                         dataPoint.setValue(prompt.getResponseObject());
                     }
                 }

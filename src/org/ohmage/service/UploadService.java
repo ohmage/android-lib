@@ -27,6 +27,7 @@ import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.PromptFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -185,7 +186,7 @@ public class UploadService extends WakefulIntentService {
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
                                 AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
-                                "photo", "video"
+                                PromptFactory.PHOTO, PromptFactory.VIDEO
                         }, null);
 
                 while (promptsCursor.moveToNext()) {
