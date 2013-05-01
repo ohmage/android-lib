@@ -29,6 +29,8 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.format.DateUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -43,7 +45,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,7 +90,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
-public class SurveyActivity extends SherlockActivity implements LocationListener {
+public class SurveyActivity extends SherlockFragmentActivity implements LocationListener {
 
     private static final String TAG = "SurveyActivity";
 
@@ -156,7 +158,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
         // Create the location manager and start listening to the GPS
         mLocManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        NonConfigurationInstance instance = (NonConfigurationInstance) getLastNonConfigurationInstance();
+        NonConfigurationInstance instance = (NonConfigurationInstance) getLastCustomNonConfigurationInstance();
 
         if (instance == null) {
 
@@ -304,7 +306,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
     }
 
     @Override
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime,
                 mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished, mInstructions);
     }
@@ -841,7 +843,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
         // submitText.setText("Thank you for completing the survey!");
         submitText.setText(mSurveySubmitText);
 
-        mPromptFrame.removeAllViews();
+        clearPromptFrame();
         mPromptFrame.addView(layout);
     }
 
@@ -874,7 +876,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
             mPromptText.setText(R.string.survey_message_title);
             mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 
-            mPromptFrame.removeAllViews();
+            clearPromptFrame();
             message.inflateView(this, mPromptFrame);
         } else {
             Log.e(TAG, "trying to showMessage for element that is not a message!");
@@ -923,12 +925,18 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
                 mSkipButton.setVisibility(View.INVISIBLE);
             }
 
-            mPromptFrame.removeAllViews();
+            clearPromptFrame();
             prompt.inflateView(this, mPromptFrame);
-            // mPromptFrame.invalidate();
         } else {
             Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
         }
+    }
+
+    private void clearPromptFrame() {
+        mPromptFrame.removeAllViews();
+        Fragment old = getSupportFragmentManager().findFragmentById(R.id.prompt_frame);
+        if (old != null)
+            getSupportFragmentManager().beginTransaction().remove(old).commit();
     }
 
     private SurveyElement mLastElement;
@@ -991,7 +999,7 @@ public class SurveyActivity extends SherlockActivity implements LocationListener
             // mSkipButton.setVisibility(View.INVISIBLE);
             // }
 
-            mPromptFrame.removeAllViews();
+            clearPromptFrame();
             terminator.inflateView(this, mPromptFrame);
             // mPromptFrame.invalidate();
         } else {
