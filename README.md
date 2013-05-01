@@ -15,8 +15,7 @@ Projects
 
 These are the projects which currently use the ohmageAndroidLib
 
-* [ohmageApp](https://github.com/ohmage/ohmageApp) - The basic wrapper around the library project.
-Fork this project if you want to make .
+* [ohmageApp](https://github.com/ohmage/ohmageApp) - The basic wrapper around the library project. Use this project if you wish to build the default version of ohmage which uses this library apk. Fork this project if you want to build your own custom apk which uses ohmage as a backend.
 * [MobilizeApp](https://github.com/ohmage/MobilizeApp) - The mobilize version of the app.
 
 Dependencies
