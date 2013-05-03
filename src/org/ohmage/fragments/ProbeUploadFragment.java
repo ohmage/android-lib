@@ -166,7 +166,7 @@ public class ProbeUploadFragment extends SherlockFragment implements LoaderCallb
         switch (id) {
             case UPLOAD_LOADER:
                 return new CursorLoader(getActivity(), Probes.CONTENT_URI, new String[] {
-                    BaseColumns._ID
+                    "count(" + BaseColumns._ID + ") as _id"
                 }, BaseProbeColumns.USERNAME + "=?", new String[] {
                     username
                 }, null);
@@ -181,8 +181,12 @@ public class ProbeUploadFragment extends SherlockFragment implements LoaderCallb
 
         switch (loader.getId()) {
             case UPLOAD_LOADER:
-                if (data != null)
-                    mUploadCountText.setText(String.valueOf(data.getCount()));
+                if (data != null) {
+                    if (data.moveToFirst())
+                        mUploadCountText.setText(String.valueOf(data.getInt(0)));
+                    else
+                        mUploadCountText.setText("0");
+                }
                 break;
         }
     }
