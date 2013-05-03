@@ -21,6 +21,7 @@ These are the projects which currently use the ohmageAndroidLib
 Dependencies
 ------------
 
+* [ohmageProbeLibrary](https://github.com/cens/ohmageProbeLibrary)
 * [LogProbe](https://github.com/cens/LogProbe)
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [Google Play Services](http://developer.android.com/google/play-services/setup.html)
