@@ -81,6 +81,12 @@ public class ProbeUploadFragment extends SherlockFragment implements LoaderCallb
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setUploadState(ProbeUploadService.isRunning());
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         getActivity().unregisterReceiver(mMobilityUploadReceiver);
@@ -92,10 +98,7 @@ public class ProbeUploadFragment extends SherlockFragment implements LoaderCallb
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(
-                    ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
-
-            mUploadButton.setEnabled(!ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action));
+            setUploadState(action);
 
             if (ProbeUploadService.PROBE_UPLOAD_STARTED.equals(action)) {
                 mUploadButton.setText("Uploading...");
@@ -110,11 +113,29 @@ public class ProbeUploadFragment extends SherlockFragment implements LoaderCallb
                             getString(R.string.mobility_upload_error_message, error),
                             Toast.LENGTH_SHORT).show();
             } else if (ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action)) {
-                mUploadButton.setText("Upload Now");
                 setLastUploadTimestamp();
             }
         }
     };
+
+    private void setUploadState(String action) {
+        setUploadState(!ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED.equals(action));
+    }
+
+    private void setUploadState(boolean uploading) {
+        if (getSherlockActivity() == null)
+            return;
+
+        getSherlockActivity().setSupportProgressBarIndeterminateVisibility(uploading);
+
+        mUploadButton.setEnabled(!uploading);
+
+        if (uploading) {
+            mUploadButton.setText("Uploading...");
+        } else {
+            mUploadButton.setText("Upload Now");
+        }
+    }
 
     private void setLastUploadTimestamp() {
         long lastMobilityUploadTimestamp = mPrefHelper.getLastProbeUploadTimestamp();

@@ -61,6 +61,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     public static final String EXTRA_PROBE_ERROR = "extra_probe_error";
 
+    private static boolean mRunning;
+
     private OhmageApi mApi;
 
     private boolean isBackground;
@@ -81,6 +83,10 @@ public class ProbeUploadService extends WakefulIntentService {
         super(TAG);
     }
 
+    public static boolean isRunning() {
+        return mRunning;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -91,11 +97,14 @@ public class ProbeUploadService extends WakefulIntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mRunning = false;
         Analytics.service(this, Status.OFF);
     }
 
     @Override
     protected void doWakefulWork(Intent intent) {
+        mRunning = true;
+
         Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
         mAccount = new AccountHelper(ProbeUploadService.this);
@@ -122,6 +131,8 @@ public class ProbeUploadService extends WakefulIntentService {
             mPrefs.edit().putLastProbeUploadTimestamp(System.currentTimeMillis()).commit();
 
         sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
+
+        mRunning = false;
     }
 
     public void setOhmageApi(OhmageApi api) {
