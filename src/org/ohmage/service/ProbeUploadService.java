@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -43,8 +44,8 @@ public class ProbeUploadService extends WakefulIntentService {
      */
     public static final String EXTRA_OBSERVER_VERSION = "extra_observer_version";
 
-    /** Uploaded in batches of 0.5 mb */
-    private static final int BATCH_SIZE = 1024 * 1024 / 2;
+    /** Uploaded in batches of 1 mb */
+    private static final int BATCH_SIZE = 1024 * 1024;
 
     private static final String TAG = "ProbeUploadService";
 
@@ -95,6 +96,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
     @Override
     protected void doWakefulWork(Intent intent) {
+        Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
         mAccount = new AccountHelper(ProbeUploadService.this);
         mPrefs = new PreferenceStore(this);
@@ -108,10 +110,10 @@ public class ProbeUploadService extends WakefulIntentService {
         if (mObserverId != null)
             mObserverVersion = intent.getStringExtra(EXTRA_OBSERVER_VERSION);
 
-        Log.d(TAG, "upload probes");
+        Log.v(TAG, "upload probes");
         ProbesUploader probesUploader = new ProbesUploader();
         probesUploader.upload();
-        Log.d(TAG, "upload responses");
+        Log.v(TAG, "upload responses");
         ResponsesUploader responsesUploader = new ResponsesUploader();
         responsesUploader.upload();
 
@@ -153,13 +155,12 @@ public class ProbeUploadService extends WakefulIntentService {
         protected abstract void uploadError(String string);
 
         /**
-         * Adds a probe to the json array
+         * Creates json representation of probe
          * 
-         * @param probes
          * @param c
-         * @return the number of bytes in the payload
+         * @return the probe json
          */
-        protected abstract int addProbe(JsonArray probes, Cursor c);
+        public abstract JsonElement createProbe(Cursor c);
 
         protected abstract int getVersionIndex();
 
@@ -175,6 +176,56 @@ public class ProbeUploadService extends WakefulIntentService {
 
             uploadStarted();
 
+            ArrayList<Probe> observers = queryObservers();
+
+            for (Probe o : observers) {
+                ArrayList<Long> ids = null;
+
+                while (ids == null || !ids.isEmpty()) {
+
+                    JsonArray probes = new JsonArray();
+
+                    ids = queryProbes(probes, o, BATCH_SIZE);
+                    if (!ids.isEmpty()) {
+
+                        Log.d(TAG, "uploading " + ids.size() + " points for " + o.observer_id
+                                + " v" + o.observer_version);
+                        if (!upload(probes, o.observer_id, o.observer_version)) {
+                            return;
+                        }
+
+                        StringBuilder deleteString = new StringBuilder();
+
+                        // Deleting this batch of points. We can only delete
+                        // with a maximum expression tree depth of 1000
+                        for (int batch = 0; batch < ids.size(); batch++) {
+                            if (deleteString.length() != 0)
+                                deleteString.append(" OR ");
+                            deleteString.append(BaseColumns._ID + "=" + ids.get(batch));
+
+                            // If we have 1000 Expressions or we are at the last
+                            // point, delete them
+                            if ((batch != 0 && batch % (1000 - 2) == 0) || batch == ids.size() - 1) {
+                                getContentResolver().delete(getContentURI(),
+                                        deleteString.toString(), null);
+                                deleteString = new StringBuilder();
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+            uploadFinished();
+        }
+
+        /**
+         * Query for a list of observers which have data
+         * 
+         * @return
+         */
+        private ArrayList<Probe> queryObservers() {
             String select = BaseProbeColumns.USERNAME + "=?";
             if (mObserverId != null)
                 select += " AND " + getNameColumn() + "='" + mObserverId + "'";
@@ -191,91 +242,62 @@ public class ProbeUploadService extends WakefulIntentService {
             ArrayList<Probe> observers = new ArrayList<Probe>();
 
             while (observersCursor.moveToNext()) {
-                observers.add(new Probe(observersCursor.getString(0), observersCursor
-                        .getString(1)));
+                observers
+                        .add(new Probe(observersCursor.getString(0), observersCursor.getString(1)));
             }
             observersCursor.close();
+            return observers;
+        }
 
-            for (Probe o : observers) {
+        /**
+         * Queries the DB for probes which are up to a given size in length.
+         * Adds the probes to the probes JsonArray.
+         * 
+         * @param probes
+         * @param o
+         * @param size
+         * @return a list of ids of probes which were added so they can easily
+         *         be deleted
+         */
+        private ArrayList<Long> queryProbes(JsonArray probes, Probe o, int size) {
 
-                Cursor c = getContentResolver().query(
-                        getContentURI(),
-                        getProjection(),
-                        BaseProbeColumns.USERNAME + "=? AND " + getNameColumn() + "=? AND "
-                                + getVersionColumn() + "=?", new String[] {
-                                mAccount.getUsername(), o.observer_id, o.observer_version
-                        }, null);
+            ArrayList<Long> ids = new ArrayList<Long>();
 
-                JsonArray probes = new JsonArray();
+            Cursor c = getContentResolver().query(
+                    getContentURI(),
+                    getProjection(),
+                    BaseProbeColumns.USERNAME + "=? AND " + getNameColumn() + "=? AND "
+                            + getVersionColumn() + "=?", new String[] {
+                            mAccount.getUsername(), o.observer_id, o.observer_version
+                    }, null);
 
-                ArrayList<Long> delete = new ArrayList<Long>();
-                StringBuilder deleteString = new StringBuilder();
+            int count = c.getCount();
 
-                int payloadSize = 0;
+            for (int i = 0; i < count; i++) {
 
-                for (int i = 0; i < c.getCount() + 1; i++) {
-
-                    try {
-                        c.moveToPosition(i);
-                    } catch (IllegalStateException e) {
-                        // Due to a bug in 4.0 and greater(?) a crash can occur
-                        // during the move.
-                        // There is no good way to recover so we just restart
-                        // More info here:
-                        // http://code.google.com/p/android/issues/detail?id=32472
-                        Log.e(TAG,
-                                "illegal state exception moving to " + i + " of "
-                                        + (c.getCount() + 1));
-                        // Lets restart!
-                        upload();
-                        return;
-                    }
-
-                    // If we have a batch, upload all
-                    // the points we have so far
-                    if (payloadSize > BATCH_SIZE || c.isAfterLast()) {
-                        Log.d(TAG, "total payload for " + o.observer_id + " v" + o.observer_version
-                                + "=" + payloadSize);
-                        if (!upload(probes, o.observer_id, o.observer_version)) {
-                            c.close();
-                            return;
-                        }
-
-                        // Deleting this batch of points. We can only delete
-                        // with a
-                        // maximum expression tree depth of 1000
-                        for (int batch = 0; batch < delete.size(); batch++) {
-                            if (deleteString.length() != 0)
-                                deleteString.append(" OR ");
-                            deleteString.append(BaseColumns._ID + "=" + delete.get(batch));
-
-                            // If we have 1000 Expressions or we are at the last
-                            // point, delete them
-                            if ((batch != 0 && batch % (1000 - 2) == 0)
-                                    || batch == delete.size() - 1) {
-                                getContentResolver().delete(getContentURI(),
-                                        deleteString.toString(), null);
-                                deleteString = new StringBuilder();
-                            }
-                        }
-                        delete.clear();
-
-                        if (c.isAfterLast())
-                            break;
-
-                        payloadSize = 0;
-                        probes = new JsonArray();
-                    }
-
-                    payloadSize += addProbe(probes, c);
-                    delete.add(c.getLong(0));
+                if (!c.moveToNext()) {
+                    Log.e(TAG, "There was an error querying the probe database");
+                    break;
                 }
 
-                c.close();
+                JsonElement point = createProbe(c);
 
+                // Can we add this point without going over the size limit
+                if (size - point.toString().length() < 0) {
+                    // If this point is too big and we have points to send then
+                    // finish, otherwise this point is skipped
+                    if (ids.size() > 0) {
+                        break;
+                    }
+                } else {
+                    probes.add(point);
+                    size -= point.toString().length();
+                    ids.add(c.getLong(0));
+                }
             }
 
-            uploadFinished();
+            c.close();
+            return ids;
         }
 
         /**
@@ -303,7 +325,9 @@ public class ProbeUploadService extends WakefulIntentService {
                         return false;
                     mError = true;
                     uploadError(observerId + response.getErrorCodes().toString());
-                    Log.d(TAG, "failed probes: " + probes.toString());
+                    Log.w(TAG,
+                            "Some Probes failed to upload for " + observerId + " "
+                                    + response.getErrorCodes());
                 } else if (!response.getResult().equals(OhmageApi.Result.SUCCESS)) {
                     mError = true;
                     uploadError(null);
@@ -350,23 +374,19 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        public int addProbe(JsonArray probes, Cursor c) {
+        public JsonElement createProbe(Cursor c) {
             JsonObject probe = new JsonObject();
             probe.addProperty("stream_id", c.getString(ProbeQuery.STREAM_ID));
             probe.addProperty("stream_version", c.getInt(ProbeQuery.STREAM_VERSION));
             String data = c.getString(ProbeQuery.PROBE_DATA);
-            int size = 0;
             if (!TextUtils.isEmpty(data)) {
-                size += data.getBytes().length;
                 probe.add("data", mParser.parse(data));
             }
             String metadata = c.getString(ProbeQuery.PROBE_METADATA);
             if (!TextUtils.isEmpty(metadata)) {
-                size += metadata.getBytes().length;
                 probe.add("metadata", mParser.parse(metadata));
             }
-            probes.add(probe);
-            return size;
+            return probe;
         }
 
         @Override
@@ -445,14 +465,9 @@ public class ProbeUploadService extends WakefulIntentService {
         }
 
         @Override
-        public int addProbe(JsonArray probes, Cursor c) {
+        public JsonElement createProbe(Cursor c) {
             String data = c.getString(ResponseQuery.RESPONSE_DATA);
-            int size = 0;
-            if (!TextUtils.isEmpty(data)) {
-                size += data.getBytes().length;
-                probes.add(mParser.parse(data));
-            }
-            return size;
+            return mParser.parse(data);
         }
 
         @Override
