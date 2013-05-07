@@ -15,12 +15,6 @@
  */
 package org.achartengine.chart;
 
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.SimpleSeriesRenderer;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.util.MathHelper;
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -28,6 +22,12 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.SimpleSeriesRenderer;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.util.MathHelper;
 
 /**
  * The bar chart rendering class.
@@ -91,7 +91,8 @@ public class BarChart extends XYChart {
    * @param yAxisValue the minimum value of the y axis
    * @param seriesIndex the index of the series currently being drawn
    */
-  public void drawSeries(Canvas canvas, Paint paint, float[] points,
+  @Override
+public void drawSeries(Canvas canvas, Paint paint, float[] points,
       SimpleSeriesRenderer seriesRenderer, float yAxisValue, int seriesIndex) {
     int seriesNr = mDataset.getSeriesCount();
     int length = points.length;
@@ -131,6 +132,20 @@ public class BarChart extends XYChart {
 
   private void drawBar(Canvas canvas, float xMin, float yMin, float xMax, float yMax, int scale,
       int seriesIndex, Paint paint) {
+
+        // Fix negative bars
+        float temp;
+        if (xMin > xMax) {
+            temp = xMin;
+            xMin = xMax;
+            xMax = temp;
+        }
+        if (yMin > yMax) {
+            temp = yMin;
+            yMin = yMax;
+            yMax = temp;
+        }
+
     SimpleSeriesRenderer renderer = mRenderer.getSeriesRendererAt(seriesIndex);
     if (renderer.isGradientEnabled()) {
       float minY = (float) toScreenPoint(new double[] { 0, renderer.getGradientStopValue() }, scale)[1];
@@ -189,7 +204,8 @@ public class BarChart extends XYChart {
    * @param points the array of points to be used for drawing the series
    * @param seriesIndex the index of the series currently being drawn
    */
-  protected void drawChartValuesText(Canvas canvas, XYSeries series, SimpleSeriesRenderer renderer,
+  @Override
+protected void drawChartValuesText(Canvas canvas, XYSeries series, SimpleSeriesRenderer renderer,
       Paint paint, float[] points, int seriesIndex) {
     int seriesNr = mDataset.getSeriesCount();
     float halfDiffX = getHalfDiffX(points, points.length, seriesNr);
@@ -212,7 +228,8 @@ public class BarChart extends XYChart {
    * @param seriesIndex the series index
    * @return the legend shape width
    */
-  public int getLegendShapeWidth(int seriesIndex) {
+  @Override
+public int getLegendShapeWidth(int seriesIndex) {
     return SHAPE_WIDTH;
   }
 
@@ -226,7 +243,8 @@ public class BarChart extends XYChart {
    * @param seriesIndex the series index
    * @param paint the paint to be used for drawing
    */
-  public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y,
+  @Override
+public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y,
       int seriesIndex, Paint paint) {
     float halfShapeWidth = SHAPE_WIDTH / 2;
     canvas.drawRect(x, y - halfShapeWidth, x + SHAPE_WIDTH, y + halfShapeWidth, paint);
@@ -271,7 +289,8 @@ public class BarChart extends XYChart {
    * 
    * @return if null values should be rendered
    */
-  protected boolean isRenderNullValues() {
+  @Override
+protected boolean isRenderNullValues() {
     return true;
   }
 
@@ -280,7 +299,8 @@ public class BarChart extends XYChart {
    * 
    * @return the default axis minimum
    */
-  public double getDefaultMinimum() {
+  @Override
+public double getDefaultMinimum() {
     return 0;
   }
 
@@ -289,7 +309,8 @@ public class BarChart extends XYChart {
    * 
    * @return the chart type
    */
-  public String getChartType() {
+  @Override
+public String getChartType() {
     return TYPE;
   }
 }
