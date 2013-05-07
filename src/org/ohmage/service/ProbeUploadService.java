@@ -68,9 +68,9 @@ public class ProbeUploadService extends WakefulIntentService {
     private boolean isBackground;
 
     /**
-     * Set to true if there was an error uploading data
+     * Set to true if there was any data which uploaded
      */
-    private boolean mError = false;
+    private boolean mUploadedData = false;
 
     private AccountHelper mAccount;
     private PreferenceStore mPrefs;
@@ -127,7 +127,7 @@ public class ProbeUploadService extends WakefulIntentService {
         responsesUploader.upload();
 
         // If there were no internal errors, we can say it was successful
-        if (!probesUploader.hadError() && !responsesUploader.hadError())
+        if (probesUploader.uploadedData() || responsesUploader.uploadedData())
             mPrefs.edit().putLastProbeUploadTimestamp(System.currentTimeMillis()).commit();
 
         sendBroadcast(new Intent(ProbeUploadService.PROBE_UPLOAD_SERVICE_FINISHED));
@@ -204,6 +204,8 @@ public class ProbeUploadService extends WakefulIntentService {
                         if (!upload(probes, o.observer_id, o.observer_version)) {
                             return;
                         }
+
+                        mUploadedData = true;
 
                         StringBuilder deleteString = new StringBuilder();
 
@@ -334,13 +336,11 @@ public class ProbeUploadService extends WakefulIntentService {
                 if (response.getResult().equals(OhmageApi.Result.FAILURE)) {
                     if (response.hasAuthError())
                         return false;
-                    mError = true;
                     uploadError(observerId + response.getErrorCodes().toString());
                     Log.w(TAG,
                             "Some Probes failed to upload for " + observerId + " "
                                     + response.getErrorCodes());
                 } else if (!response.getResult().equals(OhmageApi.Result.SUCCESS)) {
-                    mError = true;
                     uploadError(null);
                     return false;
                 }
@@ -348,8 +348,8 @@ public class ProbeUploadService extends WakefulIntentService {
             return true;
         }
 
-        public boolean hadError() {
-            return mError;
+        public boolean uploadedData() {
+            return mUploadedData;
         }
     }
 
