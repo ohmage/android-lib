@@ -18,6 +18,7 @@ package org.ohmage;
 
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -448,5 +449,44 @@ public class Utilities {
 
     public static int setAlpha(int color, int alpha) {
         return color + (alpha << 24);
+    }
+
+    /**
+     * Retrieves the id of an external resource with the same name
+     * 
+     * @param context
+     * @param external Resources of external package
+     * @param packageName External package name
+     * @param id local id
+     * @return
+     */
+    public static int getExternalResourceId(Context context, Resources external,
+            String packageName, int id) {
+        if (context.getPackageName().equals(packageName))
+            return id;
+
+        String name = context.getResources().getResourceName(id).split(":")[1];
+        return external.getIdentifier(name, null, packageName);
+    }
+
+    /**
+     * Retrieves an id array of external resources with the same names
+     * 
+     * @param context
+     * @param external Resources of external package
+     * @param packageName External package name
+     * @param ids Local ids
+     * @return
+     */
+    public static int[] getExternalResourceArray(Context context, Resources external,
+            String packageName, int[] ids) {
+        if (context.getPackageName().equals(packageName))
+            return ids;
+
+        int[] ret = new int[ids.length];
+        for (int i = 0; i < ids.length; i++) {
+            ret[i] = getExternalResourceId(context, external, packageName, ids[i]);
+        }
+        return ret;
     }
 }

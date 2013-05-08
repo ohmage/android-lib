@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import org.ohmage.Utilities;
 import org.ohmage.fragments.ProbeListFragment.ProbeAppEntry;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
@@ -59,7 +60,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ProbeListFragment extends SherlockListFragment implements LoaderCallbacks<List<ProbeAppEntry>> {
+public class ProbeListFragment extends SherlockListFragment implements
+        LoaderCallbacks<List<ProbeAppEntry>> {
 
     private static final String TAG = "ProbeListFragment";
 
@@ -438,7 +440,10 @@ public class ProbeListFragment extends SherlockListFragment implements LoaderCal
                         }
 
                         if ("probe".equals(nodeName)) {
-                            TypedArray sa = res.obtainAttributes(attrs, R.styleable.probe);
+
+                            TypedArray sa = res.obtainAttributes(attrs, Utilities
+                                    .getExternalResourceArray(getContext(), res, info.packageName,
+                                            R.styleable.probe));
 
                             String observerName = sa.getString(R.styleable.probe_observerName);
                             String observerId = sa.getString(R.styleable.probe_observerId);
@@ -487,7 +492,8 @@ public class ProbeListFragment extends SherlockListFragment implements LoaderCal
             List<ProbeAppEntry> entries = new ArrayList<ProbeAppEntry>();
             for (int i = 0; i < apps.size(); i++) {
 
-                if (apps.get(i).metaData != null && apps.get(i).metaData.containsKey(ProbeManager.PROBE_META_DATA)) {
+                if (apps.get(i).metaData != null
+                        && apps.get(i).metaData.containsKey(ProbeManager.PROBE_META_DATA)) {
                     entries.addAll(parseObserversFromApp(apps.get(i)));
                 }
             }
