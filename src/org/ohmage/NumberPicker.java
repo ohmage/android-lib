@@ -213,7 +213,7 @@ public class NumberPicker extends LinearLayout {
         mText = (EditText) findViewById(R.id.timepicker_input);
         mText.setOnFocusChangeListener(focusListener);
         mText.setFilters(new InputFilter[] {inputFilter});
-        mText.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+        mText.setRawInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED|InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         if (!isEnabled()) {
             setEnabled(false);
