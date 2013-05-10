@@ -127,6 +127,11 @@ public class NumberPicker extends LinearLayout {
     private boolean mDecrement;
 
     /**
+     * If <code>true</code> decimal values are not allowed
+     */
+    private boolean mWholeNumbers;
+
+    /**
      * Create a new number picker
      * @param context the application environment
      */
@@ -213,7 +218,7 @@ public class NumberPicker extends LinearLayout {
         mText = (EditText) findViewById(R.id.timepicker_input);
         mText.setOnFocusChangeListener(focusListener);
         mText.setFilters(new InputFilter[] {inputFilter});
-        mText.setRawInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED|InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        mText.setRawInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED|((mWholeNumbers) ? 0 : InputType.TYPE_NUMBER_FLAG_DECIMAL));
 
         if (!isEnabled()) {
             setEnabled(false);
@@ -279,6 +284,15 @@ public class NumberPicker extends LinearLayout {
         }
         mCurrent = current;
         updateView();
+    }
+
+    /**
+     * Set true if this number picker should only allow whole numbers
+     * 
+     * @param wholeNumbers
+     */
+    public void setWholeNumbers(boolean wholeNumbers) {
+        mWholeNumbers = wholeNumbers;
     }
 
     /**
@@ -389,6 +403,10 @@ public class NumberPicker extends LinearLayout {
     }
 
     private static final char[] DIGIT_CHARACTERS = new char[] {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
+
+    private static final char[] DECIMAL_DIGIT_CHARACTERS = new char[] {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
     };
 
@@ -414,7 +432,9 @@ public class NumberPicker extends LinearLayout {
 
         @Override
         protected char[] getAcceptedChars() {
-            return DIGIT_CHARACTERS;
+            if(mWholeNumbers)
+                return DIGIT_CHARACTERS;
+            return DECIMAL_DIGIT_CHARACTERS;
         }
 
         @Override

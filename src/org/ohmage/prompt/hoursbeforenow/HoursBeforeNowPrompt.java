@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.ohmage.prompt.hoursbeforenow;
 
+import android.content.Context;
+import android.view.View;
+
 import org.ohmage.library.R;
 import org.ohmage.prompt.number.NumberPrompt;
 
@@ -32,5 +35,12 @@ public class HoursBeforeNowPrompt extends NumberPrompt {
 	@Override
 	protected int getLayoutResource() {
 		return R.layout.prompt_hours_before_now;
+	}
+
+	@Override
+	public View getView(Context context) {
+		View view = super.getView(context);
+		mNumberPicker.setWholeNumbers(true);
+		return view;
 	}
 }

@@ -31,7 +31,7 @@ public class NumberPrompt extends AbstractPrompt {
 	private BigDecimal mMinimum;
 	private BigDecimal mMaximum;
 	private BigDecimal mValue;
-	private NumberPicker mNumberPicker;
+	protected NumberPicker mNumberPicker;
 
 	public NumberPrompt() {
 		super();
