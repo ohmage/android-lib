@@ -18,6 +18,11 @@ package org.ohmage;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -31,11 +36,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
-import org.codehaus.jackson.map.MappingJsonFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +48,7 @@ import org.ohmage.logprobe.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1090,9 +1091,9 @@ public class OhmageApi {
 	public static abstract class StreamingResponseListener {
 		/**
 		 * Called for each record found in the "data" section of a JSON response.
-		 * @param object the JsonNode which was read from the input stream
+		 * @param object the JsonObject which was read from the input stream
 		 */
-		public abstract void readObject(JsonNode object);
+		public abstract void readObject(JsonObject object);
 
 		/**
 		 * Called once when the "result" section is read to indicate the status of the call.
@@ -1136,98 +1137,77 @@ public class OhmageApi {
 			Log.v(TAG, response.getStatusLine().toString());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity responseEntity = response.getEntity();
-				if (responseEntity != null) {
-					try {
-						// rather than use the regular json parsing library here,
-						// we use jackson to parse the first part, then return a
-						// reference to use for reading the data section
 
-						// note that we open the inputstream rather than reading the whole thing to a string
-						JsonFactory f = new MappingJsonFactory();
-						inputstream = new CountingInputStream(responseEntity.getContent());
-						JsonParser jp = f.createJsonParser(inputstream);
+                if (responseEntity != null) {
+                    try {
 
-						// expecting: {result: "<status>", data: [{},{},{}...]}
+                        JsonParser parser = new JsonParser();
+                        JsonReader reader = new JsonReader(new InputStreamReader(
+                                new CountingInputStream(responseEntity.getContent()), "UTF-8"));
+                        reader.beginObject();
 
-						// ensure the first token in the stream is the start of an object
-						JsonToken cur = jp.nextToken();
-						if (cur != JsonToken.START_OBJECT)
-							throw new JSONException("Top-level entity expected to be an object, found " + cur.toString());
+                        // expecting: {result: "<status>", data: [{},{},{}...]}
+                        while (reader.hasNext()) {
+                            String name = reader.nextName();
+                            if ("result".equals(name)) {
+                                if (reader.nextString().equalsIgnoreCase("success")) {
+                                    result = Result.SUCCESS;
+                                } else {
+                                    result = Result.FAILURE;
+                                }
+                            } else if ("data".equals(name)) {
+                                reader.beginArray();
 
-						// read through the top-level object one attribute at a time
-						while (jp.nextToken() != JsonToken.END_OBJECT) {
-							// get the field name first...
-							String fieldName = jp.getCurrentName();
-							// ...and move on to the token representing the value
-							cur = jp.nextToken();
+                                // do pre-read init
+                                listener.beforeRead();
 
-							// dispatch on the field name
-							if (fieldName.equalsIgnoreCase("result")) {
-								// figure out the data in the result type
-								JsonNode resultNode = jp.readValueAsTree();
+                                while (reader.hasNext()) {
+                                    JsonElement elem = parser.parse(reader);
+                                    listener.readObject(elem.getAsJsonObject());
+                                }
 
-								if (resultNode.getTextValue().equalsIgnoreCase("success")) {
-									result = Result.SUCCESS;
-								} else {
-									result = Result.FAILURE;
-								}
-							}
-							else if (fieldName.equalsIgnoreCase("data")) {
-								// ensure that the data section is an array
-								if (cur != JsonToken.START_ARRAY)
-									throw new JSONException("Data section expected to be an array, found " + cur.toString());
+                                // do post-read cleanup
+                                listener.afterRead();
 
-								// do pre-read init
-								listener.beforeRead();
+                                reader.endArray();
+                            } else if ("errors".equals(name)) {
+                                reader.beginArray();
 
-								// now that we know it's an array, read it off and call the listener on each object read
-								while(jp.nextToken() != JsonToken.END_ARRAY && listener.isListening()) {
-									listener.readObject(jp.readValueAsTree());
-								}
+                                List<String> errorList = new ArrayList<String>();
 
-								// do post-read cleanup
-								listener.afterRead();
-							}
-							else if (fieldName.equalsIgnoreCase("errors")) {
-								// ensure that the errors section is an array
-								if (cur != JsonToken.START_ARRAY)
-									throw new JSONException("Errors section expected to be an array, found " + cur.toString());
+                                while (reader.hasNext()) {
+                                    // read off each of the errors and stick it
+                                    // into
+                                    // the error array
+                                    errorList.add(reader.nextString());
+                                }
 
-								List<String> errorList = new ArrayList<String>();
+                                errorCodes = errorList.toArray(new String[errorList.size()]);
 
-								while(jp.nextToken() != JsonToken.END_ARRAY) {
-									// read off each of the errors and stick it into the error array
-									JsonNode error = jp.readValueAsTree();
-									errorList.add(error.get("code").getTextValue());
-								}
+                                reader.endArray();
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
 
-								errorCodes = errorList.toArray(new String[errorList.size()]);
-							}
-							else {
-								// don't know what to do with this, just skip it?
-								Log.v(TAG, "Unprocessed field in response: " + fieldName);
-								jp.skipChildren();
-							}
-						}
+                        reader.endObject();
 
-						// and we're done!
-					} catch (JSONException e) {
-						Log.e(TAG, "Problem parsing response json", e);
-						result = Result.INTERNAL_ERROR;
-					} catch (IOException e) {
-						Log.e(TAG, "Problem reading response body", e);
-						result = Result.INTERNAL_ERROR;
-					}
+                        // and we're done!
+                    } catch (IOException e) {
+                        Log.e(TAG, "Problem reading response body", e);
+                        result = Result.INTERNAL_ERROR;
+                    }
+
+                    try {
+                        responseEntity.consumeContent();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error consuming content", e);
+                    }
+
 				} else {
 					Log.e(TAG, "No response entity in response");
 					result = Result.HTTP_ERROR;
 				}
-
-			    try {
-			        responseEntity.consumeContent();
-			    } catch (IOException e) {
-			        Log.e(TAG, "Error consuming content", e);
-			    }
 			} else {
 				Log.e(TAG, "Returned status code: " + String.valueOf(response.getStatusLine().getStatusCode()));
 				result = Result.HTTP_ERROR;

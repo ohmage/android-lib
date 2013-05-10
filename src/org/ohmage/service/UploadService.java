@@ -8,10 +8,10 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
@@ -21,7 +21,6 @@ import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
-import org.ohmage.db.DbHelper;
 import org.ohmage.db.DbHelper.Tables;
 import org.ohmage.db.Models.Response;
 import org.ohmage.logprobe.Analytics;
@@ -73,9 +72,6 @@ public class UploadService extends WakefulIntentService {
         String username = helper.getUsername();
         String hashedPassword = helper.getAuthToken();
         boolean uploadErrorOccurred = false;
-        boolean authErrorOccurred = false;
-
-        DbHelper dbHelper = new DbHelper(this);
 
         Uri dataUri = intent.getData();
         if (!Responses.isResponseUri(dataUri)) {
@@ -132,52 +128,51 @@ public class UploadService extends WakefulIntentService {
             // cr.update(Responses.CONTENT_URI, values, Tables.RESPONSES + "." +
             // Responses._ID + "=" + responseId, null);
 
-            JSONArray responsesJsonArray = new JSONArray();
-            JSONObject responseJson = new JSONObject();
+            JsonParser parser = new JsonParser();
+            JsonArray responsesJsonArray = new JsonArray();
+            JsonObject responseJson = new JsonObject();
             final ArrayList<MediaPart> media = new ArrayList<MediaPart>();
 
             OhmageApi.UploadResponse response = null;
 
-            try {
-                responseJson.put("survey_key",
+                responseJson.addProperty("survey_key",
                         cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
-                responseJson.put("time",
+                responseJson.addProperty("time",
                         cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
-                responseJson.put("timezone",
+                responseJson.addProperty("timezone",
                         cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
                 String locationStatus = cursor.getString(cursor
                         .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
-                responseJson.put("location_status", locationStatus);
+                responseJson.addProperty("location_status", locationStatus);
                 if (!locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
-                    JSONObject locationJson = new JSONObject();
-                    locationJson.put("latitude", cursor.getDouble(cursor
+                    JsonObject locationJson = new JsonObject();
+                    locationJson.addProperty("latitude", cursor.getDouble(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
-                    locationJson.put("longitude", cursor.getDouble(cursor
+                    locationJson.addProperty("longitude", cursor.getDouble(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
                     String provider = cursor.getString(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
-                    locationJson.put("provider", provider);
+                    locationJson.addProperty("provider", provider);
                     Log.i(TAG, "Response uploaded with " + provider + " location");
-                    locationJson.put("accuracy", cursor.getFloat(cursor
+                    locationJson.addProperty("accuracy", cursor.getFloat(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
                     locationJson
-                            .put("time", cursor.getLong(cursor
+                            .addProperty("time", cursor.getLong(cursor
                                     .getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
-                    locationJson.put("timezone",
+                    locationJson.addProperty("timezone",
                             cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
-                    responseJson.put("location", locationJson);
+                    responseJson.add("location", locationJson);
                 } else {
                     Log.w(TAG, "Response uploaded without a location");
                 }
-                responseJson.put("survey_id",
+                responseJson.addProperty("survey_id",
                         cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
-                responseJson.put(
+                responseJson.add(
                         "survey_launch_context",
-                        new JSONObject(cursor.getString(cursor
+                        parser.parse(cursor.getString(cursor
                                 .getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
-                responseJson.put(
-                        "responses",
-                        new JSONArray(cursor.getString(cursor
+                responseJson.add(
+                        "responses", parser.parse(cursor.getString(cursor
                                 .getColumnIndex(Responses.RESPONSE_JSON))));
 
                 ContentResolver cr2 = getContentResolver();
@@ -200,7 +195,7 @@ public class UploadService extends WakefulIntentService {
 
                 promptsCursor.close();
 
-                responsesJsonArray.put(responseJson);
+                responsesJsonArray.add(responseJson);
 
                 String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
                 String campaignCreationTimestamp = cursor.getString(cursor
@@ -211,15 +206,10 @@ public class UploadService extends WakefulIntentService {
                         responsesJsonArray.toString(), media);
                 response.handleError(this);
 
-            } catch (JSONException e) {
-                Log.e(TAG, "There was an error parsing the json of the response for upload", e);
-            }
+
 
             int responseStatus = Response.STATUS_ERROR_OTHER;
 
-            if (response == null) {
-                uploadErrorOccurred = true;
-            } else {
                 switch (response.getResult()) {
                     case SUCCESS:
                         NotificationHelper.hideUploadErrorNotification(this);
@@ -253,7 +243,6 @@ public class UploadService extends WakefulIntentService {
                         responseStatus = Response.STATUS_ERROR_HTTP;
                         break;
                 }
-            }
 
             ContentValues cv2 = new ContentValues();
             cv2.put(Responses.RESPONSE_STATUS, responseStatus);

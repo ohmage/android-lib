@@ -9,11 +9,12 @@ import android.os.RemoteException;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.google.android.imageloader.ImageLoader;
+import com.google.gson.GsonUtils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonOptionalElement;
 
-import org.codehaus.jackson.JsonNode;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
@@ -41,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -204,10 +204,10 @@ public class ResponseSyncService extends WakefulIntentService {
 					}
 
 					@Override
-					public void readObject(JsonNode survey) {
+					public void readObject(JsonObject survey) {
 						// build up a list of IDs
 						// later, we'll attempt to delete everything that's not in this list
-						responseIDs.add(survey.get("survey_key").asText());
+						responseIDs.add(survey.get("survey_key").getAsString());
 						
 						// TODO: we could also push back the cutoff date if we find
 						// an ID that's present in this list that we don't have.
@@ -278,7 +278,7 @@ public class ResponseSyncService extends WakefulIntentService {
 					}
 					
 					@Override
-					public void readObject(JsonNode survey) {
+					public void readObject(JsonObject survey) {
 						// deal with the elements we read via stream parsing here
 						Log.v(TAG, "Processing record " + ((curRecord++)+1) + " in " + c.mUrn + "...");
 						
@@ -295,108 +295,94 @@ public class ResponseSyncService extends WakefulIntentService {
 							// be transformed to match the format that SurveyActivity
 							// uploads/broadcasts, since our survey responses can come
 							// from either source and need to be stored the same way.
-							candidate.uuid = survey.get("survey_key").asText();
-							candidate.surveyId = survey.get("survey_id").asText();
+							candidate.uuid = survey.get("survey_key").getAsString();
+							candidate.surveyId = survey.get("survey_id").getAsString();
 							candidate.campaignUrn = c.mUrn;
-							candidate.username = survey.get("user").asText();
-							candidate.date = survey.get("timestamp").asText();
-							candidate.timezone = survey.get("timezone").asText();
-							candidate.time = survey.get("time").asLong();
-							
+							candidate.username = survey.get("user").getAsString();
+							candidate.date = survey.get("timestamp").getAsString();
+							candidate.timezone = survey.get("timezone").getAsString();
+							candidate.time = survey.get("time").getAsLong();
+
 							// much of the location data is optional, hence the "opt*()" calls
-							candidate.locationStatus = survey.get("location_status").asText();
-							candidate.locationLatitude = survey.path("latitude").asDouble();
-							candidate.locationLongitude = survey.path("longitude").asDouble();
-							candidate.locationProvider = survey.path("location_provider").asText();
-							candidate.locationAccuracy = (float)survey.path("location_accuracy").asDouble();
-							candidate.locationTime = survey.path("location_timestamp").asLong();
+							candidate.locationStatus = survey.get("location_status").getAsString();
+							JsonObject location = new JsonOptionalElement(survey.get("location")).getAsJsonObject();
+							if(location != null) {
+								candidate.locationLatitude = new JsonOptionalElement(location.get("latitude")).getAsDouble();
+								candidate.locationLongitude = new JsonOptionalElement(location.get("longitude")).getAsDouble();
+								candidate.locationProvider = new JsonOptionalElement(location.get("location_provider")).getAsString();
+								candidate.locationAccuracy = new JsonOptionalElement(location.get("location_accuracy")).getAsFloat();
+								candidate.locationTime = new JsonOptionalElement(location.get("location_timestamp")).getAsLong();
+							}
 							
-							candidate.surveyLaunchContext = survey.get("launch_context_long").asText();
+							candidate.surveyLaunchContext = survey.get("launch_context_long").toString();
 							
 							// we need to parse out the responses and put them in
 							// the same format as what we collect from the local activity
-							JsonNode inputResponses = survey.get("responses");
+							JsonObject inputResponses = survey.get("responses").getAsJsonObject();
 							
 							// iterate through inputResponses and create a new JSON object of prompt_ids and values
-							JSONArray responseJson = new JSONArray();
-							Iterator<String> keys = inputResponses.getFieldNames();
-							
-							while (keys.hasNext()) {
-								// for each prompt response, create an object with a prompt_id/value pair
-								String key = keys.next();
-								JsonNode curItem = inputResponses.get(key);
-								
-								// FIXME: deal with repeatable sets here someday, although i'm not sure how
-								// how do we visualize them on a line graph along with regular points? scatter chart?
+							JsonArray responseJson = new JsonArray();
+
+							for(String key : GsonUtils.getKeys(inputResponses)) {
+								JsonObject curItem = inputResponses.get(key).getAsJsonObject();
 								
 								if (curItem.has("prompt_response")) {
-									JSONObject newItem = new JSONObject();
-									
-									try {
-										String value = (curItem.get("prompt_response").isValueNode()) ? curItem.get("prompt_response").asText() : curItem.get("prompt_response").toString();
-										String type = curItem.get("prompt_type").asText();
-										newItem.put("prompt_id", key);
-	
-										// also enter the custom_choices data if the type supports custom choices
-										// and if the custom choice data is actually there (e.g. in the glossary for the prompt)
-										if (curItem.has("prompt_choice_glossary")) {
-											if (type.equals("single_choice_custom") || type.equals("multi_choice_custom"))
-											{
-												// unfortunately, the glossary is in a totally different format than
-												// what the survey returns; we can't just store it directly.
-												// we have to reformat the glossary entries to be of the following form:
-												// [{"choice_value": "Exercise", "choice_id": 1}, etc.]
-												
-												JSONArray customChoiceArray = new JSONArray();
-												JsonNode glossary = curItem.get("prompt_choice_glossary");
-												
-												// create an iterator over the glossary so we can extract the keys + "label" value
-												Iterator<String> glossaryKeys = glossary.getFieldNames();
-												
-												while (glossaryKeys.hasNext()) {
-													// grab the glossary key and its corresponding element
-													String glossaryKey = glossaryKeys.next();
-													JsonNode curGlossaryItem = glossary.get(glossaryKey);
-													
-													// create a new object that remaps the values from the glossary
-													// to the custom choices format
-													JSONObject newChoiceItem = new JSONObject();
-													newChoiceItem.put("choice_value", curGlossaryItem.get("label").asText());
-													newChoiceItem.put("choice_id", glossaryKey);
-													
-													// and add it to our custom choices array
-													customChoiceArray.put(newChoiceItem);
-												}
-												
-												// put our newly reformatted custom choices array into the object, too
-												newItem.put("custom_choices", customChoiceArray);
+									JsonObject newItem = new JsonObject();
+
+								    JsonElement value = curItem.get("prompt_response");
+									String type = curItem.get("prompt_type").getAsString();
+									newItem.addProperty("prompt_id", key);
+
+									// also enter the custom_choices data if the type supports custom choices
+									// and if the custom choice data is actually there (e.g. in the glossary for the prompt)
+									if (curItem.has("prompt_choice_glossary")) {
+										if (type.equals("single_choice_custom") || type.equals("multi_choice_custom")) {
+											// unfortunately, the glossary is in a totally different format than
+											// what the survey returns; we can't just store it directly.
+											// we have to reformat the glossary entries to be of the following form:
+											// [{"choice_value": "Exercise", "choice_id": 1}, etc.]
+
+											JsonArray customChoiceArray = new JsonArray();
+											JsonObject glossary = curItem.get("prompt_choice_glossary").getAsJsonObject();
+
+											for(String glossaryKey: GsonUtils.getKeys(glossary)) {
+												// grab the glossary key and its corresponding element
+
+												JsonObject curGlossaryItem = glossary.get(glossaryKey).getAsJsonObject();
+
+												// create a new object that remaps the values from the glossary
+												// to the custom choices format
+												JsonObject newChoiceItem = new JsonObject();
+												newChoiceItem.addProperty("choice_value", curGlossaryItem.get("label").getAsString());
+												newChoiceItem.addProperty("choice_id", glossaryKey);
+
+												// and add it to our custom choices array
+												customChoiceArray.add(newChoiceItem);
 											}
-										}
-										
-										// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
-										if (curItem.get("prompt_type").asText().equalsIgnoreCase("photo") && !value.equalsIgnoreCase(AbstractPrompt.NOT_DISPLAYED_VALUE) && !value.equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
-											responsePhotos.add(new ResponseImage(candidate.campaignUrn, value));
-										}
-										
-										// add the value, which is generally just a number
-										newItem.put("value", value);
-										
-									} catch (JSONException e) {
-										Log.e(TAG, "JSONException when trying to generate response json", e);
-										throw new JSONException("error generating response json");
+
+											// put our newly reformatted custom choices array into the object, too
+											newItem.add("custom_choices", customChoiceArray);
+										 }
 									}
-									
-									responseJson.put(newItem);
+
+									// if it's a photo, put its value (the photo's UUID) into the photoUUIDs list
+									if (curItem.get("prompt_type").getAsString().equalsIgnoreCase("photo") && !value.getAsString().equalsIgnoreCase(AbstractPrompt.NOT_DISPLAYED_VALUE) && !value.getAsString().equalsIgnoreCase(AbstractPrompt.SKIPPED_VALUE)) {
+										responsePhotos.add(new ResponseImage(candidate.campaignUrn, value.getAsString()));
+									}
+
+									// add the value, which is generally just a number
+									newItem.add("value", value);
+
+									responseJson.add(newItem);
 								}
-							}
-							
-							// render it to a string for storage into our db
+					       }
+
+						   // render it to a string for storage into our db
 							candidate.response = responseJson.toString();
 							candidate.status = Response.STATUS_DOWNLOADED;
 
 							operations.add(ContentProviderOperation.newInsert(Responses.CONTENT_URI).withValues(candidate.toCV()).build());
-						}
-				        catch (JSONException e) {
+						} catch (IllegalStateException e) {
 							Log.e(TAG, "Problem parsing response json: " + e.getMessage(), e);
 						}
 					}

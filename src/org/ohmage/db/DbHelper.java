@@ -26,6 +26,11 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Xml;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +44,7 @@ import org.ohmage.db.Models.PromptResponse;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.Models.Survey;
 import org.ohmage.db.Models.SurveyPrompt;
+import org.ohmage.logprobe.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -693,70 +699,71 @@ public class DbHelper extends SQLiteOpenHelper {
 						db.query(Tables.SURVEY_PROMPTS, null, SurveyPrompts.COMPOSITE_ID + "='" + campaignUrn + ":" + surveyId + "'", null, null, null, null)
 					);
 
-			JSONArray responseData = new JSONArray(response);
+			JsonParser parser = new JsonParser();
+			JsonArray responseData = parser.parse(response).getAsJsonArray();
 
-			HashMap<String, JSONObject> promptsMap = new HashMap<String, JSONObject>();
+			HashMap<String, JsonObject> promptsMap = new HashMap<String, JsonObject>();
 			
-			for (int i = 0; i < responseData.length(); ++i) {
-				// nab the jsonobject, which contains "prompt_id" and "value"
-				JSONObject item = responseData.getJSONObject(i);
-				
+			for (int i = 0; i < responseData.size(); ++i) {
+	             // nab the jsonobject, which contains "prompt_id" and "value"
+			    JsonObject item = responseData.get(i).getAsJsonObject();
+
 				// if the entry we're looking at doesn't include prompt_id or value, continue
 				if (!item.has("prompt_id") || !item.has("value"))
 					continue;
 				
-				promptsMap.put(item.getString("prompt_id"), item);
+				promptsMap.put(item.get("prompt_id").getAsString(), item);
 			}
 
 			for (SurveyPrompt promptData : promptsList) {
 
 				// nab the jsonobject, which contains "prompt_id" and "value"
-				JSONObject item = promptsMap.get(promptData.mPromptID);
+				JsonObject item = promptsMap.get(promptData.mPromptID);
 
 				// construct a new PromptResponse object to populate
 				PromptResponse p = new PromptResponse();
 
 				p.mCompositeID = campaignUrn + ":" + surveyId;
 				p.mResponseID = responseRowID;
-				p.mPromptID = item.getString("prompt_id");
+				p.mPromptID = item.get("prompt_id").getAsString();
 
 				if (item.has("custom_choices")) {
 					// build a hashmap of ID->label so we can do the remapping
-					JSONArray choicesArray = item.getJSONArray("custom_choices");
-					HashMap<String,String> glossary = new HashMap<String, String>();
+					JsonArray choicesArray = item.get("custom_choices").getAsJsonArray();
+					HashMap<String,JsonElement> glossary = new HashMap<String, JsonElement>();
 
-					for (int iv = 0; iv < choicesArray.length(); ++iv) {
-						JSONObject choiceObject = choicesArray.getJSONObject(iv);
-						glossary.put(choiceObject.getString("choice_id"), choiceObject.getString("choice_value"));
+					for (int iv = 0; iv < choicesArray.size(); ++iv) {
+						JsonObject choiceObject = choicesArray.get(iv).getAsJsonObject();
+						glossary.put(choiceObject.get("choice_id").getAsString(), choiceObject.get("choice_value"));
 					}
 
 					// determine if the value is singular or an array
 					// if it's an array, we need to remap each element
 					try {
-						JSONArray remapper = item.getJSONArray("value");
+						JsonArray remapper = item.get("value").getAsJsonArray();
 
-						for (int ir = 0; ir < remapper.length(); ++ir)
-							remapper.put(ir, glossary.get(remapper.getString(ir)));
+						for (int ir = 0; ir < remapper.size(); ++ir)
+							remapper.add(glossary.get(remapper.get(ir)));
 
 						p.mValue = remapper.toString();
 					}
-					catch (JSONException e) {
+					catch (IllegalStateException e) {
 						// it wasn't a json array, so just remap the single value
-						p.mValue = glossary.get(item.getString("value"));
+						p.mValue = glossary.get(item.get("value")).toString();
 					}
 				}
 				else if (promptData.mPromptType.equalsIgnoreCase("single_choice")) {
 					// unload the json properties
-					JSONArray values = new JSONArray(promptData.mProperties);
+					JsonArray values = parser.parse(promptData.mProperties).getAsJsonArray();
 					// set the explicit value as the default; if we don't find a match, it'll end up as this
-					p.mValue = item.getString("value");
+					p.mValue = item.get("value").getAsString();
 
 					// search for a key that matches the given value
-					for (int ir = 0; ir < values.length(); ++ir) {
-						JSONObject entry = values.getJSONObject(ir);
-						if (entry.getString("key").equals(p.mValue)) {
-							p.mValue = entry.getString("label");
-							p.mExtraValue = item.getString("value");
+					for (int ir = 0; ir < values.size(); ++ir) {
+						JsonObject entry = values.get(ir).getAsJsonObject();
+						if (entry.get("key").getAsString().equals(p.mValue)) {
+							p.mValue = entry.get("label").getAsString();
+							p.mExtraValue = item.get("value").getAsString();
 							break;
 						}
 					}
@@ -766,42 +773,45 @@ public class DbHelper extends SQLiteOpenHelper {
 
 					try {
 						// unload the json properties
-						JSONArray values = new JSONArray(promptData.mProperties);
-						// set the explicit value as the default; if we don't find a match, it'll end up as this
-						JSONArray newValues = new JSONArray(item.getString("value"));
+						JsonArray values = parser.parse(promptData.mProperties).getAsJsonArray();
+						JsonArray newValues = item.get("value").getAsJsonArray();
+						JsonArray newLabels = new JsonArray();
 
 						// for each entry in newValues...
-						for (int io = 0; io < newValues.length(); ++io) {
+						for (int io = 0; io < newValues.size(); ++io) {
 							// search for a key that matches the given value
-							for (int ir = 0; ir < values.length(); ++ir) {
-								JSONObject entry = values.getJSONObject(ir);
-								if (entry.getString("key").equals(newValues.getString(io))) {
+							for (int ir = 0; ir < values.size(); ++ir) {
+								JsonObject entry = values.get(ir).getAsJsonObject();
+								if (entry.get("key").getAsString().equals(newValues.get(io).getAsString())) {
 									// assign the remapped value to this index
-									newValues.put(io, entry.getString("label"));
+									newLabels.add(entry.get("label"));
 									break;
 								}
 							}
 						}
 
 						// and reassign mValue here
-						p.mValue = newValues.toString();
-						p.mExtraValue = item.getString("value");
+						p.mValue = (newLabels.size() > 0) ? newLabels.toString() : newValues.toString();
+						p.mExtraValue = newValues.toString();
 					}
-					catch (JSONException e) {
+					catch (IllegalStateException e) {
 						// it wasn't a json array, so just remap the value
-						p.mValue = item.getString("value");
+						p.mValue = item.get("value").toString();
 					}
 				}
 				else {
-					p.mValue = item.getString("value");
+					if(item.get("value").isJsonPrimitive())
+						p.mValue = item.get("value").getAsString();
+					else
+						p.mValue = item.get("value").toString();
 				}
 
 				// and insert this into prompts				
 				db.insert(Tables.PROMPT_RESPONSES, null, p.toCV());
 			}
 		}
-		catch (JSONException e) {
-			e.printStackTrace();
+		catch (IllegalStateException e) {
+			Log.e(TAG, "Error parsing response JSON", e);
 			return false;
 		}
 		
