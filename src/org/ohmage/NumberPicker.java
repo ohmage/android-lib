@@ -51,14 +51,14 @@ public class NumberPicker extends LinearLayout {
          * @param oldVal The previous value.
          * @param newVal The new value.
          */
-        void onChanged(NumberPicker picker, double oldVal, double newVal);
+        void onChanged(NumberPicker picker, BigDecimal oldVal, BigDecimal newVal);
     }
 
     /**
      * Interface used to format the number into a string for presentation
      */
     public interface Formatter {
-        String toString(double value);
+        String toString(BigDecimal value);
     }
 
     /*
@@ -74,7 +74,7 @@ public class NumberPicker extends LinearLayout {
                         mBuilder, java.util.Locale.US);
                 final Object[] mArgs = new Object[1];
                 @Override
-				public String toString(double value) {
+				public String toString(BigDecimal value) {
                     mArgs[0] = value;
                     mBuilder.delete(0, mBuilder.length());
                     mFmt.format("%02d", mArgs);
@@ -258,10 +258,10 @@ public class NumberPicker extends LinearLayout {
      * @param start the start of the range (inclusive)
      * @param end the end of the range (inclusive)
      */
-    public void setRange(double start, double end) {
-        mStart = new BigDecimal(start);
-        mEnd = new BigDecimal(end);
-        mCurrent = new BigDecimal(start);
+    public void setRange(BigDecimal start, BigDecimal end) {
+        mStart = start;
+        mEnd = end;
+        mCurrent = start;
         updateView();
     }
 
@@ -272,12 +272,12 @@ public class NumberPicker extends LinearLayout {
      * @throws IllegalArgumentException when current is not within the range
      *         of of the number picker
      */
-    public void setCurrent(double current) {
-        if (current < mStart.doubleValue() || current > mEnd.doubleValue()) {
+    public void setCurrent(BigDecimal current) {
+        if (current.compareTo(mStart) < 0 || current.compareTo(mEnd) > 0) {
             throw new IllegalArgumentException(
                     "current should be >= start and <= end");
         }
-        mCurrent = new BigDecimal(current);
+        mCurrent = current;
         updateView();
     }
 
@@ -292,7 +292,7 @@ public class NumberPicker extends LinearLayout {
         mSpeed = speed;
     }
 
-    private String formatNumber(double value) {
+    private String formatNumber(BigDecimal value) {
         return (mFormatter != null)
                 ? mFormatter.toString(value)
                 : String.valueOf(value);
@@ -326,7 +326,7 @@ public class NumberPicker extends LinearLayout {
      */
     private void notifyChange() {
         if (mListener != null) {
-            mListener.onChanged(this, mPrevious.doubleValue(), mCurrent.doubleValue());
+            mListener.onChanged(this, mPrevious, mCurrent);
         }
     }
 
@@ -343,7 +343,7 @@ public class NumberPicker extends LinearLayout {
      * in {@link setFormatter} will be used to format the number.
      */
     private void updateView() {
-        mText.setText(formatNumber(mCurrent.doubleValue()));
+        mText.setText(formatNumber(mCurrent));
         mText.setSelection(mText.getText().length());
     }
 

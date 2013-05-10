@@ -19,6 +19,7 @@ import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 
@@ -43,9 +44,9 @@ public class HoursBeforeNowPromptBuilder implements PromptBuilder {
 		
 		for (KVLTriplet property : properties) {
 			if (property.key.equals("min")) {
-				hoursBeforeNowPrompt.setMinimum(Integer.parseInt(property.label));
+				hoursBeforeNowPrompt.setMinimum(new BigDecimal(property.label));
 			} else if (property.key.equals("max")) {
-				hoursBeforeNowPrompt.setMaximum(Integer.parseInt(property.label));
+				hoursBeforeNowPrompt.setMaximum(new BigDecimal(property.label));
 			}
 		}
 		

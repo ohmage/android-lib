@@ -19,6 +19,7 @@ import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 
@@ -43,9 +44,9 @@ public class NumberPromptBuilder implements PromptBuilder {
 		
 		for (KVLTriplet property : properties) {
 			if (property.key.equals("min")) {
-				numberPrompt.setMinimum(Integer.parseInt(property.label));
+				numberPrompt.setMinimum(new BigDecimal(property.label));
 			} else if (property.key.equals("max")) {
-				numberPrompt.setMaximum(Integer.parseInt(property.label));
+				numberPrompt.setMaximum(new BigDecimal(property.label));
 			}
 		}
 		

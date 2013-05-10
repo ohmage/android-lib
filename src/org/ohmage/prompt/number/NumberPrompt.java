@@ -24,41 +24,43 @@ import org.ohmage.NumberPicker.OnChangedListener;
 import org.ohmage.library.R;
 import org.ohmage.prompt.AbstractPrompt;
 
+import java.math.BigDecimal;
+
 public class NumberPrompt extends AbstractPrompt {
 
-	private double mMinimum;
-	private double mMaximum;
-	private double mValue;
+	private BigDecimal mMinimum;
+	private BigDecimal mMaximum;
+	private BigDecimal mValue;
 	private NumberPicker mNumberPicker;
 
 	public NumberPrompt() {
 		super();
 	}
 
-	public void setMinimum(double value) {
+	public void setMinimum(BigDecimal value) {
 		mMinimum = value;
 	}
 
-	public void setMaximum(double value) {
+	public void setMaximum(BigDecimal value) {
 		mMaximum = value;
 	}
 
-	public double getMinimum(){
+	public BigDecimal getMinimum(){
 		return mMinimum;
 	}
 
-	public double getMaximum(){
+	public BigDecimal getMaximum(){
 		return mMaximum;
 	}
 
-	public double getValue(){
+	public BigDecimal getValue(){
 		return mValue;
 	}
 
 	@Override
 	protected void clearTypeSpecificResponseData() {
 		if (mDefaultValue != null && ! mDefaultValue.equals("")) {
-			mValue = Integer.parseInt(getDefaultValue());
+			mValue = new BigDecimal(mDefaultValue);
 		} else {
 			mValue = mMinimum;
 		}
@@ -74,12 +76,12 @@ public class NumberPrompt extends AbstractPrompt {
 		// If there is a number picker, see if the value is valid
 		// And check the value is between min and max
 		return (mNumberPicker != null && mNumberPicker.forceValidateInput() || mNumberPicker == null)
-				&& ((mValue >= mMinimum) && (mValue <= mMaximum));
+				&& ((mValue.compareTo(mMinimum) >= 0) && (mValue.compareTo(mMaximum) <= 0));
 	}
 
 	@Override
 	protected Object getTypeSpecificResponseObject() {
-		return Double.valueOf(mValue);
+		return mValue;
 	}
 
 	/**
@@ -109,7 +111,7 @@ public class NumberPrompt extends AbstractPrompt {
 		mNumberPicker.setOnChangeListener(new OnChangedListener() {
 
 			@Override
-			public void onChanged(NumberPicker picker, double oldVal, double newVal) {
+			public void onChanged(NumberPicker picker, BigDecimal oldVal, BigDecimal newVal) {
 				mValue = newVal;				
 			}
 		});
