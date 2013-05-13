@@ -23,22 +23,11 @@ import android.view.ViewGroup;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
-import org.ohmage.prompt.media.PhotoPrompt;
-import org.ohmage.prompt.media.VideoPrompt;
-import org.ohmage.prompt.multichoice.MultiChoicePrompt;
-import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
-import org.ohmage.prompt.number.NumberPrompt;
-import org.ohmage.prompt.remoteactivity.RemoteActivityPrompt;
-import org.ohmage.prompt.singlechoice.SingleChoicePrompt;
-import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
-import org.ohmage.prompt.text.TextPrompt;
-import org.ohmage.prompt.timestamp.TimestampPrompt;
 
 import java.util.ArrayList;
 
 
-public abstract class AbstractPrompt implements Prompt {
+public abstract class AbstractPrompt implements Prompt, Displayable {
 
 	public static final String SKIPPED_VALUE = "SKIPPED";
 	public static final String NOT_DISPLAYED_VALUE = "NOT_DISPLAYED";
@@ -67,7 +56,8 @@ public abstract class AbstractPrompt implements Prompt {
 		return mSkipped;
 	}
 	
-	public void setDisplayed(boolean displayed) {
+	@Override
+    public void setDisplayed(boolean displayed) {
 		this.mDisplayed = displayed;
 		// should we clear or not clear?!
 		if (!displayed) {
@@ -75,7 +65,8 @@ public abstract class AbstractPrompt implements Prompt {
 		}
 	}
 	
-	public void setSkipped(boolean skipped) {
+	@Override
+    public void setSkipped(boolean skipped) {
 		this.mSkipped = skipped;
 		if (skipped) {
 			clearTypeSpecificResponseData();
@@ -102,7 +93,7 @@ public abstract class AbstractPrompt implements Prompt {
 		
 		JSONObject responseJson = new JSONObject();
 		try {
-			responseJson.put("prompt_id", this.getId());
+			responseJson.put("prompt_id", this.getPromptId());
 			//responseJson.put("value", mSelectedKey);
 			responseJson.put("value", getResponseObject());
 		} catch (JSONException e) {
@@ -138,7 +129,8 @@ public abstract class AbstractPrompt implements Prompt {
 		this.mSkipLabel = skipLabel;
 	}*/
 	
-	public String getId() {
+	@Override
+    public String getPromptId() {
 		return mId;
 	}
 
@@ -146,7 +138,8 @@ public abstract class AbstractPrompt implements Prompt {
 		return mDisplayLabel;
 	}
 	
-	public String getPromptText() {
+	@Override
+    public String getPromptText() {
 		return mPromptText;
 	}
 
@@ -158,15 +151,18 @@ public abstract class AbstractPrompt implements Prompt {
 		return mDefaultValue;
 	}
 	
-	public String getCondition() {
+	@Override
+    public String getCondition() {
 		return mCondition;
 	}
 	
-	public String getSkippable() {
+	@Override
+    public String getSkippable() {
 		return mSkippable;
 	}
 	
-	public String getSkipLabel() {
+	@Override
+    public String getSkipLabel() {
 		return mSkipLabel;
 	}
 	
@@ -174,7 +170,7 @@ public abstract class AbstractPrompt implements Prompt {
 		return mProperties;
 	}
 	
-	public void setId(String id) {
+	public void setPromptId(String id) {
 		this.mId = id;
 	}
 
@@ -231,4 +227,4 @@ public abstract class AbstractPrompt implements Prompt {
 	protected View getView(Context context) {
 		return null;
 	}
-}
+    }

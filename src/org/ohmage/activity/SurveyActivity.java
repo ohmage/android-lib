@@ -68,6 +68,8 @@ import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.logprobe.OhmageAnalytics;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.AbstractPromptFragment;
+import org.ohmage.prompt.Displayable;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.SurveyElement;
@@ -355,7 +357,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                             || mSurveyElements.get(mCurrentPosition) instanceof Message) {
                         // show toast if not answered
                         if (mSurveyElements.get(mCurrentPosition) instanceof Message
-                                || ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
+                                || ((Prompt) mSurveyElements.get(mCurrentPosition))
                                         .isPromptAnswered()) {
                             while (mCurrentPosition < mSurveyElements.size()) {
                                 // increment position
@@ -370,7 +372,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                     if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
                                         // if new position is prompt, check
                                         // condition
-                                        String condition = ((AbstractPrompt) mSurveyElements
+                                        String condition = ((Prompt) mSurveyElements
                                                 .get(mCurrentPosition)).getCondition();
                                         if (condition == null)
                                             condition = "";
@@ -382,7 +384,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                         } else {
                                             // if false, loop up and
                                             // increment
-                                            ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
+                                            ((Prompt) mSurveyElements.get(mCurrentPosition))
                                                     .setDisplayed(false);
                                         }
                                     } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
@@ -404,14 +406,14 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                         } else {
                             Toast.makeText(
                                     SurveyActivity.this,
-                                    ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
+                                    ((Prompt) mSurveyElements.get(mCurrentPosition))
                                             .getUnansweredPromptText(), Toast.LENGTH_LONG).show();
                         }
                     }
                 }
             } else if (id == R.id.skip_button) {
                 if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-                    ((AbstractPrompt) mSurveyElements.get(mCurrentPosition)).setSkipped(true);
+                    ((Prompt) mSurveyElements.get(mCurrentPosition)).setSkipped(true);
 
                     while (mCurrentPosition < mSurveyElements.size()) {
                         // increment position
@@ -426,7 +428,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                             if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
                                 // if new position is prompt, check
                                 // condition
-                                String condition = ((AbstractPrompt) mSurveyElements
+                                String condition = ((Prompt) mSurveyElements
                                         .get(mCurrentPosition)).getCondition();
                                 if (condition == null)
                                     condition = "";
@@ -437,7 +439,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                     break;
                                 } else {
                                     // if false, loop up and increment
-                                    ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
+                                    ((Prompt) mSurveyElements.get(mCurrentPosition))
                                             .setDisplayed(false);
                                 }
                             } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
@@ -467,7 +469,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
 
                         if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
                             // if element is prompt, check condition
-                            String condition = ((AbstractPrompt) mSurveyElements
+                            String condition = ((Prompt) mSurveyElements
                                     .get(mCurrentPosition)).getCondition();
                             if (condition == null)
                                 condition = "";
@@ -478,7 +480,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                 break;
                             } else {
                                 // if false, decrement again and loop
-                                ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
+                                ((Prompt) mSurveyElements.get(mCurrentPosition))
                                         .setDisplayed(false);
                             }
                         } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
@@ -502,9 +504,9 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Prompt.REQUEST_CODE
-                && mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-            ((AbstractPrompt) mSurveyElements.get(mCurrentPosition)).handleActivityResult(this,
+        if (requestCode == Displayable.REQUEST_CODE
+                && mSurveyElements.get(mCurrentPosition) instanceof Displayable) {
+            ((Displayable) mSurveyElements.get(mCurrentPosition)).handleActivityResult(this,
                     resultCode, data);
         }
     }
@@ -538,7 +540,8 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
     }
 
     private void showElement(int index) {
-        if (mSurveyElements.get(index) instanceof AbstractPrompt) {
+        if (mSurveyElements.get(index) instanceof AbstractPrompt
+                || mSurveyElements.get(index) instanceof AbstractPromptFragment) {
             showPrompt(index);
         } else if (mSurveyElements.get(index) instanceof Message) {
             showMessage(index);
@@ -575,13 +578,14 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
 
     private void showPrompt(int index) {
 
-        if (mSurveyElements.get(index) instanceof AbstractPrompt) {
+        if (mSurveyElements.get(index) instanceof AbstractPrompt
+            || mSurveyElements.get(index) instanceof AbstractPromptFragment) {
 
             // If its a photo prompt we need to recycle the image
             if (mLastElement instanceof PhotoPrompt)
                 PhotoPrompt.clearView(mPromptFrame);
 
-            AbstractPrompt prompt = (AbstractPrompt) mSurveyElements.get(index);
+            Prompt prompt = (Prompt) mSurveyElements.get(index);
             handlePromptChangeLogging(prompt);
 
             mNextButton.setText(R.string.next);
@@ -615,8 +619,17 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                 mSkipButton.setVisibility(View.INVISIBLE);
             }
 
-            clearPromptFrame();
-            prompt.inflateView(this, mPromptFrame);
+            if (mSurveyElements.get(index) instanceof AbstractPromptFragment) {
+                Fragment old = getSupportFragmentManager().findFragmentById(R.id.prompt_frame);
+                if (old != mSurveyElements.get(index)) {
+                    clearPromptFrame();
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.add(R.id.prompt_frame, ((AbstractPromptFragment) mSurveyElements.get(index))).commit();
+                }
+            } else {
+                clearPromptFrame();
+                ((Displayable)prompt).inflateView(this, mPromptFrame);
+            }
         } else {
             Log.e(TAG, "trying to showPrompt for element that is not a prompt!");
         }
@@ -636,11 +649,11 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
         if (element == mLastElement)
             return;
 
-        if (mLastElement instanceof AbstractPrompt) {
-            OhmageAnalytics.prompt((AbstractPrompt) mLastElement, Status.OFF);
+        if (mLastElement instanceof Prompt) {
+            OhmageAnalytics.prompt((Prompt) mLastElement, Status.OFF);
         }
-        if (element instanceof AbstractPrompt) {
-            OhmageAnalytics.prompt((AbstractPrompt) element, Status.ON);
+        if (element instanceof Prompt) {
+            OhmageAnalytics.prompt((Prompt) element, Status.ON);
         }
         mLastElement = element;
     }
@@ -654,10 +667,10 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
     private List<DataPoint> getPreviousResponses() {
         ArrayList<DataPoint> previousResponses = new ArrayList<DataPoint>();
         for (int i = 0; i < mCurrentPosition; i++) {
-            if (mSurveyElements.get(i) instanceof AbstractPrompt) {
-                AbstractPrompt prompt = ((AbstractPrompt) mSurveyElements.get(i));
+            if (mSurveyElements.get(i) instanceof Prompt) {
+                Prompt prompt = ((Prompt) mSurveyElements.get(i));
 
-                DataPoint dataPoint = new DataPoint(prompt.getId());
+                DataPoint dataPoint = new DataPoint(prompt.getPromptId());
 
                 dataPoint.setPromptType(prompt);
 
@@ -767,10 +780,10 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
             if (surveyElements.get(i) instanceof Prompt) {
                 itemJson = new JSONObject();
                 try {
-                    itemJson.put("prompt_id", ((AbstractPrompt) surveyElements.get(i)).getId());
+                    itemJson.put("prompt_id", ((Prompt) surveyElements.get(i)).getPromptId());
                     itemJson.put("value",
-                            ((AbstractPrompt) surveyElements.get(i)).getResponseObject());
-                    Object extras = ((AbstractPrompt) surveyElements.get(i)).getExtrasObject();
+                            ((Prompt) surveyElements.get(i)).getResponseObject());
+                    Object extras = ((Prompt) surveyElements.get(i)).getExtrasObject();
                     if (extras != null) {
                         // as of now we don't actually have "extras" we only
                         // have "custom_choices" for the custom types

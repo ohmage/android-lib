@@ -33,7 +33,7 @@ public class MultiChoicePromptBuilder implements PromptBuilder {
 		// TODO deal with null arguments
 		
 		MultiChoicePrompt multiChoicePrompt = (MultiChoicePrompt) prompt;
-		multiChoicePrompt.setId(id);
+		multiChoicePrompt.setPromptId(id);
 		multiChoicePrompt.setDisplayLabel(displayLabel);
 		multiChoicePrompt.setPromptText(promptText);
 		multiChoicePrompt.setExplanationText(explanationText);

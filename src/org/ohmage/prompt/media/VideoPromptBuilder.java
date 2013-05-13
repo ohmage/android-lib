@@ -34,7 +34,7 @@ public class VideoPromptBuilder implements PromptBuilder {
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
 		VideoPrompt videoPrompt = (VideoPrompt) prompt;
-		videoPrompt.setId(id);
+		videoPrompt.setPromptId(id);
 		videoPrompt.setDisplayLabel(displayLabel);
 		videoPrompt.setPromptText(promptText);
 		videoPrompt.setExplanationText(explanationText);

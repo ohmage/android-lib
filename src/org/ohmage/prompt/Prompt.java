@@ -15,23 +15,20 @@
  ******************************************************************************/
 package org.ohmage.prompt;
 
-import android.content.Context;
-import android.content.Intent;
 
-public interface Prompt extends SurveyElement, Displayable{
-
-	// TODO document these!
-	// move getters into interface?
-
+public interface Prompt extends SurveyElement {
 	String getResponseJson();
 	String getUnansweredPromptText();
 	boolean isPromptAnswered();
-
 	Object getResponseObject();
-	
-	final static int REQUEST_CODE = 0;
-	void handleActivityResult(Context context, int resultCode, Intent data);
-
-	// Called by the survey activity when a prompt leaves the screen
-	void onHidden();
+	String getPromptId();
+    String getCondition();
+    void setDisplayed(boolean b);
+    void setSkipped(boolean b);
+    String getPromptText();
+    String getSkippable();
+    String getSkipLabel();
+    boolean isSkipped();
+    boolean isDisplayed();
+    Object getExtrasObject();
 }

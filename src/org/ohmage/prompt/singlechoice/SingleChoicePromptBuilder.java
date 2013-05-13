@@ -33,7 +33,7 @@ public class SingleChoicePromptBuilder implements PromptBuilder {
 		// TODO deal with null arguments
 		
 		SingleChoicePrompt singleChoicePrompt = (SingleChoicePrompt) prompt;
-		singleChoicePrompt.setId(id);
+		singleChoicePrompt.setPromptId(id);
 		singleChoicePrompt.setDisplayLabel(displayLabel);
 		singleChoicePrompt.setPromptText(promptText);
 		singleChoicePrompt.setExplanationText(explanationText);

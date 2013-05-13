@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.ohmage.conditionevaluator;
 
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptFactory;
 
 import java.util.HashMap;
@@ -121,7 +121,7 @@ public class DataPoint {
         return (List<Integer>) metadata.get("indexes");
     }
 
-    public void setPromptType(AbstractPrompt prompt) {
+    public void setPromptType(Prompt prompt) {
         try {
             promptType = PromptType.valueOf(PromptFactory.promptType(prompt));
         } catch(IllegalArgumentException e) {

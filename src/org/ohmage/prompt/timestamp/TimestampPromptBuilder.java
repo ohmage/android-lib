@@ -16,7 +16,7 @@ public class TimestampPromptBuilder implements PromptBuilder {
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
 		TimestampPrompt timestampPrompt = (TimestampPrompt) prompt;
-		timestampPrompt.setId(id);
+		timestampPrompt.setPromptId(id);
 		timestampPrompt.setDisplayLabel(displayLabel);
 		timestampPrompt.setPromptText(promptText);
 		timestampPrompt.setExplanationText(explanationText);

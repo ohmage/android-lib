@@ -32,7 +32,7 @@ public class HoursBeforeNowPromptBuilder implements PromptBuilder {
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
 		HoursBeforeNowPrompt hoursBeforeNowPrompt = (HoursBeforeNowPrompt) prompt;
-		hoursBeforeNowPrompt.setId(id);
+		hoursBeforeNowPrompt.setPromptId(id);
 		hoursBeforeNowPrompt.setDisplayLabel(displayLabel);
 		hoursBeforeNowPrompt.setPromptText(promptText);
 		hoursBeforeNowPrompt.setExplanationText(explanationText);

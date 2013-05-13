@@ -32,7 +32,7 @@ public class NumberPromptBuilder implements PromptBuilder {
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
 		NumberPrompt numberPrompt = (NumberPrompt) prompt;
-		numberPrompt.setId(id);
+		numberPrompt.setPromptId(id);
 		numberPrompt.setDisplayLabel(displayLabel);
 		numberPrompt.setPromptText(promptText);
 		numberPrompt.setExplanationText(explanationText);

@@ -33,7 +33,7 @@ public class SingleChoiceCustomPromptBuilder implements PromptBuilder {
 		// TODO deal with null arguments
 		
 		SingleChoiceCustomPrompt singleChoiceCustomPrompt = (SingleChoiceCustomPrompt) prompt;
-		singleChoiceCustomPrompt.setId(id);
+		singleChoiceCustomPrompt.setPromptId(id);
 		singleChoiceCustomPrompt.setDisplayLabel(displayLabel);
 		singleChoiceCustomPrompt.setPromptText(promptText);
 		singleChoiceCustomPrompt.setExplanationText(explanationText);

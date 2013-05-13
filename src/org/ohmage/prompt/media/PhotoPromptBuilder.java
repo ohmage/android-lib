@@ -30,7 +30,7 @@ public class PhotoPromptBuilder implements PromptBuilder {
             String condition, String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 
         PhotoPrompt photoPrompt = (PhotoPrompt) prompt;
-        photoPrompt.setId(id);
+        photoPrompt.setPromptId(id);
         photoPrompt.setDisplayLabel(displayLabel);
         photoPrompt.setPromptText(promptText);
         photoPrompt.setExplanationText(explanationText);

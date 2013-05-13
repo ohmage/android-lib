@@ -19,8 +19,8 @@ package org.ohmage.logprobe;
 import android.content.Context;
 import android.database.Cursor;
 
-import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.logprobe.LogProbe.Status;
+import org.ohmage.prompt.Prompt;
 import org.ohmage.triggers.base.TriggerDB;
 
 /**
@@ -53,13 +53,13 @@ public class OhmageAnalytics {
     /**
      * Log information about when a prompt is being shown
      * 
-     * @param abstractPrompt
+     * @param prompt
      * @param status
      */
-    public static void prompt(AbstractPrompt abstractPrompt, Status status) {
-        if (abstractPrompt != null && LogProbe.logAnalytics)
-            OhmageAnalyticsProbeWriter.prompt(abstractPrompt.getClass().getSimpleName(),
-                    abstractPrompt.getId(), status);
+    public static void prompt(Prompt prompt, Status status) {
+        if (prompt != null && LogProbe.logAnalytics)
+            OhmageAnalyticsProbeWriter.prompt(prompt.getClass().getSimpleName(),
+                    prompt.getPromptId(), status);
     }
 
     /**

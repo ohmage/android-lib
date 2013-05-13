@@ -138,7 +138,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
-			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, SingleChoiceCustomPrompt.this.getId());
+			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, SingleChoiceCustomPrompt.this.getPromptId());
 			c.moveToFirst();
 			for (int i = 0; i < c.getCount(); i++) {
 				//c.getLong(c.getColumnIndex(SingleChoiceCustomDbAdapter.KEY_ID));
@@ -202,7 +202,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
 					} else if(!dbAdapter.open()) {
 						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_db_open_error), Toast.LENGTH_SHORT).show();
 					} else {
-						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, SingleChoiceCustomPrompt.this.getId());
+						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, SingleChoiceCustomPrompt.this.getPromptId());
 						dbAdapter.close();
 					}
 					

@@ -1,6 +1,7 @@
 package org.ohmage.prompt;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,4 +46,14 @@ public class Message implements SurveyElement, Displayable {
 		
 		return layout;
 	}
+
+    @Override
+    public void handleActivityResult(Context context, int resultCode, Intent data) {
+
+    }
+
+    @Override
+    public void onHidden() {
+
+    }
 }

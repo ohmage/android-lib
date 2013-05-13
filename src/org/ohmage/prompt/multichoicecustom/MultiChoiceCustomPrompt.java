@@ -142,7 +142,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 		String campaignUrn = ((SurveyActivity)context).getCampaignUrn();
 		String username = prefs.getUsername();
 		if (dbAdapter.open()) {
-			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
+			Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getPromptId());
 			c.moveToFirst();
 			for (int i = 0; i < c.getCount(); i++) {
 				//c.getLong(c.getColumnIndex(MultiChoiceCustomDbAdapter.KEY_ID));
@@ -206,7 +206,7 @@ private static final String TAG = "MultiChoiceCustomPrompt";
 					} else if(!dbAdapter.open()) {
 						Toast.makeText(v.getContext(), v.getContext().getString(R.string.prompt_custom_choice_db_open_error), Toast.LENGTH_SHORT).show();
 					} else {
-						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getId());
+						dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn, surveyId, MultiChoiceCustomPrompt.this.getPromptId());
 						dbAdapter.close();
 					}
 					

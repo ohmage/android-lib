@@ -31,7 +31,7 @@ public class TextPromptBuilder implements PromptBuilder {
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties) {
 		
 		TextPrompt textPrompt = (TextPrompt) prompt;
-		textPrompt.setId(id);
+		textPrompt.setPromptId(id);
 		textPrompt.setDisplayLabel(displayLabel);
 		textPrompt.setPromptText(promptText);
 		textPrompt.setExplanationText(explanationText);

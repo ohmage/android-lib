@@ -39,7 +39,7 @@ public class RemoteActivityPromptBuilder implements PromptBuilder
 			String skippable, String skipLabel, ArrayList<KVLTriplet> properties)
 	{
 		RemoteActivityPrompt remoteActivityPrompt = (RemoteActivityPrompt) prompt;
-		remoteActivityPrompt.setId(id);
+		remoteActivityPrompt.setPromptId(id);
 		remoteActivityPrompt.setDisplayLabel(displayLabel);
 		remoteActivityPrompt.setPromptText(promptText);
 		remoteActivityPrompt.setExplanationText(explanationText);
