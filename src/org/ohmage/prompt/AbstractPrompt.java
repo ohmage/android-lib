@@ -209,50 +209,6 @@ public abstract class AbstractPrompt implements Prompt {
 	public void setProperties(ArrayList<KVLTriplet> properties) {
 		this.mProperties = properties;
 	}
-	
-	public Prompt getCopy() {
-
-		Prompt prompt = null;
-		PromptBuilder builder = null;
-		
-		if (this instanceof SingleChoicePrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.SINGLE_CHOICE);
-		} else if (this instanceof SingleChoiceCustomPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.SINGLE_CHOICE_CUSTOM);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.SINGLE_CHOICE_CUSTOM);
-		} else if (this instanceof MultiChoicePrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.MULTI_CHOICE);
-		} else if (this instanceof MultiChoiceCustomPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.MULTI_CHOICE_CUSTOM);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.MULTI_CHOICE_CUSTOM);
-		} else if (this instanceof NumberPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.NUMBER);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.NUMBER);
-		} else if (this instanceof HoursBeforeNowPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.HOURS_BEFORE_NOW);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.HOURS_BEFORE_NOW);
-		} else if (this instanceof TimestampPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.TIMESTAMP);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.TIMESTAMP);
-		} else if (this instanceof TextPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.TEXT);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.TEXT);
-		} else if (this instanceof PhotoPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.PHOTO);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.PHOTO);
-		} else if (this instanceof VideoPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.VIDEO);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.VIDEO);
-		} else if (this instanceof RemoteActivityPrompt) {
-			prompt = PromptFactory.createPrompt(PromptFactory.REMOTE_ACTIVITY);
-			builder = PromptBuilderFactory.createPromptBuilder(PromptFactory.REMOTE_ACTIVITY);
-		}
-
-		builder.build(prompt, mId, mDisplayLabel, mPromptText, mExplanationText, mDefaultValue, mCondition, mSkippable, mSkipLabel, mProperties);
-		return prompt;
-	}
 
 	@Override
 	public void onHidden() {

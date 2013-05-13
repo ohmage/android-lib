@@ -24,8 +24,6 @@ import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.PromptBuilder;
 import org.ohmage.prompt.PromptBuilderFactory;
 import org.ohmage.prompt.PromptFactory;
-import org.ohmage.prompt.RepeatableSetHeader;
-import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -44,14 +42,6 @@ public class PromptXmlParser {
 	//list of tags in our xml schema
 	private static final String SURVEY = "survey";
 	private static final String SURVEY_ID = "id";
-	private static final String REPEATABLE_SET = "repeatableSet";
-	private static final String REPEATABLE_SET_ID = "id";
-	private static final String REPEATABLE_SET_TERMINATION_QUESTION = "terminationQuestion";
-	private static final String REPEATABLE_SET_TERMINATION_TRUE_LABEL = "terminationTrueLabel";
-	private static final String REPEATABLE_SET_TERMINATION_FALSE_LABEL = "terminationFalseLabel";
-	private static final String REPEATABLE_SET_TERMINATION_SKIP_ENABLED = "terminationSkipEnabled";
-	private static final String REPEATABLE_SET_TERMINATION_SKIP_LABEL = "terminationSkipLabel";
-	private static final String REPEATABLE_SET_CONDITION = "condition";
 	private static final String PROMPT = "prompt";
 	private static final String PROMPT_ID = "id";
 	private static final String PROMPT_DISPLAY_LABEL = "displayLabel";
@@ -83,7 +73,6 @@ public class PromptXmlParser {
 		
 		List<SurveyElement> surveyElements = null;
 		boolean promptInProgress = false;
-		boolean repeatableSetInProgress = false;
 		boolean messageInProgress = false;
 		boolean surveyInProgress = false;
 		boolean surveyFound = false;
@@ -104,15 +93,6 @@ public class PromptXmlParser {
 		String value = null;
 		String label = null;
 		
-		String repeatableSetId = null;
-		String terminationQuestion = null;
-		String terminationTrueLabel = null;
-		String terminationFalseLabel = null;
-		String terminationSkipEnabled = null;
-		String terminationSkipLabel = null;
-		String repeatableSetCondition = null;
-		List<Prompt> repeatableSetPrompts = null;
-		
 		String messageText = null;
 		String messageCondition = null;
 		
@@ -132,26 +112,13 @@ public class PromptXmlParser {
 				if (tagName.equalsIgnoreCase(SURVEY)) {
 					surveyInProgress = true;
 				} else if (surveyInProgress) {
-					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress && !repeatableSetInProgress && !messageInProgress) {
+					if (tagName.equalsIgnoreCase(SURVEY_ID) && !promptInProgress && !messageInProgress) {
 						if (parser.nextText().trim().equals(surveyId)) {
 							surveyFound = true;
 							surveyElements = new ArrayList<SurveyElement>();
 						}
 					} else if (surveyFound) {
-						if (tagName.equalsIgnoreCase(REPEATABLE_SET)) {
-							repeatableSetInProgress = true;
-							
-							repeatableSetId = null;
-							terminationQuestion = null;
-							terminationFalseLabel = null;
-							terminationTrueLabel = null;
-							terminationSkipLabel = null;
-							terminationSkipEnabled = null;
-							repeatableSetCondition = null;
-							
-							repeatableSetPrompts = new ArrayList<Prompt>();
-							
-						} else if (tagName.equalsIgnoreCase(PROMPT)) {
+						if (tagName.equalsIgnoreCase(PROMPT)) {
 							promptInProgress = true;
 							
 							id  = null;
@@ -205,22 +172,6 @@ public class PromptXmlParser {
 							} else if (tagName.equalsIgnoreCase(PROPERTY_LABEL)) {
 								label = parser.nextText().trim();
 							}
-						} else if (repeatableSetInProgress) {
-							if (tagName.equalsIgnoreCase(REPEATABLE_SET_ID)) {
-								repeatableSetId = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_CONDITION)) {
-								repeatableSetCondition = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_FALSE_LABEL)) {
-								terminationFalseLabel = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_TRUE_LABEL)) {
-								terminationTrueLabel = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_SKIP_LABEL)) {
-								terminationSkipLabel = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_SKIP_ENABLED)) {
-								terminationSkipEnabled = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(REPEATABLE_SET_TERMINATION_QUESTION)) {
-								terminationQuestion = parser.nextText().trim();
-							}
 						} else if (messageInProgress) {
 							if (tagName.equalsIgnoreCase(MESSAGE_TEXT)) {
 								messageText = parser.nextText().trim();
@@ -243,11 +194,7 @@ public class PromptXmlParser {
 							Prompt prompt = PromptFactory.createPrompt(promptType);
 							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
 							builder.build(prompt, id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
-							if (repeatableSetInProgress) {
-								repeatableSetPrompts.add(prompt);
-							} else {
-								surveyElements.add(prompt);
-							}
+							surveyElements.add(prompt);
 						} catch (Exception e) {
 							Log.e(TAG, "Error building prompt", e);
 						}
@@ -257,11 +204,6 @@ public class PromptXmlParser {
 						if (promptInProgress) {
 							properties.add(new KVLTriplet(key, value, label));
 						}
-					} else if (tagName.equalsIgnoreCase(REPEATABLE_SET)) {
-						surveyElements.add(new RepeatableSetHeader(repeatableSetId, repeatableSetCondition, repeatableSetPrompts.size()));
-						surveyElements.addAll(repeatableSetPrompts);
-						surveyElements.add(new RepeatableSetTerminator(repeatableSetId, repeatableSetCondition, terminationQuestion, terminationTrueLabel, terminationFalseLabel, terminationSkipLabel, terminationSkipEnabled, repeatableSetPrompts.size()));
-						repeatableSetInProgress = false;
 					} else if (tagName.equalsIgnoreCase(MESSAGE)) {
 						surveyElements.add(new Message(messageText, messageCondition));
 						messageInProgress = false;

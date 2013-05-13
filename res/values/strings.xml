@@ -148,12 +148,8 @@
     <string name="survey_prompt">Prompt Text</string>
     <string name="survey_message_title">Message</string>
     <string name="survey_message_text">Message text should appear here.</string>
-    <string name="survey_repeatable_set_terminate">Terminate</string>
-    <string name="survey_repeatable_set_repeat">Repeat</string>
-    <string name="survey_repeatable_set_title">End of repeatable set</string>
     <string name="survey_list_must_trigger">This survey can only be taken when a reminder goes off.</string>
     <string name="survey_list_invalid_survey">onSurveyActionStart: Error: Empty cursor returned.</string>
-    <string name="prompt_repeatable_set_repeat">Would you like to repeat the set?</string>
     <string name="prompt_remote_launch">Launch</string>
     <string name="prompt_remote_relaunch">Relaunch</string>
     <string name="prompt_custom_choice_add">Add new choice</string>

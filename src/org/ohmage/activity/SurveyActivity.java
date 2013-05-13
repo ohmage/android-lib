@@ -70,8 +70,6 @@ import org.ohmage.logprobe.OhmageAnalytics;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
-import org.ohmage.prompt.RepeatableSetHeader;
-import org.ohmage.prompt.RepeatableSetTerminator;
 import org.ohmage.prompt.SurveyElement;
 import org.ohmage.prompt.media.MediaPrompt;
 import org.ohmage.prompt.media.PhotoPrompt;
@@ -116,8 +114,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
     private long mLaunchTime;
     private boolean mReachedEnd;
     private boolean mSurveyFinished = false;
-
-    private String mLastSeenRepeatableSetId;
 
     private LocationManager mLocManager;
 
@@ -214,14 +210,12 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
 
                 mCurrentPosition = 0;
                 mReachedEnd = false;
-                mLastSeenRepeatableSetId = "";
             }
         } else {
             mSurveyElements = instance.surveyElements;
             mCurrentPosition = instance.index;
             mLaunchTime = instance.launchTime;
             mReachedEnd = instance.reachedEnd;
-            mLastSeenRepeatableSetId = instance.lastSeenRepeatableSetId;
             mLastElement = instance.lastElement;
             mSurveyFinished = instance.surveyFinished;
             mInstructions = instance.instructions;
@@ -308,7 +302,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         return new NonConfigurationInstance(mSurveyElements, mCurrentPosition, mLaunchTime,
-                mReachedEnd, mLastSeenRepeatableSetId, mLastElement, mSurveyFinished, mInstructions);
+                mReachedEnd, mLastElement, mSurveyFinished, mInstructions);
     }
 
     private class NonConfigurationInstance {
@@ -316,19 +310,17 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
         int index;
         long launchTime;
         boolean reachedEnd;
-        String lastSeenRepeatableSetId;
         SurveyElement lastElement;
         boolean surveyFinished;
         String instructions;
 
         public NonConfigurationInstance(List<SurveyElement> surveyElements, int index,
-                long launchTime, boolean reachedEnd, String lastSeenRepeatableSetId,
+                long launchTime, boolean reachedEnd,
                 SurveyElement element, boolean surveyFinished, String instructions) {
             this.surveyElements = surveyElements;
             this.index = index;
             this.launchTime = launchTime;
             this.reachedEnd = reachedEnd;
-            this.lastSeenRepeatableSetId = lastSeenRepeatableSetId;
             this.lastElement = element;
             this.surveyFinished = surveyFinished;
             this.instructions = instructions;
@@ -393,41 +385,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                             ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
                                                     .setDisplayed(false);
                                         }
-                                    } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
-                                        // if new position is repeat header,
-                                        // check condition
-                                        String condition = ((RepeatableSetHeader) mSurveyElements
-                                                .get(mCurrentPosition)).getCondition();
-                                        if (condition == null)
-                                            condition = "";
-                                        if (DataPointConditionEvaluator.evaluateCondition(
-                                                condition, getPreviousResponses())) {
-                                            // if true, increment position,
-                                            // show prompt
-                                            ((RepeatableSetHeader) mSurveyElements
-                                                    .get(mCurrentPosition)).setDisplayed(true);
-                                            continue;
-                                        } else {
-                                            // set repeatable set to
-                                            // NOT_DISPLAYED
-                                            ((RepeatableSetHeader) mSurveyElements
-                                                    .get(mCurrentPosition)).setDisplayed(false);
-                                            // if false, increment past
-                                            // repeat set prompts and
-                                            // terminator
-                                            int promptCount = ((RepeatableSetHeader) mSurveyElements
-                                                    .get(mCurrentPosition)).getPromptCount();
-                                            mCurrentPosition += promptCount + 1;
-                                            // if new position is header
-                                            // with same id, remove items
-                                            // from list ???
-                                            continue;
-                                        }
-                                    } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                                        // if new position is a repeat
-                                        // terminator, show terminator
-                                        showTerminator(mCurrentPosition);
-                                        break;
                                     } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
                                         String condition = ((Message) mSurveyElements
                                                 .get(mCurrentPosition)).getCondition();
@@ -449,110 +406,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                     SurveyActivity.this,
                                     ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
                                             .getUnansweredPromptText(), Toast.LENGTH_LONG).show();
-                        }
-                    } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                        // "next" maps to "terminate"
-                        while (mCurrentPosition < mSurveyElements.size()) {
-                            // increment position
-                            mCurrentPosition++;
-                            // if survey end reached, show submit screen
-                            if (mCurrentPosition == mSurveyElements.size()) {
-                                mReachedEnd = true;
-                                showSubmitScreen();
-
-                            } else {
-                                // if element is repeat header with same
-                                // repeat set id, remove header, prompts,
-                                // and terminator
-                                while (mCurrentPosition < mSurveyElements.size()
-                                        && mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader
-                                        && ((RepeatableSetHeader) mSurveyElements
-                                                .get(mCurrentPosition)).getId().equals(
-                                                ((RepeatableSetTerminator) mSurveyElements
-                                                        .get(mCurrentPosition - 1)).getId())) {
-                                    int count = ((RepeatableSetHeader) mSurveyElements
-                                            .get(mCurrentPosition)).getPromptCount();
-                                    mSurveyElements.remove(mCurrentPosition); // remove
-                                                                              // header
-                                    for (int i = 0; i < count; i++) {
-                                        mSurveyElements.remove(mCurrentPosition); // remove
-                                                                                  // prompts
-                                    }
-                                    mSurveyElements.remove(mCurrentPosition); // remove
-                                                                              // terminator
-                                } // repeat until above is not true
-
-                                if (mCurrentPosition == mSurveyElements.size()) {
-                                    mReachedEnd = true;
-                                    showSubmitScreen();
-
-                                } else if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-                                    // if new position is prompt, check
-                                    // condition
-                                    String condition = ((AbstractPrompt) mSurveyElements
-                                            .get(mCurrentPosition)).getCondition();
-                                    if (condition == null)
-                                        condition = "";
-                                    if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                            getPreviousResponses())) {
-                                        // if true, show new prompt
-                                        showPrompt(mCurrentPosition);
-                                        break;
-                                    } else {
-                                        // if false, loop up and increment
-                                        ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
-                                                .setDisplayed(false);
-                                    }
-                                } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
-                                    // if new position is repeat header,
-                                    // check condition
-                                    String condition = ((RepeatableSetHeader) mSurveyElements
-                                            .get(mCurrentPosition)).getCondition();
-                                    if (condition == null)
-                                        condition = "";
-                                    if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                            getPreviousResponses())) {
-                                        // if true, increment position, show
-                                        // prompt
-                                        ((RepeatableSetHeader) mSurveyElements
-                                                .get(mCurrentPosition)).setDisplayed(true);
-                                        continue;
-                                    } else {
-                                        // if false, increment past repeat
-                                        // set prompts and terminator
-                                        // set repeatable set to
-                                        // NOT_DISPLAYED
-                                        ((RepeatableSetHeader) mSurveyElements
-                                                .get(mCurrentPosition)).setDisplayed(false);
-                                        int promptCount = ((RepeatableSetHeader) mSurveyElements
-                                                .get(mCurrentPosition)).getPromptCount();
-                                        mCurrentPosition += promptCount + 1;
-                                        // if new position is header with
-                                        // same id, remove items from list
-                                        // ???
-
-                                        continue;
-                                    }
-                                } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                                    // if new position is a repeat
-                                    // terminator, show terminator
-                                    showTerminator(mCurrentPosition);
-                                    break;
-                                } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
-                                    String condition = ((Message) mSurveyElements
-                                            .get(mCurrentPosition)).getCondition();
-                                    if (condition == null)
-                                        condition = "";
-                                    if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                            getPreviousResponses())) {
-                                        // if true, show message
-                                        showMessage(mCurrentPosition);
-                                        break;
-                                    }
-                                } else {
-                                    // something is wrong!
-                                }
-                            }
                         }
                     }
                 }
@@ -587,38 +440,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                     ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
                                             .setDisplayed(false);
                                 }
-                            } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
-                                // if new position is repeat header, check
-                                // condition
-                                String condition = ((RepeatableSetHeader) mSurveyElements
-                                        .get(mCurrentPosition)).getCondition();
-                                if (condition == null)
-                                    condition = "";
-                                if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                        getPreviousResponses())) {
-                                    // if true, increment position, show
-                                    // prompt
-                                    ((RepeatableSetHeader) mSurveyElements.get(mCurrentPosition))
-                                            .setDisplayed(true);
-                                    continue;
-                                } else {
-                                    // if false, increment past repeat set
-                                    // prompts and terminator
-                                    int promptCount = ((RepeatableSetHeader) mSurveyElements
-                                            .get(mCurrentPosition)).getPromptCount();
-                                    mCurrentPosition += promptCount + 1;
-                                    // if new position is header with same
-                                    // id, remove items from list ???
-                                    // set repeatable set to NOT_DISPLAYED
-                                    ((RepeatableSetHeader) mSurveyElements.get(mCurrentPosition))
-                                            .setDisplayed(false);
-                                    continue;
-                                }
-                            } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                                // if new position is a repeat terminator,
-                                // show terminator
-                                showTerminator(mCurrentPosition);
-                                break;
                             } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
                                 String condition = ((Message) mSurveyElements.get(mCurrentPosition))
                                         .getCondition();
@@ -635,8 +456,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                             }
                         }
                     }
-                } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                    // handle skip for repeatable sets
                 }
             } else if (id == R.id.prev_button) {
                 if (mReachedEnd || mSurveyElements.get(mCurrentPosition) instanceof Prompt
@@ -662,29 +481,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                                 ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
                                         .setDisplayed(false);
                             }
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader) {
-                            // if element is a repeat header, decrement
-                            // position and loop
-                            continue;
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                            // if element is repeat terminator, check
-                            // condition
-                            String condition = ((RepeatableSetTerminator) mSurveyElements
-                                    .get(mCurrentPosition)).getCondition();
-                            if (condition == null)
-                                condition = "";
-                            if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                    getPreviousResponses())) {
-                                // if true, decrement position, show prompt
-                                continue;
-                            } else {
-                                // if false, decrement past all prompts in
-                                // set and header
-                                int promptCount = ((RepeatableSetTerminator) mSurveyElements
-                                        .get(mCurrentPosition)).getPromptCount();
-                                mCurrentPosition -= promptCount + 1;
-                                continue;
-                            }
                         } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
                             String condition = ((Message) mSurveyElements.get(mCurrentPosition))
                                     .getCondition();
@@ -698,112 +494,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                             }
                         }
                     }
-                } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                    // "previous" maps to "repeat"
-                    int promptCount = ((RepeatableSetTerminator) mSurveyElements
-                            .get(mCurrentPosition)).getPromptCount();
-
-                    mCurrentPosition++;
-
-                    if (mCurrentPosition < mSurveyElements.size()
-                            && mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetHeader
-                            && ((RepeatableSetHeader) mSurveyElements.get(mCurrentPosition))
-                                    .getId().equals(
-                                            ((RepeatableSetTerminator) mSurveyElements
-                                                    .get(mCurrentPosition - 1)).getId())) {
-                        // if next position is header with same repeat set
-                        // id, increment position
-
-                        mCurrentPosition++;
-
-                        if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-                            // if new position is prompt, check condition
-                            String condition = ((AbstractPrompt) mSurveyElements
-                                    .get(mCurrentPosition)).getCondition();
-                            if (condition == null)
-                                condition = "";
-                            if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                    getPreviousResponses())) {
-                                // if true, show new prompt
-                                showPrompt(mCurrentPosition);
-                            } else {
-                                // if false, loop up and increment
-                                ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
-                                        .setDisplayed(false);
-                            }
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                            // if new position is a repeat terminator, show
-                            // terminator
-                            showTerminator(mCurrentPosition);
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
-                            String condition = ((Message) mSurveyElements.get(mCurrentPosition))
-                                    .getCondition();
-                            if (condition == null)
-                                condition = "";
-                            if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                    getPreviousResponses())) {
-                                // if true, show message
-                                showMessage(mCurrentPosition);
-                            }
-                        } else {
-                            // something is wrong!
-                        }
-
-                    } else {
-                        // else, after current position in list, add repeat
-                        // header, prompts, and terminator, then increment
-                        // position
-                        RepeatableSetHeader newHeader = ((RepeatableSetHeader) mSurveyElements
-                                .get(mCurrentPosition - 1 - promptCount - 1)).getCopy();
-                        List<Prompt> newPrompts = new ArrayList<Prompt>();
-                        for (int i = promptCount; i > 0; i--) {
-                            Prompt newPrompt = ((AbstractPrompt) mSurveyElements
-                                    .get(mCurrentPosition - i - 1)).getCopy();
-                            newPrompts.add(newPrompt);
-                        }
-                        RepeatableSetTerminator newTerminator = ((RepeatableSetTerminator) mSurveyElements
-                                .get(mCurrentPosition - 1)).getCopy();
-                        mSurveyElements.add(mCurrentPosition, newTerminator);
-                        mSurveyElements.addAll(mCurrentPosition, newPrompts);
-                        mSurveyElements.add(mCurrentPosition, newHeader);
-
-                        mCurrentPosition++;
-
-                        if (mSurveyElements.get(mCurrentPosition) instanceof Prompt) {
-                            // if new position is prompt, check condition
-                            String condition = ((AbstractPrompt) mSurveyElements
-                                    .get(mCurrentPosition)).getCondition();
-                            if (condition == null)
-                                condition = "";
-                            if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                    getPreviousResponses())) {
-                                // if true, show new prompt
-                                showPrompt(mCurrentPosition);
-                            } else {
-                                // if false, loop up and increment
-                                ((AbstractPrompt) mSurveyElements.get(mCurrentPosition))
-                                        .setDisplayed(false);
-                            }
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof RepeatableSetTerminator) {
-                            // if new position is a repeat terminator, show
-                            // terminator
-                            showTerminator(mCurrentPosition);
-                        } else if (mSurveyElements.get(mCurrentPosition) instanceof Message) {
-                            String condition = ((Message) mSurveyElements.get(mCurrentPosition))
-                                    .getCondition();
-                            if (condition == null)
-                                condition = "";
-                            if (DataPointConditionEvaluator.evaluateCondition(condition,
-                                    getPreviousResponses())) {
-                                // if true, show message
-                                showMessage(mCurrentPosition);
-                            }
-                        } else {
-                            // something is wrong!
-                        }
-
-                    }
-
                 }
             }
         }
@@ -955,59 +645,6 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
         mLastElement = element;
     }
 
-    private void showTerminator(int index) {
-
-        if (mSurveyElements.get(index) instanceof RepeatableSetTerminator) {
-
-            RepeatableSetTerminator terminator = (RepeatableSetTerminator) mSurveyElements
-                    .get(index);
-
-            String terminateText = terminator.getTrueLabel();
-            String repeatText = terminator.getFalseLabel();
-
-            if (terminateText == null || terminateText.equals("")) {
-                terminateText = getString(R.string.survey_repeatable_set_terminate);
-            }
-
-            if (repeatText == null || repeatText.equals("")) {
-                repeatText = getString(R.string.survey_repeatable_set_repeat);
-            }
-
-            mNextButton.setText(terminateText);
-            mPrevButton.setText(repeatText);
-            mSkipButton.setVisibility(View.INVISIBLE);
-
-            if (index == 0) {
-                // this could(should) never happen
-            }
-
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mPromptText.getWindowToken(), 0);
-
-            // terminator.setDisplayed(true);
-            // terminator.setSkipped(false);
-
-            // TODO for now I'm casting, but maybe I should move getters/setters
-            // to interface?
-            // or just use a list of AbstractPrompt
-            mPromptText.setText(R.string.survey_repeatable_set_title);
-            mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
-
-            // if (terminator.getSkippable().equals("true")) {
-            // mSkipButton.setVisibility(View.VISIBLE);
-            // } else {
-            // mSkipButton.setVisibility(View.INVISIBLE);
-            // }
-
-            clearPromptFrame();
-            terminator.inflateView(this, mPromptFrame);
-            // mPromptFrame.invalidate();
-        } else {
-            Log.e(TAG,
-                    "trying to showTerminator for element that is not a RepeatableSetTerminator!");
-        }
-    }
-
     /*
      * public void setResponse(int index, String id, String value) { // prompt
      * doesn't know it's own index... :( mResponses.set(index, new
@@ -1117,11 +754,8 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
         String surveyLaunchContext = surveyLaunchContextJson.toString();
 
         JSONArray responseJson = new JSONArray();
-        JSONArray repeatableSetResponseJson = new JSONArray();
-        JSONArray iterationResponseJson = new JSONArray();
         JSONArray media = new JSONArray();
         JSONObject itemJson = null;
-        boolean inRepeatableSet = false;
 
         for (int i = 0; i < surveyElements.size(); i++) {
             if (surveyElements.get(i) instanceof MediaPrompt) {
@@ -1131,85 +765,24 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
             }
 
             if (surveyElements.get(i) instanceof Prompt) {
-                if (!inRepeatableSet) {
-                    itemJson = new JSONObject();
-                    try {
-                        itemJson.put("prompt_id", ((AbstractPrompt) surveyElements.get(i)).getId());
-                        itemJson.put("value",
-                                ((AbstractPrompt) surveyElements.get(i)).getResponseObject());
-                        Object extras = ((AbstractPrompt) surveyElements.get(i)).getExtrasObject();
-                        if (extras != null) {
-                            // as of now we don't actually have "extras" we only
-                            // have "custom_choices" for the custom types
-                            // so this is currently only used by
-                            // single_choice_custom and multi_choice_custom
-                            itemJson.put("custom_choices", extras);
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSONException when trying to generate response json", e);
-                        throw new RuntimeException(e);
-                    }
-                    responseJson.put(itemJson);
-                } else {
-                    JSONObject subItemJson = new JSONObject();
-                    try {
-                        subItemJson.put("prompt_id",
-                                ((AbstractPrompt) surveyElements.get(i)).getId());
-                        subItemJson.put("value",
-                                ((AbstractPrompt) surveyElements.get(i)).getResponseObject());
-                        Object extras = ((AbstractPrompt) surveyElements.get(i)).getExtrasObject();
-                        if (extras != null) {
-                            // as of now we don't actually have "extras" we only
-                            // have "custom_choices" for the custom types
-                            // so this is currently only used by
-                            // single_choice_custom and multi_choice_custom
-                            subItemJson.put("custom_choices", extras);
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSONException when trying to generate response json", e);
-                        throw new RuntimeException(e);
-                    }
-                    iterationResponseJson.put(subItemJson);
-                }
-            } else if (surveyElements.get(i) instanceof RepeatableSetHeader) {
-                inRepeatableSet = true;
-                if (i != 0
-                        && (surveyElements.get(i - 1) instanceof RepeatableSetTerminator)
-                        && ((RepeatableSetHeader) surveyElements.get(i)).getId().equals(
-                                ((RepeatableSetTerminator) surveyElements.get(i - 1)).getId())) {
-                    // continue existing set
-                    iterationResponseJson = new JSONArray();
-                } else {
-                    // start new set
-                    itemJson = new JSONObject();
-                    try {
-                        itemJson.put("repeatable_set_id",
-                                ((RepeatableSetHeader) surveyElements.get(i)).getId());
-                        itemJson.put("skipped", "false");
-                        itemJson.put("not_displayed", ((RepeatableSetHeader) surveyElements.get(i))
-                                .isDisplayed() ? "false" : "true");
-                        repeatableSetResponseJson = new JSONArray();
-                        iterationResponseJson = new JSONArray();
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSONException when trying to generate response json", e);
-                        throw new RuntimeException(e);
-                    }
-                }
-            } else if (surveyElements.get(i) instanceof RepeatableSetTerminator) {
-                inRepeatableSet = false;
-                repeatableSetResponseJson.put(iterationResponseJson);
+                itemJson = new JSONObject();
                 try {
-                    itemJson.put("responses", repeatableSetResponseJson);
+                    itemJson.put("prompt_id", ((AbstractPrompt) surveyElements.get(i)).getId());
+                    itemJson.put("value",
+                            ((AbstractPrompt) surveyElements.get(i)).getResponseObject());
+                    Object extras = ((AbstractPrompt) surveyElements.get(i)).getExtrasObject();
+                    if (extras != null) {
+                        // as of now we don't actually have "extras" we only
+                        // have "custom_choices" for the custom types
+                        // so this is currently only used by
+                        // single_choice_custom and multi_choice_custom
+                        itemJson.put("custom_choices", extras);
+                    }
                 } catch (JSONException e) {
                     Log.e(TAG, "JSONException when trying to generate response json", e);
                     throw new RuntimeException(e);
                 }
-                if (!(i + 1 < surveyElements.size()
-                        && (surveyElements.get(i + 1) instanceof RepeatableSetHeader) && ((RepeatableSetHeader) surveyElements
-                            .get(i + 1)).getId().equals(
-                        ((RepeatableSetTerminator) surveyElements.get(i)).getId()))) {
-                    responseJson.put(itemJson);
-                }
+                responseJson.put(itemJson);
             }
         }
         String response = responseJson.toString();
