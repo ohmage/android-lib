@@ -18,6 +18,7 @@ package org.ohmage.prompt.multichoicecustom;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -46,14 +47,14 @@ import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.library.R;
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.AbstractPromptFragment;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MultiChoiceCustomPrompt extends AbstractPrompt {
+public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
 
     private static final String TAG = "MultiChoiceCustomPrompt";
 
@@ -132,14 +133,18 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
     private int mLastIndex;
     private int mLastTop;
 
+    private ArrayList<HashMap<String, CharSequence>> mData;
+
+    private SimpleAdapter mAdapter;
+
     @Override
-    public View getView(final Context context) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mCustomChoices.clear();
-        MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
-        String surveyId = ((SurveyActivity) context).getSurveyId();
-        AccountHelper prefs = new AccountHelper(context);
-        String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
+        MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(getActivity());
+        String surveyId = ((SurveyActivity) getActivity()).getSurveyId();
+        AccountHelper prefs = new AccountHelper(getActivity());
+        String campaignUrn = ((SurveyActivity) getActivity()).getCampaignUrn();
         String username = prefs.getUsername();
         if (dbAdapter.open()) {
             Cursor c = dbAdapter.getCustomChoices(username, campaignUrn, surveyId,
@@ -156,9 +161,7 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
             dbAdapter.close();
         }
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mListView = new CustomChoiceListView(context);
+        mListView = new CustomChoiceListView(getActivity());
         mListView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
                 LayoutParams.FILL_PARENT));
         mListView.setTextFilterEnabled(false);
@@ -172,7 +175,7 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
         ImageButton mButton = (ImageButton) mFooterView.findViewById(R.id.ok_button);
         ImageButton mCancelButton = (ImageButton) mFooterView.findViewById(R.id.cancel_button);
 
-        showAddItemControls(context, mIsAddingNewItem);
+        showAddItemControls(getActivity(), mIsAddingNewItem);
 
         mButton.setOnClickListener(new OnClickListener() {
 
@@ -180,10 +183,11 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
             public void onClick(View v) {
                 mEnteredText = mEnteredText.trim();
                 if (!TextUtils.isEmpty(mEnteredText)) {
-                    MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(context);
-                    String surveyId = ((SurveyActivity) context).getSurveyId();
-                    AccountHelper prefs = new AccountHelper(context);
-                    String campaignUrn = ((SurveyActivity) context).getCampaignUrn();
+                    MultiChoiceCustomDbAdapter dbAdapter = new MultiChoiceCustomDbAdapter(
+                            getActivity());
+                    String surveyId = ((SurveyActivity) getActivity()).getSurveyId();
+                    AccountHelper prefs = new AccountHelper(getActivity());
+                    String campaignUrn = ((SurveyActivity) getActivity()).getCampaignUrn();
                     String username = prefs.getUsername();
 
                     boolean duplicate = false;
@@ -217,15 +221,24 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
                         dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn,
                                 surveyId, MultiChoiceCustomPrompt.this.getPromptId());
                         dbAdapter.close();
+
+                        KVLTriplet choice = new KVLTriplet(String.valueOf(choiceId), null,
+                                mEnteredText);
+                        mCustomChoices.add(choice);
+
+                        mSelectedIndexes.add(mListView.getCount() - 1);
+
+                        HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
+                        map.put("key", String.valueOf(choiceId));
+                        map.put("value", new SpannableStringBuilder(mEnteredText));
+                        mData.add(map);
+                        mAdapter.notifyDataSetChanged();
                     }
 
-                    showAddItemControls(context, false);
-
-                    mSelectedIndexes.add(Integer.valueOf(mListView.getCount() - 1));
-
-                    ((SurveyActivity) context).reloadCurrentPrompt();
+                    showAddItemControls(getActivity(), false);
                 } else {
-                    Toast.makeText(context, "Please enter some text", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please enter some text", Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
         });
@@ -234,7 +247,7 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
 
             @Override
             public void onClick(View v) {
-                showAddItemControls(context, false);
+                showAddItemControls(getActivity(), false);
             }
         });
 
@@ -267,24 +280,24 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
             android.R.id.text1
         };
 
-        List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
+        mData = new ArrayList<HashMap<String, CharSequence>>();
         for (int i = 0; i < mChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mChoices.get(i).key);
             map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
-            data.add(map);
+            mData.add(map);
         }
         for (int i = 0; i < mCustomChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mCustomChoices.get(i).key);
             map.put("value", OhmageMarkdown.parse(mCustomChoices.get(i).label));
-            data.add(map);
+            mData.add(map);
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.multi_choice_list_item,
-                from, to);
+        mAdapter = new SimpleAdapter(getActivity(), mData, R.layout.multi_choice_list_item, from,
+                to);
 
-        adapter.setViewBinder(new ViewBinder() {
+        mAdapter.setViewBinder(new ViewBinder() {
 
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
@@ -293,7 +306,7 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
             }
         });
 
-        mListView.setAdapter(adapter);
+        mListView.setAdapter(mAdapter);
 
         if (mSelectedIndexes.size() > 0) {
             for (int index : mSelectedIndexes) {
@@ -308,7 +321,7 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position == mListView.getCount() - 1) {
-                    showAddItemControls(context, true);
+                    showAddItemControls(getActivity(), true);
                     mLastIndex = mListView.getLastVisiblePosition();
                     View v = mListView.getChildAt(mLastIndex);
                     mLastTop = (v == null) ? 0 : v.getTop();
@@ -375,9 +388,12 @@ public class MultiChoiceCustomPrompt extends AbstractPrompt {
     }
 
     @Override
-    public void onHidden() {
-        mEnteredText = "";
-        mIsAddingNewItem = false;
+    public void onDetach() {
+        super.onDetach();
+        if (isRemoving()) {
+            mEnteredText = "";
+            mIsAddingNewItem = false;
+        }
     }
 
     public List<Integer> getSelectedIndexes() {

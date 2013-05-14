@@ -18,6 +18,8 @@ package org.ohmage.prompt.singlechoicecustom;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -45,14 +47,14 @@ import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
 import org.ohmage.library.R;
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.AbstractPromptFragment;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SingleChoiceCustomPrompt extends AbstractPrompt {
+public class SingleChoiceCustomPrompt extends AbstractPromptFragment {
 
     private static final String TAG = "SingleChoiceCustomPrompt";
 
@@ -128,8 +130,14 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
     private int mLastIndex;
     private int mLastTop;
 
+    private SimpleAdapter mAdapter;
+
+    private ArrayList<HashMap<String, CharSequence>> mdata;
+
     @Override
-    public View getView(final Context context) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        final FragmentActivity context = getActivity();
 
         mCustomChoices.clear();
         SingleChoiceCustomDbAdapter dbAdapter = new SingleChoiceCustomDbAdapter(context);
@@ -142,7 +150,6 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
                     SingleChoiceCustomPrompt.this.getPromptId());
             c.moveToFirst();
             for (int i = 0; i < c.getCount(); i++) {
-                // c.getLong(c.getColumnIndex(SingleChoiceCustomDbAdapter.KEY_ID));
                 int key = c.getInt(c.getColumnIndex(SingleChoiceCustomDbAdapter.KEY_CHOICE_ID));
                 String label = c.getString(c
                         .getColumnIndex(SingleChoiceCustomDbAdapter.KEY_CHOICE_VALUE));
@@ -153,8 +160,6 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
             dbAdapter.close();
         }
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mListView = new CustomChoiceListView(context);
         mListView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
                 LayoutParams.FILL_PARENT));
@@ -214,13 +219,22 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
                         dbAdapter.addCustomChoice(choiceId, mEnteredText, username, campaignUrn,
                                 surveyId, SingleChoiceCustomPrompt.this.getPromptId());
                         dbAdapter.close();
+
+                        KVLTriplet choice = new KVLTriplet(String.valueOf(choiceId), null,
+                                mEnteredText);
+                        mCustomChoices.add(choice);
+
+                        mSelectedIndex = mListView.getCount() - 1;
+                        mListView.setSelection(mSelectedIndex);
+
+                        HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
+                        map.put("key", choice.key);
+                        map.put("value", new SpannableStringBuilder(choice.label));
+                        mdata.add(map);
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     showAddItemControls(context, false);
-
-                    mSelectedIndex = mListView.getCount() - 1;
-
-                    ((SurveyActivity) context).reloadCurrentPrompt();
                 } else {
                     Toast.makeText(context, "Please enter some text", Toast.LENGTH_SHORT).show();
                 }
@@ -240,13 +254,11 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO Auto-generated method stub
-
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // TODO Auto-generated method stub
-
             }
 
             @Override
@@ -264,24 +276,23 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
             android.R.id.text1
         };
 
-        List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
+        mdata = new ArrayList<HashMap<String, CharSequence>>();
         for (int i = 0; i < mChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mChoices.get(i).key);
             map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
-            data.add(map);
+            mdata.add(map);
         }
         for (int i = 0; i < mCustomChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mCustomChoices.get(i).key);
             map.put("value", OhmageMarkdown.parse(mCustomChoices.get(i).label));
-            data.add(map);
+            mdata.add(map);
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.single_choice_list_item,
-                from, to);
+        mAdapter = new SimpleAdapter(context, mdata, R.layout.single_choice_list_item, from, to);
 
-        adapter.setViewBinder(new ViewBinder() {
+        mAdapter.setViewBinder(new ViewBinder() {
 
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
@@ -290,7 +301,7 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
             }
         });
 
-        mListView.setAdapter(adapter);
+        mListView.setAdapter(mAdapter);
 
         if (mSelectedIndex >= 0 && mSelectedIndex < mChoices.size() + mCustomChoices.size()) {
             mListView.setItemChecked(mSelectedIndex, true);
@@ -362,9 +373,12 @@ public class SingleChoiceCustomPrompt extends AbstractPrompt {
     }
 
     @Override
-    public void onHidden() {
-        mEnteredText = "";
-        mIsAddingNewItem = false;
+    public void onDetach() {
+        super.onDetach();
+        if (isRemoving()) {
+            mEnteredText = "";
+            mIsAddingNewItem = false;
+        }
     }
 
     public int getSelectedIndex() {

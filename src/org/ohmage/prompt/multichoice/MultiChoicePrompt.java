@@ -16,10 +16,11 @@
 
 package org.ohmage.prompt.multichoice;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
@@ -31,13 +32,13 @@ import org.json.JSONArray;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.library.R;
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.AbstractPromptFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MultiChoicePrompt extends AbstractPrompt {
+public class MultiChoicePrompt extends AbstractPromptFragment {
 
     private static final String TAG = "MultiChoicePrompt";
 
@@ -99,10 +100,9 @@ public class MultiChoicePrompt extends AbstractPrompt {
     }
 
     @Override
-    public View getView(Context context) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ListView listView = (ListView) inflater.inflate(R.layout.prompt_multi_choice, null);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ListView listView = (ListView) inflater.inflate(R.layout.prompt_multi_choice, container,
+                false);
 
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
@@ -121,8 +121,8 @@ public class MultiChoicePrompt extends AbstractPrompt {
             data.add(map);
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.multi_choice_list_item,
-                from, to);
+        SimpleAdapter adapter = new SimpleAdapter(getActivity(), data,
+                R.layout.multi_choice_list_item, from, to);
 
         adapter.setViewBinder(new ViewBinder() {
 

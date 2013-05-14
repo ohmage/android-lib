@@ -16,10 +16,11 @@
 
 package org.ohmage.prompt.singlechoice;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckedTextView;
@@ -30,13 +31,13 @@ import android.widget.SimpleAdapter.ViewBinder;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.library.R;
-import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.prompt.AbstractPromptFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SingleChoicePrompt extends AbstractPrompt {
+public class SingleChoicePrompt extends AbstractPromptFragment {
 
     private static final String TAG = "SingleChoicePrompt";
 
@@ -94,11 +95,19 @@ public class SingleChoicePrompt extends AbstractPrompt {
     }
 
     @Override
-    public View getView(Context context) {
+    public void setDefaultValue(String defaultValue) {
+        this.mDefaultValue = defaultValue;
+        try {
+            mSelectedIndex = Integer.valueOf(defaultValue);
+        } catch (NumberFormatException e) {
+            // No number...
+        }
+    }
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ListView listView = (ListView) inflater.inflate(R.layout.prompt_single_choice, null);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ListView listView = (ListView) inflater.inflate(R.layout.prompt_single_choice, container,
+                false);
 
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -117,8 +126,8 @@ public class SingleChoicePrompt extends AbstractPrompt {
             data.add(map);
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.single_choice_list_item,
-                from, to);
+        SimpleAdapter adapter = new SimpleAdapter(getActivity(), data,
+                R.layout.single_choice_list_item, from, to);
 
         adapter.setViewBinder(new ViewBinder() {
 
@@ -144,16 +153,6 @@ public class SingleChoicePrompt extends AbstractPrompt {
         });
 
         return listView;
-    }
-
-    @Override
-    public void setDefaultValue(String defaultValue) {
-        this.mDefaultValue = defaultValue;
-        try {
-            mSelectedIndex = Integer.valueOf(defaultValue);
-        } catch (NumberFormatException e) {
-            // No number...
-        }
     }
 
 }
