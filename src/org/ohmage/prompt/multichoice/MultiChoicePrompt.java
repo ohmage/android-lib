@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.ohmage.prompt.multichoice;
 
-import org.json.JSONArray;
-import org.ohmage.OhmageMarkdown;
-import org.ohmage.library.R;
-import org.ohmage.Utilities.KVLTriplet;
-import org.ohmage.prompt.AbstractPrompt;
+package org.ohmage.prompt.multichoice;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
@@ -32,137 +27,147 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 
+import org.json.JSONArray;
+import org.ohmage.OhmageMarkdown;
+import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.library.R;
+import org.ohmage.prompt.AbstractPrompt;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class MultiChoicePrompt extends AbstractPrompt {
-	
-	private static final String TAG = "MultiChoicePrompt";
-	
-	private List<KVLTriplet> mChoices;
-	private ArrayList<Integer> mSelectedIndexes;
-	
-	public MultiChoicePrompt() {
-		super();
-		mSelectedIndexes = new ArrayList<Integer>();
-	}
-	
-	public void setChoices(List<KVLTriplet> choices) {
-		mChoices = choices;
-	}
-	
-	public List<KVLTriplet> getChoices(){
-		return mChoices;
-	}
 
-	@Override
-	protected void clearTypeSpecificResponseData() {
-		if (mSelectedIndexes == null) {
-			mSelectedIndexes = new ArrayList<Integer>();
-		} else {
-			mSelectedIndexes.clear();
-		}
-	}
-	
-	/**
-	 * Always returns true as an number of selected items is valid.
-	 */
-	@Override
-	public boolean isPromptAnswered() {
-		return true;
-	}
+    private static final String TAG = "MultiChoicePrompt";
 
-	@Override
-	protected Object getTypeSpecificResponseObject() {
-		JSONArray jsonArray = new JSONArray();
-		for (int index : mSelectedIndexes) {
-			if (index >= 0 && index < mChoices.size())
-				jsonArray.put(Integer.decode(mChoices.get(index).key));
-		}
-		return jsonArray;
-	}
-	
-	/**
-	 * The text to be displayed to the user if the prompt is considered
-	 * unanswered.
-	 */
-	@Override
-	public String getUnansweredPromptText() {
-		return("Please choose at least one of the items in the list.");
-	}
-	
-	@Override
-	protected Object getTypeSpecificExtrasObject() {
-		return null;
-	}
+    private List<KVLTriplet> mChoices;
+    private ArrayList<Integer> mSelectedIndexes;
 
-	@Override
-	public View getView(Context context) {
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		ListView listView = (ListView) inflater.inflate(R.layout.prompt_multi_choice, null);
-		
-		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-		
-		String [] from = new String [] {"value"};
-		int [] to = new int [] {android.R.id.text1};
-		
-		List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
-		for (int i = 0; i < mChoices.size(); i++) {
-			HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
-			map.put("key", mChoices.get(i).key);
-			map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
-			data.add(map);
-		}
-		
-		SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.multi_choice_list_item, from, to);
-		
-		adapter.setViewBinder(new ViewBinder() {
-			
-			@Override
-			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				((CheckedTextView) view).setText((SpannableStringBuilder)data);
-				return true;
-			}
-		});
-		
-		listView.setAdapter(adapter);
-		
-		if (mSelectedIndexes.size() > 0) {
-			for (int index : mSelectedIndexes) {
-				if (index >= 0 && index < mChoices.size())
-					listView.setItemChecked(index, true);
-			}
-		}
-		
-		listView.setOnItemClickListener(new OnItemClickListener() {
+    public MultiChoicePrompt() {
+        super();
+        mSelectedIndexes = new ArrayList<Integer>();
+    }
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				
-				//SparseBooleanArray checkItemPositions = ((ListView)parent).getCheckedItemPositions();
-				if (((ListView)parent).isItemChecked(position)) {
-					mSelectedIndexes.add(Integer.valueOf(position));
-				} else {
-					mSelectedIndexes.remove(Integer.valueOf(position));
-				}
-			}
-		});
-		
-		return listView;
-	}
+    public void setChoices(List<KVLTriplet> choices) {
+        mChoices = choices;
+    }
 
-	@Override
-	public void setDefaultValue(String defaultValue) {
-		this.mDefaultValue = defaultValue;
-		try {
-			if(defaultValue != null) {
-				String[] values = defaultValue.split(",");
-				for(int i=0; i<values.length; i++)
-					mSelectedIndexes.add(Integer.valueOf(values[i]));
-			}
-		} catch(NumberFormatException e) {
-			// No number...
-		}
-	}
+    public List<KVLTriplet> getChoices() {
+        return mChoices;
+    }
+
+    @Override
+    protected void clearTypeSpecificResponseData() {
+        if (mSelectedIndexes == null) {
+            mSelectedIndexes = new ArrayList<Integer>();
+        } else {
+            mSelectedIndexes.clear();
+        }
+    }
+
+    /**
+     * Always returns true as an number of selected items is valid.
+     */
+    @Override
+    public boolean isPromptAnswered() {
+        return true;
+    }
+
+    @Override
+    protected Object getTypeSpecificResponseObject() {
+        JSONArray jsonArray = new JSONArray();
+        for (int index : mSelectedIndexes) {
+            if (index >= 0 && index < mChoices.size())
+                jsonArray.put(Integer.decode(mChoices.get(index).key));
+        }
+        return jsonArray;
+    }
+
+    /**
+     * The text to be displayed to the user if the prompt is considered
+     * unanswered.
+     */
+    @Override
+    public String getUnansweredPromptText() {
+        return ("Please choose at least one of the items in the list.");
+    }
+
+    @Override
+    protected Object getTypeSpecificExtrasObject() {
+        return null;
+    }
+
+    @Override
+    public View getView(Context context) {
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ListView listView = (ListView) inflater.inflate(R.layout.prompt_multi_choice, null);
+
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+        String[] from = new String[] {
+            "value"
+        };
+        int[] to = new int[] {
+            android.R.id.text1
+        };
+
+        List<HashMap<String, CharSequence>> data = new ArrayList<HashMap<String, CharSequence>>();
+        for (int i = 0; i < mChoices.size(); i++) {
+            HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
+            map.put("key", mChoices.get(i).key);
+            map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
+            data.add(map);
+        }
+
+        SimpleAdapter adapter = new SimpleAdapter(context, data, R.layout.multi_choice_list_item,
+                from, to);
+
+        adapter.setViewBinder(new ViewBinder() {
+
+            @Override
+            public boolean setViewValue(View view, Object data, String textRepresentation) {
+                ((CheckedTextView) view).setText((SpannableStringBuilder) data);
+                return true;
+            }
+        });
+
+        listView.setAdapter(adapter);
+
+        if (mSelectedIndexes.size() > 0) {
+            for (int index : mSelectedIndexes) {
+                if (index >= 0 && index < mChoices.size())
+                    listView.setItemChecked(index, true);
+            }
+        }
+
+        listView.setOnItemClickListener(new OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (((ListView) parent).isItemChecked(position)) {
+                    mSelectedIndexes.add(Integer.valueOf(position));
+                } else {
+                    mSelectedIndexes.remove(Integer.valueOf(position));
+                }
+            }
+        });
+
+        return listView;
+    }
+
+    @Override
+    public void setDefaultValue(String defaultValue) {
+        this.mDefaultValue = defaultValue;
+        try {
+            if (defaultValue != null) {
+                String[] values = defaultValue.split(",");
+                for (int i = 0; i < values.length; i++)
+                    mSelectedIndexes.add(Integer.valueOf(values[i]));
+            }
+        } catch (NumberFormatException e) {
+            // No number...
+        }
+    }
 }
