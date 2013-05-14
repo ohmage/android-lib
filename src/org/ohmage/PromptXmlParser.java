@@ -205,7 +205,7 @@ public class PromptXmlParser {
 							properties.add(new KVLTriplet(key, value, label));
 						}
 					} else if (tagName.equalsIgnoreCase(MESSAGE)) {
-						surveyElements.add(new Message(messageText, messageCondition));
+						surveyElements.add(Message.getInstance(messageText, messageCondition));
 						messageInProgress = false;
 					}
 				}

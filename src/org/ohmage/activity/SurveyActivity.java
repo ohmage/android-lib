@@ -570,7 +570,8 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
             mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 
             clearPromptFrame();
-            message.inflateView(this, mPromptFrame);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.prompt_frame, message).commit();
         } else {
             Log.e(TAG, "trying to showMessage for element that is not a message!");
         }
