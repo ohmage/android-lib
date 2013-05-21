@@ -85,6 +85,8 @@ public class OhmageApplication extends Application {
      */
     public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
 
+    public static final boolean DEBUG_BUILD = true;
+
     private ImageLoader mImageLoader;
 
     private static OhmageApplication self;
@@ -292,15 +294,6 @@ public class OhmageApplication extends Application {
      */
     public static Application getContext() {
         return self;
-    }
-
-    /**
-     * Determines if this is a build for developers
-     * 
-     * @return
-     */
-    public static boolean isDebugBuild() {
-        return "org.ohmage.dev".equals(getContext().getPackageName());
     }
 
     public static AndroidHttpClient getHttpClient() {

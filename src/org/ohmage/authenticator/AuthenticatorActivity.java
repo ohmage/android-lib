@@ -348,7 +348,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 ArrayList<String> servers = Lists.newArrayList(getResources().getStringArray(
                         R.array.servers));
 
-                if (OhmageApplication.isDebugBuild()) {
+                if (OhmageApplication.DEBUG_BUILD) {
                     servers.add("https://test.ohmage.org/");
                     servers.add("https://dev.ohmage.org/");
                 }
