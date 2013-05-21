@@ -32,6 +32,7 @@ public class NumberPrompt extends AbstractPrompt {
 	private BigDecimal mMaximum;
 	private BigDecimal mValue;
 	protected NumberPicker mNumberPicker;
+	private boolean mWholeNumnbers;
 
 	public NumberPrompt() {
 		super();
@@ -55,6 +56,10 @@ public class NumberPrompt extends AbstractPrompt {
 
 	public BigDecimal getValue(){
 		return mValue;
+	}
+
+	public void setWholeNumbers(boolean wholeNumbers) {
+		mWholeNumnbers = wholeNumbers;
 	}
 
 	@Override
@@ -104,6 +109,7 @@ public class NumberPrompt extends AbstractPrompt {
 		View layout = inflater.inflate(getLayoutResource(), null);
 
 		mNumberPicker = (NumberPicker) layout.findViewById(R.id.number_picker);
+		mNumberPicker.setWholeNumbers(mWholeNumnbers);
 
 		mNumberPicker.setRange(mMinimum, mMaximum);
 		mNumberPicker.setCurrent(mValue);

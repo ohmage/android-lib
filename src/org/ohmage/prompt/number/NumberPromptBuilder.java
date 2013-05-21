@@ -47,6 +47,8 @@ public class NumberPromptBuilder implements PromptBuilder {
 				numberPrompt.setMinimum(new BigDecimal(property.label));
 			} else if (property.key.equals("max")) {
 				numberPrompt.setMaximum(new BigDecimal(property.label));
+			} else if (property.key.equals("wholeNumber")) {
+			    numberPrompt.setWholeNumbers(Boolean.parseBoolean(property.label));
 			}
 		}
 		
