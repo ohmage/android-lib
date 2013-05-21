@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package org.ohmage.prompt;
 
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPrompt;
+import org.ohmage.prompt.media.AudioPrompt;
 import org.ohmage.prompt.media.PhotoPrompt;
 import org.ohmage.prompt.media.VideoPrompt;
 import org.ohmage.prompt.multichoice.MultiChoicePrompt;
@@ -40,6 +42,7 @@ public class PromptFactory {
     public static final String PHOTO = "photo";
     public static final String REMOTE_ACTIVITY = "remote_activity";
     public static final String VIDEO = "video";
+    public static final String AUDIO = "audio";
 
     private PromptFactory() {
     };
@@ -66,6 +69,8 @@ public class PromptFactory {
             return new PhotoPrompt();
         } else if (promptType.equals(VIDEO)) {
             return new VideoPrompt();
+        } else if (promptType.equals(AUDIO)) {
+            return new AudioPrompt();
         } else if (promptType.equals(REMOTE_ACTIVITY)) {
             return new RemoteActivityPrompt();
         }
@@ -94,6 +99,8 @@ public class PromptFactory {
             return PHOTO;
         } else if (prompt instanceof VideoPrompt) {
             return VIDEO;
+        } else if (prompt instanceof AudioPrompt) {
+            return AUDIO;
         } else if (prompt instanceof RemoteActivityPrompt) {
             return REMOTE_ACTIVITY;
         }

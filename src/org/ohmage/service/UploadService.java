@@ -184,9 +184,10 @@ public class UploadService extends WakefulIntentService {
                         }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND "
                                 + PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
+                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
                                 + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
                                 AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
-                                PromptFactory.PHOTO, PromptFactory.VIDEO
+                                PromptFactory.PHOTO, PromptFactory.VIDEO, PromptFactory.AUDIO
                         }, null);
 
                 while (promptsCursor.moveToNext()) {

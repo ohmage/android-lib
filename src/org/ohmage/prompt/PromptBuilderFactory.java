@@ -16,6 +16,7 @@
 package org.ohmage.prompt;
 
 import org.ohmage.prompt.hoursbeforenow.HoursBeforeNowPromptBuilder;
+import org.ohmage.prompt.media.AudioPromptBuilder;
 import org.ohmage.prompt.media.PhotoPromptBuilder;
 import org.ohmage.prompt.media.VideoPromptBuilder;
 import org.ohmage.prompt.multichoice.MultiChoicePromptBuilder;
@@ -53,6 +54,8 @@ public class PromptBuilderFactory {
 			return new PhotoPromptBuilder();
 		} else if (promptType.equals(PromptFactory.VIDEO)) {
 			return new VideoPromptBuilder();
+		} else if (promptType.equals(PromptFactory.AUDIO)) {
+			return new AudioPromptBuilder();
 		} else if (promptType.equals(PromptFactory.REMOTE_ACTIVITY)) {
 			return new RemoteActivityPromptBuilder();
 		}

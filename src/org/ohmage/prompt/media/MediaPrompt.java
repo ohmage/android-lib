@@ -62,7 +62,7 @@ public abstract class MediaPrompt extends AbstractPrompt {
 	 */
 	@Override
 	public boolean isPromptAnswered() {
-		return(uuid != null);
+		return(uuid != null) && getMedia().exists();
 	}
 
 	@Override

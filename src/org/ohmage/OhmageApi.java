@@ -438,6 +438,7 @@ public class OhmageApi {
 	public static class MediaPart {
 		public static final int IMAGE_TYPE = 0;
 		public static final int VIDEO_TYPE = 1;
+		public static final int AUDIO_TYPE = 2;
 		private final File mFile;
 		private final int mType;
 
@@ -447,6 +448,8 @@ public class OhmageApi {
 				mType = IMAGE_TYPE;
 			else if(PromptFactory.VIDEO.equals(type))
 				mType = VIDEO_TYPE;
+			else if(PromptFactory.AUDIO.equals(type))
+			    mType = AUDIO_TYPE;
 			else
 				throw new RuntimeException("Invalid media type");
 		}
@@ -461,6 +464,8 @@ public class OhmageApi {
 					return "image/jpeg";
 				case VIDEO_TYPE:
 					return "video/mp4";
+				case AUDIO_TYPE:
+				    return "audio/3gp";
 			}
 			return null;
 		}

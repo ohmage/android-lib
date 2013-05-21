@@ -74,6 +74,7 @@ import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.SurveyElement;
 import org.ohmage.prompt.media.MediaPrompt;
+import org.ohmage.prompt.media.MediaPromptFragment;
 import org.ohmage.prompt.media.PhotoPrompt;
 import org.ohmage.prompt.multichoicecustom.MultiChoiceCustomPrompt;
 import org.ohmage.prompt.singlechoicecustom.SingleChoiceCustomPrompt;
@@ -779,26 +780,26 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
             }
 
             if (surveyElements.get(i) instanceof Prompt) {
-                itemJson = new JSONObject();
-                try {
+                    itemJson = new JSONObject();
+                    try {
                     itemJson.put("prompt_id", ((Prompt) surveyElements.get(i)).getPromptId());
-                    itemJson.put("value",
+                        itemJson.put("value",
                             ((Prompt) surveyElements.get(i)).getResponseObject());
                     Object extras = ((Prompt) surveyElements.get(i)).getExtrasObject();
-                    if (extras != null) {
-                        // as of now we don't actually have "extras" we only
-                        // have "custom_choices" for the custom types
-                        // so this is currently only used by
-                        // single_choice_custom and multi_choice_custom
-                        itemJson.put("custom_choices", extras);
+                        if (extras != null) {
+                            // as of now we don't actually have "extras" we only
+                            // have "custom_choices" for the custom types
+                            // so this is currently only used by
+                            // single_choice_custom and multi_choice_custom
+                            itemJson.put("custom_choices", extras);
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSONException when trying to generate response json", e);
+                        throw new RuntimeException(e);
                     }
-                } catch (JSONException e) {
-                    Log.e(TAG, "JSONException when trying to generate response json", e);
-                    throw new RuntimeException(e);
-                }
-                responseJson.put(itemJson);
-            }
-        }
+                    responseJson.put(itemJson);
+                        }
+                    }
         String response = responseJson.toString();
 
         // insert the response, which indirectly populates the prompt response
@@ -864,6 +865,9 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                 for (SurveyElement element : mSurveyElements)
                     if (element instanceof MediaPrompt)
                         ((MediaPrompt) element).delete();
+                    else if(element instanceof MediaPromptFragment) {
+                        ((MediaPromptFragment) element).delete();
+                    }
             }
         }
     }

@@ -57,7 +57,7 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	}
 	
 	@Override
-    public void setDisplayed(boolean displayed) {
+	public void setDisplayed(boolean displayed) {
 		this.mDisplayed = displayed;
 		// should we clear or not clear?!
 		if (!displayed) {
@@ -66,7 +66,7 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	}
 	
 	@Override
-    public void setSkipped(boolean skipped) {
+	public void setSkipped(boolean skipped) {
 		this.mSkipped = skipped;
 		if (skipped) {
 			clearTypeSpecificResponseData();
@@ -139,7 +139,7 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	}
 	
 	@Override
-    public String getPromptText() {
+	public String getPromptText() {
 		return mPromptText;
 	}
 
@@ -152,17 +152,17 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	}
 	
 	@Override
-    public String getCondition() {
+	public String getCondition() {
 		return mCondition;
 	}
 	
 	@Override
-    public String getSkippable() {
+	public String getSkippable() {
 		return mSkippable;
 	}
 	
 	@Override
-    public String getSkipLabel() {
+	public String getSkipLabel() {
 		return mSkipLabel;
 	}
 	
