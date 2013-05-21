@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import org.ohmage.library.R;
@@ -35,7 +36,7 @@ public class AudioPrompt extends MediaPromptFragment {
     private static final String TAG = "AudioPrompt";
 
     private String mFileName = null;
-    private int mDuration = 3 * 60;
+    private int mDuration = 0;
 
     private ToggleButton mRecordButton = null;
     private MediaRecorder mRecorder = null;
@@ -90,6 +91,30 @@ public class AudioPrompt extends MediaPromptFragment {
         mRecorder.setOutputFile(mFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
+        // Set max durations
+        mRecorder.setMaxDuration(mDuration * 1000);
+        mRecorder.setMaxFileSize(300 * 1024 * 1024);
+        mRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+
+            @Override
+            public void onInfo(MediaRecorder mr, int what, int extra) {
+
+                switch (what) {
+                    case MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED:
+                    case MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED:
+                        onRecord(false);
+                        mRecordButton.setChecked(false);
+                        ensurePlayButtonState();
+                        Toast.makeText(
+                                getActivity(),
+                                getString((what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) ? R.string.audio_prompt_max_filesize_reached
+                                        : R.string.audio_prompt_max_duration_reached),
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        });
+
         try {
             mRecorder.prepare();
         } catch (IOException e) {
@@ -129,7 +154,7 @@ public class AudioPrompt extends MediaPromptFragment {
             @Override
             public void onClick(View v) {
                 onRecord(mRecordButton.isChecked());
-                mPlayButton.setEnabled(!mRecordButton.isChecked() && new File(mFileName).exists());
+                ensurePlayButtonState();
             }
         });
 
@@ -143,7 +168,7 @@ public class AudioPrompt extends MediaPromptFragment {
                 onPlay(mPlayButton.isChecked());
             }
         });
-        mPlayButton.setEnabled(new File(mFileName).exists());
+        ensurePlayButtonState();
 
         return view;
     }
@@ -160,6 +185,10 @@ public class AudioPrompt extends MediaPromptFragment {
             mPlayer.release();
             mPlayer = null;
         }
+    }
+
+    private void ensurePlayButtonState() {
+        mPlayButton.setEnabled(!mRecordButton.isChecked() && new File(mFileName).exists());
     }
 
     /**

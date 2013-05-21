@@ -162,6 +162,8 @@
     <string name="discard_survey_title">Discard Survey?</string>
     <string name="discard_survey_message">Your survey will not be saved</string>
     <string name="video_prompt_instructions">You can record a video which is at most 300 MB in size. If the video is longer than 300 MB you will have the option to keep the video on your sdcard, but it will not be uploaded to the server.</string>
+    <string name="audio_prompt_max_duration_reached">You have reached the maximum duration.</string>
+    <string name="audio_prompt_max_filesize_reached">You have reached the maximum filesize.</string>
     <string name="survey_campaign_instructions_title">Instructions</string>
 
     <!-- Upload Queue -->
