@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 	<!-- style declarations -->
 	<style name="ErrorBox">
 		<item name="android:textSize">@dimen/font_size_default</item>
@@ -19,6 +19,7 @@
 		<item name="android:layout_marginLeft">@dimen/halfgutter</item>
 		<item name="android:paddingLeft">@dimen/gutter</item>
 		<item name="android:paddingRight">@dimen/gutter</item>
+		<item name="android:textSize">@dimen/font_size_medium</item>
 	</style>
 	
 	<style name="InfoDescription">
