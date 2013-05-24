@@ -773,10 +773,10 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
         JSONObject itemJson = null;
 
         for (int i = 0; i < surveyElements.size(); i++) {
-            if (surveyElements.get(i) instanceof MediaPrompt) {
-                MediaPrompt m = (MediaPrompt) surveyElements.get(i);
+            if (surveyElements.get(i) instanceof MediaPrompt || surveyElements.get(i) instanceof MediaPromptFragment) {
+                Prompt m = (Prompt) surveyElements.get(i);
                 if(m.isDisplayed() && !m.isSkipped())
-                media.put(((MediaPrompt)surveyElements.get(i)).getResponseObject());
+                media.put(((Prompt)surveyElements.get(i)).getResponseObject());
             }
 
             if (surveyElements.get(i) instanceof Prompt) {
