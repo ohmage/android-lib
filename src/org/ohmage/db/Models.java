@@ -635,7 +635,7 @@ public class Models {
                 r.timezone = cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE));
                 r.locationStatus = cursor.getString(cursor
                         .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
-                if (!r.locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+                if (!SurveyGeotagService.LOCATION_UNAVAILABLE.equals(r.locationStatus)) {
 
                     r.locationLatitude = cursor.getDouble(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE));
@@ -675,14 +675,14 @@ public class Models {
             values.put(Responses.RESPONSE_TIMEZONE, timezone);
             values.put(Responses.RESPONSE_LOCATION_STATUS, locationStatus);
 
-            if (locationStatus != SurveyGeotagService.LOCATION_UNAVAILABLE) {
+            if (!SurveyGeotagService.LOCATION_UNAVAILABLE.equals(locationStatus)) {
                 values.put(Responses.RESPONSE_LOCATION_LATITUDE, locationLatitude);
                 values.put(Responses.RESPONSE_LOCATION_LONGITUDE, locationLongitude);
                 values.put(Responses.RESPONSE_LOCATION_PROVIDER, locationProvider);
                 values.put(Responses.RESPONSE_LOCATION_ACCURACY, locationAccuracy);
+                values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
             }
 
-            values.put(Responses.RESPONSE_LOCATION_TIME, locationTime);
             values.put(Responses.SURVEY_ID, surveyId);
             values.put(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT, surveyLaunchContext);
             values.put(Responses.RESPONSE_JSON, response);

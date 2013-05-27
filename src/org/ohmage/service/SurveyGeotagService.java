@@ -41,6 +41,7 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 
 	public static final String LOCATION_VALID = "valid";
 	public static final String LOCATION_UNAVAILABLE = "unavailable";
+	public static final String GPS_OFF = "gps_off";
 
 	public static final long LOCATION_STALENESS_LIMIT = 2 * 60 * 1000;
 	public static final long LOCATION_ACCURACY_THRESHOLD = 30;
@@ -91,7 +92,9 @@ public class SurveyGeotagService extends WakefulService implements LocationListe
 			// The default values that say this response is no longer waiting for a location
 			ContentValues values = new ContentValues();
 			values.put(Responses.RESPONSE_STATUS, Response.STATUS_STANDBY);
-			values.put(Responses.RESPONSE_LOCATION_STATUS, LOCATION_UNAVAILABLE);
+			values.put(Responses.RESPONSE_LOCATION_STATUS, mLocManager
+					.isProviderEnabled(LocationManager.GPS_PROVIDER) ? LOCATION_UNAVAILABLE
+					: GPS_OFF);
 
 			// If the location provided is null, use the network location
 			if(location == null)

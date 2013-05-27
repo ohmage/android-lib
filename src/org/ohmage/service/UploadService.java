@@ -145,7 +145,7 @@ public class UploadService extends WakefulIntentService {
                 String locationStatus = cursor.getString(cursor
                         .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
                 responseJson.addProperty("location_status", locationStatus);
-                if (!locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+                if (locationStatus.equals(SurveyGeotagService.LOCATION_VALID)) {
                     JsonObject locationJson = new JsonObject();
                     locationJson.addProperty("latitude", cursor.getDouble(cursor
                             .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
