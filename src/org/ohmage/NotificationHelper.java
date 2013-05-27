@@ -7,7 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import org.ohmage.activity.MobilityActivity;
+import org.ohmage.activity.ProbeActivity;
 import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.authenticator.AuthenticatorActivity;
 import org.ohmage.library.R;
@@ -50,13 +50,12 @@ public class NotificationHelper {
 
     public static void showProbeUploadErrorNotification(Context context, String probe) {
         showNotification(context, probe.hashCode(), "Probe upload error!",
-                "Error uploading probes: " + probe, new Intent(context, MobilityActivity.class));
+                "Error uploading probes: " + probe, new Intent(context, ProbeActivity.class));
     }
 
     public static void showResponseUploadErrorNotification(Context context, String response) {
         showNotification(context, response.hashCode(), "Response upload error!",
-                "Error uploading responses: " + response, new Intent(context,
-                        MobilityActivity.class));
+                "Error uploading responses: " + response, new Intent(context, ProbeActivity.class));
     }
 
     private static void showNotification(Context context, int id, String title, String message,
