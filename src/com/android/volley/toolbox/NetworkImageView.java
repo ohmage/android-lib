@@ -119,7 +119,16 @@ public class NetworkImageView extends ImageView {
                 mImageContainer.cancelRequest();
                 mImageContainer = null;
             }
-            setImageBitmap(null);
+
+            // Set the image to the error icon or default icon if they exist
+            if (mErrorImageId != 0) {
+                setImageResource(mErrorImageId);
+            } else if (mDefaultImageId != 0) {
+                setImageResource(mDefaultImageId);
+            } else {
+                setImageBitmap(null);
+            }
+
             return;
         }
 
