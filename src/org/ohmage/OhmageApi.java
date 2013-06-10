@@ -1182,9 +1182,9 @@ public class OhmageApi {
 
                                 while (reader.hasNext()) {
                                     // read off each of the errors and stick it
-                                    // into
-                                    // the error array
-                                    errorList.add(reader.nextString());
+                                    // into the error array
+                                    JsonElement elem = parser.parse(reader);
+                                    errorList.add(elem.getAsJsonObject().get("code").getAsString());
                                 }
 
                                 errorCodes = errorList.toArray(new String[errorList.size()]);
