@@ -41,7 +41,7 @@ public class TriggerNotificationReceiver extends BroadcastReceiver {
 			Intent i = new Intent(context, SurveyListActivity.class);
 			i.putExtra(CampaignFilter.EXTRA_CAMPAIGN_URN, campaignUrn);
 			i.putExtra(SurveyListActivity.EXTRA_SHOW_PENDING, true);
-			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			context.startActivity(i);
 		}
 	}
