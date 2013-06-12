@@ -92,7 +92,7 @@ public class AudioPrompt extends MediaPromptFragment {
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         // Set max durations
-        mRecorder.setMaxDuration(mDuration * 1000);
+        mRecorder.setMaxDuration(mDuration);
         mRecorder.setMaxFileSize(300 * 1024 * 1024);
         mRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 
@@ -200,6 +200,9 @@ public class AudioPrompt extends MediaPromptFragment {
         return ("Please record audio of something before continuing.");
     }
 
+    /**
+     * Set the max duration in milliseconds
+     */
     public void setMaxDuration(int duration) {
         mDuration = duration;
     }

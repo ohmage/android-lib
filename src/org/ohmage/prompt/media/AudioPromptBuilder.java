@@ -45,7 +45,7 @@ public class AudioPromptBuilder implements PromptBuilder {
 
         if (properties != null) {
             for (KVLTriplet property : properties) {
-                if (property.key.equals("max_seconds")) {
+                if (property.key.equals("max_milliseconds")) {
                     try {
                         audioPrompt.setMaxDuration(Integer.valueOf(property.label));
                     } catch (NumberFormatException e) {
