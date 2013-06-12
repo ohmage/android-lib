@@ -35,6 +35,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -894,7 +895,7 @@ public class OhmageApi {
 	 * @throws IOException
 	 */
 	private String parseContent(String url, HttpEntity entity) throws ParseException, IOException {
-		String content = EntityUtils.toString(entity);
+		String content = EntityUtils.toString(entity, HTTP.UTF_8);
 		Analytics.network(mContext, url, content.length());
 		return content;
 	}
