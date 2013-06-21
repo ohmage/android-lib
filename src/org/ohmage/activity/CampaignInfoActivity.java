@@ -233,7 +233,7 @@ public class CampaignInfoActivity extends BaseCampaignInfoActivity implements
                                 public void onClick(DialogInterface dialog, int id) {
                                     // set this campaign as "remote" and exit
                                     // out of here
-                                    Campaign.setRemote(CampaignInfoActivity.this, campaignUrn);
+                                    Campaign.setCampaignsRemote(CampaignInfoActivity.this, campaignUrn);
                                     mContext.finish();
                                 }
                             }).setNegativeButton(R.string.cancel,

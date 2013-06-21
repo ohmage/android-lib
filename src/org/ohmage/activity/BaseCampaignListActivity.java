@@ -104,7 +104,7 @@ public class BaseCampaignListActivity extends BaseSingleFragmentActivity impleme
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Campaign.setRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
+                        Campaign.setCampaignsRemote(BaseCampaignListActivity.this, campaignUrnForDialogs);
                     }
                 });
 

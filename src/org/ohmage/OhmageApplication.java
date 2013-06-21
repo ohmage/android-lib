@@ -48,7 +48,6 @@ import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.service.UploadService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -211,11 +210,7 @@ public class OhmageApplication extends Application {
         }
 
         // clear local images
-        try {
-            Utilities.delete(getExternalCacheDir());
-        } catch (IOException e) {
-            Log.e(TAG, "Error deleting external cache directory", e);
-        }
+        Utilities.delete(getExternalCacheDir());
 
         // clear cached images
         mRequestQueue.getCache().clear();

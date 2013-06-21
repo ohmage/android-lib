@@ -9,8 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.android.volley.toolbox.ImageRequest;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.CampaignPreferencesHelper;
@@ -210,12 +208,12 @@ public class Models {
          * @param context
          * @param campaignUrn
          */
-        public static void setRemote(Context context, String... campaignUrns) {
+        public static void setCampaignsRemote(Context context, String... campaignUrns) {
             SelectionBuilder builder = new SelectionBuilder();
             for (String c : campaignUrns)
                 builder.where(Campaigns.CAMPAIGN_URN + "=?", SelectionBuilder.OR, c);
 
-            setRemote(context, builder);
+            setCampaignsRemote(context, builder);
         }
 
         /**
@@ -229,14 +227,14 @@ public class Models {
             if (campaignUrn != null) {
                 SelectionBuilder builder = new SelectionBuilder();
                 builder.where(Campaigns.CAMPAIGN_URN + "!=?", campaignUrn);
-                setRemote(context, builder);
+                setCampaignsRemote(context, builder);
             } else {
                 // If there are no new campaigns, everything should be remote
-                setRemote(context);
+                Campaign.setCampaignsRemote(context);
             }
         }
 
-        private static void setRemote(Context context, SelectionBuilder builder) {
+        private static void setCampaignsRemote(Context context, SelectionBuilder builder) {
             // Query for all campaigns
             Cursor cursor = context.getContentResolver().query(Campaigns.CONTENT_URI, null,
                     builder.getSelection(), builder.getSelectionArgs(), null);
@@ -257,19 +255,13 @@ public class Models {
 
                 // Clean up after campaigns
                 for (Campaign c : campaigns)
-                    c.cleanUp(context);
+                    c.setRemote(context);
             }
         }
-
-        @Override
-        public void cleanUp(Context context) {
+        
+        public void setRemote(Context context) {
             if (mStatus != Campaign.STATUS_REMOTE)
                 TriggerFramework.resetTriggerSettings(context, mUrn);
-
-            if (!TextUtils.isEmpty(mIcon)) {
-                ImageRequest r = new ImageRequest(mIcon, null, 0, 0, null, null);
-                OhmageApplication.getRequestQueue().getCache().remove(r.getCacheKey());
-            }
 
             // Clear custom choices
             MultiChoiceCustomDbAdapter customMultiChoices = new MultiChoiceCustomDbAdapter(context);
@@ -285,6 +277,14 @@ public class Models {
             }
 
             CampaignPreferencesHelper.clearAll(context, mUrn);
+        }
+
+        @Override
+        public void cleanUp(Context context) {
+            if (!TextUtils.isEmpty(mIcon)) {
+                OhmageApplication.getRequestQueue().getCache().remove(mIcon);
+            }
+            setRemote(context);
         }
 
         /**

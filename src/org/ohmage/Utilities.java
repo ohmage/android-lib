@@ -72,7 +72,7 @@ public class Utilities {
         }
     }
 
-    public static void delete(File f) throws IOException {
+    public static void delete(File f) {
         if (f == null)
             return;
         if (f.isDirectory()) {
