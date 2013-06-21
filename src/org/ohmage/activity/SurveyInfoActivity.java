@@ -16,8 +16,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.google.android.imageloader.ImageLoader;
+import com.android.volley.toolbox.ImageLoader;
 
+import org.ohmage.OhmageApplication;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -67,7 +68,8 @@ public class SurveyInfoActivity extends BaseCampaignInfoActivity implements
 
         // save the context so the action bar can use it to fire off intents
         mContext = this;
-        mImageLoader = ImageLoader.get(this);
+        mImageLoader = OhmageApplication.getImageLoader();
+
         // and create a handler attached to this thread for contentobserver
         // events
         mHandler = new Handler();
@@ -237,11 +239,8 @@ public class SurveyInfoActivity extends BaseCampaignInfoActivity implements
         // If we aren't in single campaign mode, show the campaign name
 		mSubtext.setVisibility((UserPreferencesHelper.isSingleCampaignMode()) ? View.GONE : View.VISIBLE);
 
-        final String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
-        if (iconUrl == null
-                || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
-            mIconView.setImageResource(R.drawable.apple_logo);
-        }
+        String iconUrl = data.getString(QueryParams.CAMPAIGN_ICON);
+        mIconView.setImageUrl(iconUrl, mImageLoader);
 
         // fill in the description
         mDescView.setText(data.getString(QueryParams.DESCRIPTION));

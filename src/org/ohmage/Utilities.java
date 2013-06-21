@@ -16,6 +16,7 @@
 
 package org.ohmage;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
@@ -27,6 +28,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -488,5 +490,19 @@ public class Utilities {
             ret[i] = getExternalResourceId(context, external, packageName, ids[i]);
         }
         return ret;
+    }
+
+    /**
+     * Get the size of a bitmap in bytes
+     * @param bitmap
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    public static int getSizeInBytes(Bitmap bitmap) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            return bitmap.getByteCount();
+        } else {
+            return bitmap.getRowBytes() * bitmap.getHeight();
+        }
     }
 }

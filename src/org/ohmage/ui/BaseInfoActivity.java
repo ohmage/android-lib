@@ -5,9 +5,10 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.android.volley.toolbox.NetworkImageView;
 
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
@@ -24,7 +25,7 @@ public abstract class BaseInfoActivity extends BaseSingleFragmentActivity {
     protected TextView mHeadertext;
     protected TextView mSubtext;
     protected TextView mNotetext;
-    protected ImageView mIconView;
+    protected NetworkImageView mIconView;
     protected LinearLayout mButtonTray;
     private FrameLayout mContainer;
 
@@ -74,7 +75,8 @@ public abstract class BaseInfoActivity extends BaseSingleFragmentActivity {
 
         mEntityHeader = findViewById(R.id.entity_header_content);
         // mEntityHeader.setVisibility(View.GONE);
-        mIconView = (ImageView) findViewById(R.id.entity_icon);
+        mIconView = (NetworkImageView) findViewById(R.id.entity_icon);
+        mIconView.setDefaultImageResId(R.drawable.apple_logo);
         mHeadertext = (TextView) findViewById(R.id.entity_header);
         mSubtext = (TextView) findViewById(R.id.entity_header_sub1);
         mNotetext = (TextView) findViewById(R.id.entity_header_sub2);

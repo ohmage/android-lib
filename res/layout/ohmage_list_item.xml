@@ -6,7 +6,7 @@
     android:minHeight="@dimen/normal_list_item_height"
     android:orientation="horizontal" >
 
-    <ImageView
+    <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/icon_image"
         android:layout_width="48dp"
         android:layout_height="48dp"

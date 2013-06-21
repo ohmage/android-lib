@@ -15,13 +15,11 @@
  ******************************************************************************/
 package org.ohmage.test;
 
-import com.google.android.imageloader.ImageLoader;
-
-import org.ohmage.OhmageApplication;
-
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import org.ohmage.OhmageApplication;
 
 /**
  * <p>This is a simple framework for a test of the OhmageApplication</p>
@@ -53,15 +51,4 @@ public class OhmageApplicationTests extends ApplicationTestCase<OhmageApplicatio
 	public void testSimpleCreate() {
 		createApplication();
 	}
-
-	/**
-	 * Test that image loader exists
-	 */
-	@SmallTest
-	public void testImageLoaderExists() {
-		createApplication();
-		ImageLoader loader = (ImageLoader) getApplication().getSystemService(ImageLoader.IMAGE_LOADER_SERVICE);
-		assertNotNull(loader);
-	}
-
 }

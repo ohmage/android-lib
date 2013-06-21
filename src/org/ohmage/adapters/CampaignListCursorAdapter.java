@@ -10,15 +10,16 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.imageloader.ImageLoader;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 
-import org.ohmage.library.R;
+import org.ohmage.OhmageApplication;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 
 public class CampaignListCursorAdapter extends CursorAdapter{
@@ -32,22 +33,21 @@ public class CampaignListCursorAdapter extends CursorAdapter{
 		
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mListener = listener;
-        mImageLoader = ImageLoader.get(context);
+		mImageLoader = OhmageApplication.getImageLoader();
 	}
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		ImageView iconImage = (ImageView) view.findViewById(R.id.icon_image);
+		NetworkImageView iconImage = (NetworkImageView) view.findViewById(R.id.icon_image);
+		iconImage.setDefaultImageResId(R.drawable.apple_logo);
 		TextView nameText = (TextView) view.findViewById(R.id.main_text);
 		TextView urnText = (TextView) view.findViewById(R.id.sub_text);
 		ImageButton actionButton = (ImageButton) view.findViewById(R.id.action_button);
 		
 		final String campaignUrn = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_URN));
 		
-		final String iconUrl = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_ICON));
-		if(iconUrl == null || mImageLoader.bind(this, iconImage, iconUrl) != ImageLoader.BindResult.OK) {
-			iconImage.setImageResource(R.drawable.apple_logo);
-		}
+		String iconUrl = cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_ICON));
+		iconImage.setImageUrl(iconUrl, mImageLoader);
 
 		nameText.setText(cursor.getString(cursor.getColumnIndex(Campaigns.CAMPAIGN_NAME)));
 		urnText.setText(campaignUrn);

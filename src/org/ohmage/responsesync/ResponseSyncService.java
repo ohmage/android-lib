@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.os.RemoteException;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.google.android.imageloader.ImageLoader;
 import com.google.gson.GsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -20,8 +19,6 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
-import org.ohmage.OhmageApplication;
-import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -33,11 +30,8 @@ import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.AbstractPrompt;
+import org.ohmage.responsesync.ResponseImageLoader.ResponseImage;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -250,14 +244,6 @@ public class ResponseSyncService extends WakefulIntentService {
 
 			// also maintain a list of photo UUIDs that may or may not be on the device
 			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
-			class ResponseImage {
-				public ResponseImage(String c, String id) {
-					campaign = c;
-					uuid = id;
-				}
-				String campaign;
-				String uuid;
-			}
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
 			if(!AccountHelper.accountExists()) {
@@ -407,45 +393,9 @@ public class ResponseSyncService extends WakefulIntentService {
 							return;
 						}
 
-						// We can now download the thumbnails for each response from newest to oldest.
-						// We only need to download OhmageApplication.MAX_DISK_CACHE_SIZE amount of data.
-						ImageLoader imageLoader = ImageLoader.get(ResponseSyncService.this);
-						long downloadedAmount = 0;
-						long time = System.currentTimeMillis();
-						String url;
-						for(int i=0; i < responsePhotos.size(); i++) {
-							ResponseImage responseImage = responsePhotos.get(i);
-							if(!AccountHelper.accountExists()) {
-								Log.e(TAG, "User isn't logged in, terminating task");
-
-								return;
-							}
-							try {
-								if(downloadedAmount < OhmageApplication.MAX_DISK_CACHE_SIZE) {
-									url = OhmageApi.defaultImageReadUrl(responseImage.uuid, responseImage.campaign, "small");
-									imageLoader.prefetchBlocking(url);
-									File file = OhmageCache.getCachedFile(ResponseSyncService.this, URI.create(url));
-									if(file == null) {
-										Log.e(TAG, "Unable to save thumbnail, aborting sync process");
-										return;
-									}
-									downloadedAmount += file.length();
-									file.setLastModified(time - 1000 * i);
-								}
-
-								// As we download thumbnails, we can delete the old images
-								Response.getTemporaryResponsesMedia(responseImage.uuid).delete();
-							} catch (MalformedURLException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-
-						// Now that we have downloaded potentially a lot of images, we should remove any old ones
-						OhmageApplication.checkCacheUsage();
+						Intent intent = new Intent(ResponseSyncService.this, ResponseImageLoader.class);
+						intent.putExtra(ResponseImageLoader.EXTRA_IMAGES, responsePhotos);
+						startService(intent);
 					}
 			});
 			readResult.handleError(this);

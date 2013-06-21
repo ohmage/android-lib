@@ -23,15 +23,14 @@ import android.accounts.AccountManagerFuture;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
-import android.os.Handler;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.google.android.imageloader.BitmapContentHandler;
-import com.google.android.imageloader.ImageLoader;
 
 import org.ohmage.authenticator.Authenticator;
 import org.ohmage.db.DbContract.Responses;
@@ -50,8 +49,6 @@ import org.ohmage.service.UploadService;
 import org.ohmage.triggers.glue.TriggerFramework;
 
 import java.io.IOException;
-import java.net.ContentHandler;
-import java.net.URLStreamHandlerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -59,6 +56,8 @@ import java.util.concurrent.CountDownLatch;
 public class OhmageApplication extends Application {
 
     private static final String TAG = "OhmageApplication";
+
+    public static final boolean DEBUG_BUILD = true;
 
     /**
      * Account type string.
@@ -74,20 +73,26 @@ public class OhmageApplication extends Application {
 
     public static final String ACTION_VIEW_REMOTE_IMAGE = "org.ohmage.action.VIEW_REMOTE_IMAGE";
 
-    private static final int IMAGE_TASK_LIMIT = 3;
-
-    // 50% of available memory, up to a maximum of 32MB
-    private static final long IMAGE_CACHE_SIZE = Math.min(Runtime.getRuntime().maxMemory() / 2,
-            32 * 1024 * 1024);
+    /**
+     * Get max available VM memory, exceeding this amount will throw an
+     * OutOfMemory exception. Stored in kilobytes as LruCache takes an
+     * int in its constructor.
+     */
+    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
     /**
-     * 10MB max for cached thumbnails
+     * A bitmap cache to use for response images
      */
-    public static final int MAX_DISK_CACHE_SIZE = 10 * 1024 * 1024;
+    private final BitmapLruCache mImageCache = new BitmapLruCache(maxMemory/8);
 
-    public static final boolean DEBUG_BUILD = true;
-
+    /**
+     * An image loader which caches less important user images to disk
+     */
     private ImageLoader mImageLoader;
+    /**
+     * The {@link RequestQueue} that handles response images
+     */
+    private RequestQueue mRequestQueue;
 
     private static OhmageApplication self;
 
@@ -107,7 +112,8 @@ public class OhmageApplication extends Application {
         updateLogLevel();
         LogProbe.get(this);
 
-        mImageLoader = createImageLoader(this);
+        mRequestQueue = Volley.newRequestQueue(this);
+        mImageLoader = new ImageLoader(mRequestQueue, mImageCache);
 
         // Initialize background components which consists of triggers
         BackgroundManager.initComponents(this);
@@ -204,51 +210,31 @@ public class OhmageApplication extends Application {
             multiChoiceDbAdapter.close();
         }
 
-        // clear images
+        // clear local images
         try {
             Utilities.delete(getExternalCacheDir());
         } catch (IOException e) {
             Log.e(TAG, "Error deleting external cache directory", e);
         }
 
-        try {
-            Utilities.delete(getCacheDir());
-        } catch (IOException e) {
-            Log.e(TAG, "Error deleting cache directory", e);
-        }
-    }
-
-    private static ImageLoader createImageLoader(Context context) {
-        // Install the file cache (if it is not already installed)
-        OhmageCache.install(context);
-        checkCacheUsage();
-
-        // Just use the default URLStreamHandlerFactory because
-        // it supports all of the required URI schemes (http).
-        URLStreamHandlerFactory streamFactory = null;
-
-        // Load images using a BitmapContentHandler
-        // and cache the image data in the file cache.
-        ContentHandler bitmapHandler = OhmageCache.capture(new BitmapContentHandler(), null);
-
-        // For pre-fetching, use a "sink" content handler so that the
-        // the binary image data is captured by the cache without actually
-        // parsing and loading the image data into memory. After pre-fetching,
-        // the image data can be loaded quickly on-demand from the local cache.
-        ContentHandler prefetchHandler = OhmageCache.capture(OhmageCache.sink(), null);
-
-        // Perform callbacks on the main thread
-        Handler handler = null;
-
-        return new ImageLoader(IMAGE_TASK_LIMIT, streamFactory, bitmapHandler, prefetchHandler,
-                IMAGE_CACHE_SIZE, handler);
+        // clear cached images
+        mRequestQueue.getCache().clear();
     }
 
     /**
-     * check the cache usage
+     * Returns the default {@link ImageLoader} which can be used to download temporary images
+     * @return
      */
-    public static void checkCacheUsage() {
-        OhmageCache.checkCacheUsage(self, MAX_DISK_CACHE_SIZE);
+    public static ImageLoader getImageLoader() {
+        return self.mImageLoader;
+    }
+
+    /**
+     * Returns a reference to the default {@link RequestQueue}
+     * @return
+     */
+    public static RequestQueue getRequestQueue() {
+        return self.mRequestQueue;
     }
 
     @Override
@@ -258,18 +244,8 @@ public class OhmageApplication extends Application {
             mHttpClient = null;
         }
         LogProbe.close(this);
-        mImageLoader = null;
         Analytics.activity(this, Status.OFF);
         super.onTerminate();
-    }
-
-    @Override
-    public Object getSystemService(String name) {
-        if (ImageLoader.IMAGE_LOADER_SERVICE.equals(name)) {
-            return mImageLoader;
-        } else {
-            return super.getSystemService(name);
-        }
     }
 
     public static void setFakeContentResolver(ContentResolver resolver) {
@@ -292,7 +268,7 @@ public class OhmageApplication extends Application {
      * 
      * @return the application context
      */
-    public static Application getContext() {
+    public static OhmageApplication getContext() {
         return self;
     }
 

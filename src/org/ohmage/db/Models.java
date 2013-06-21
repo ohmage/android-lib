@@ -9,11 +9,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.android.volley.toolbox.ImageRequest;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.OhmageApplication;
-import org.ohmage.OhmageCache;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -31,8 +32,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -267,12 +266,9 @@ public class Models {
             if (mStatus != Campaign.STATUS_REMOTE)
                 TriggerFramework.resetTriggerSettings(context, mUrn);
 
-            try {
-                if (!TextUtils.isEmpty(mIcon))
-                    OhmageCache.getCachedFile(context, new URI(mIcon)).delete();
-            } catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (!TextUtils.isEmpty(mIcon)) {
+                ImageRequest r = new ImageRequest(mIcon, null, 0, 0, null, null);
+                OhmageApplication.getRequestQueue().getCache().remove(r.getCacheKey());
             }
 
             // Clear custom choices

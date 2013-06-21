@@ -19,8 +19,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.android.imageloader.ImageLoader;
+import com.android.volley.toolbox.ImageLoader;
 
+import org.ohmage.OhmageApplication;
 import org.ohmage.async.CampaignXmlDownloadTask;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
@@ -65,7 +66,7 @@ public class CampaignInfoActivity extends BaseCampaignInfoActivity implements
 
         // save the context so the action bar can use it to fire off intents
         mContext = this;
-        mImageLoader = ImageLoader.get(this);
+        mImageLoader = OhmageApplication.getImageLoader();
 
         setContentView(R.layout.campaign_info_details);
 
@@ -303,11 +304,8 @@ public class CampaignInfoActivity extends BaseCampaignInfoActivity implements
         mHeadertext.setText(data.getString(QueryParams.NAME));
         mSubtext.setText(mCampaignUrn);
 
-        final String iconUrl = data.getString(QueryParams.ICON);
-        if (iconUrl == null
-                || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
-            mIconView.setImageResource(R.drawable.apple_logo);
-        }
+        String iconUrl = data.getString(QueryParams.ICON);
+        mIconView.setImageUrl(iconUrl, mImageLoader);
 
         // fill in the description
         mDescView.setText(data.getString(QueryParams.DESCRIPTION));

@@ -38,9 +38,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.imageloader.ImageLoader;
-import com.google.android.imageloader.ImageLoader.BindResult;
-import com.google.android.imageloader.ImageLoader.Callback;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -99,7 +99,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		
 		mResponseHelper = new ResponseActivityHelper(this);
 
-		mImageLoader = ImageLoader.get(this);
+		mImageLoader = OhmageApplication.getImageLoader();
 		
 		// inflate the campaign-specific info page into the scrolling framelayout
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
@@ -204,10 +204,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		df.setTimeZone(TimeZone.getTimeZone(data.getString(ResponseQuery.TIMEZONE)));
 		mNotetext.setText(df.format(new Date(completedDate)));
 		
-		final String iconUrl = data.getString(ResponseQuery.CAMPAIGN_ICON);
-		if(iconUrl == null || mImageLoader.bind(mIconView, iconUrl, null) != ImageLoader.BindResult.OK) {
-			mIconView.setImageResource(R.drawable.apple_logo);
-		}
+		String iconUrl = data.getString(ResponseQuery.CAMPAIGN_ICON);
+		mIconView.setImageUrl(iconUrl, mImageLoader);
 
 		mEntityHeader.setVisibility(View.VISIBLE);
 		
@@ -331,7 +329,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
 					int[] to, int flags, String responseId) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
-				mImageLoader = ImageLoader.get(context);
+				mImageLoader = OhmageApplication.getImageLoader();
 				setViewBinder(this);
 				mResponseId = responseId;
 			}
@@ -517,31 +515,28 @@ LoaderManager.LoaderCallbacks<Cursor> {
 							}
 						});
 
-						mImageLoader.clearErrors();
-						BindResult bindResult = mImageLoader.bind((ImageView)view.getTag(), url, new Callback() {
+						imageView.setVisibility(View.GONE);
+						// Ideally we should use the viewholder pattern so we can cancel requests
+						mImageLoader.get(url, new ImageLoader.ImageListener() {
 
 							@Override
-							public void onImageLoaded(ImageView view, String url) {
-								imageView.setVisibility(View.VISIBLE);
-								imageView.setClickable(true);
-								imageView.setFocusable(true);
-							}
-
-							@Override
-							public void onImageError(ImageView view, String url, Throwable error) {
+							public void onErrorResponse(VolleyError error) {
 								imageView.setVisibility(View.VISIBLE);
 								imageView.setImageResource(android.R.drawable.ic_dialog_alert);
 								imageView.setClickable(false);
 								imageView.setFocusable(false);
 							}
+
+							@Override
+							public void onResponse(ImageContainer response, boolean isImmediate) {
+								if(response.getBitmap() != null) {
+									imageView.setImageBitmap(response.getBitmap());
+									imageView.setVisibility(View.VISIBLE);
+									imageView.setClickable(true);
+									imageView.setFocusable(true);
+								}
+							}
 						});
-						if(bindResult == ImageLoader.BindResult.ERROR) {
-							imageView.setImageResource(android.R.drawable.ic_dialog_alert);
-							imageView.setClickable(false);
-							imageView.setFocusable(false);
-						} else  if(bindResult == ImageLoader.BindResult.LOADING){
-							imageView.setVisibility(View.GONE);
-						}
 					} else if(view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
 						if("multi_choice_custom".equals(prompt_type) || "multi_choice".equals(prompt_type)) {

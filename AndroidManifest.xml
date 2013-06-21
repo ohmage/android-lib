@@ -461,6 +461,12 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAEkUH1FVkCDrETFD-o7xMJ_WpzeHoFOvQ" />
+
+        <service
+            android:name="org.ohmage.responsesync.ResponseImageLoader"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

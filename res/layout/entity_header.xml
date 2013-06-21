@@ -11,7 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
 
-        <ImageView
+        <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/entity_icon"
             android:layout_width="@dimen/entity_icon_width"
             android:layout_height="@dimen/entity_icon_height"
