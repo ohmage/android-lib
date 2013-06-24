@@ -505,4 +505,11 @@ public class Utilities {
             return bitmap.getRowBytes() * bitmap.getHeight();
         }
     }
+
+    public static String hashUrl(String key) {
+        int firstHalfLength = key.length() / 2;
+        String localFilename = String.valueOf(key.substring(0, firstHalfLength).hashCode());
+        localFilename += String.valueOf(key.substring(firstHalfLength).hashCode());
+        return localFilename;
+    }
 }

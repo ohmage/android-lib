@@ -106,14 +106,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
             values.put(Campaigns.CAMPAIGN_CONFIGURATION_XML, response.getXml());
             values.put(Campaigns.CAMPAIGN_STATUS, status);
             values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
-            int count = cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
-            if (count < 1) {
-                // nothing was updated
-            } else if (count > 1) {
-                // too many things were updated
-            } else {
-                // update occurred successfully
-            }
+            cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
 
             // create an intent to fire off the feedback service
             Intent fbIntent = new Intent(getContext(), ResponseSyncService.class);
@@ -153,6 +146,11 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
         if (response.getResult() == Result.SUCCESS) {
             // setup initial triggers for this campaign
             TriggerFramework.setDefaultTriggers(getContext(), mCampaignUrn);
+
+            // Download images for this campaign
+            CampaignContentDownloadTask campaignDownloadTask = new CampaignContentDownloadTask(
+                    getContext(), mCampaignUrn);
+            campaignDownloadTask.execute();
         }
     }
 

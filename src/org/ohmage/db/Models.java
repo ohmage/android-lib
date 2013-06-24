@@ -6,13 +6,21 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.Html;
+import android.text.Html.ImageGetter;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.OhmageApplication;
+import org.ohmage.OhmageMarkdown;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
@@ -263,6 +271,9 @@ public class Models {
             if (mStatus != Campaign.STATUS_REMOTE)
                 TriggerFramework.resetTriggerSettings(context, mUrn);
 
+            // Remove campaign images
+            Utilities.delete(Campaign.getCacheDirFor(context, mUrn));
+
             // Clear custom choices
             MultiChoiceCustomDbAdapter customMultiChoices = new MultiChoiceCustomDbAdapter(context);
             if (customMultiChoices.open()) {
@@ -378,6 +389,30 @@ public class Models {
             }
             c.close();
             return time;
+        }
+
+        public static File getCacheDirFor(Context context, String urn) {
+            File f = new File(context.getCacheDir(), urn);
+            f.mkdirs();
+            return f;
+        }
+
+        public static CharSequence parseForImages(final Context context, String text, final String urn) {
+            ImageGetter imageGetter = new ImageGetter() {
+
+                @Override
+                public Drawable getDrawable(String source) {
+                    File urnDir = Campaign.getCacheDirFor(context, urn);
+                    File bitmapFile = new File(urnDir, Utilities.hashUrl(source));
+                    Log.d(TAG, source);
+                    Log.d(TAG, bitmapFile.toString());
+                    Bitmap b = BitmapFactory.decodeFile(bitmapFile.toString());
+                    Drawable d = new BitmapDrawable(b);
+                    d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                    return d;
+                }
+            };
+            return Html.fromHtml(OhmageMarkdown.parseHtml(text), imageGetter, null);
         }
     }
 

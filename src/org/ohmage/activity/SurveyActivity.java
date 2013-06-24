@@ -53,7 +53,6 @@ import org.json.JSONObject;
 import org.ohmage.AccountHelper;
 import org.ohmage.CampaignPreferencesHelper;
 import org.ohmage.OhmageApplication;
-import org.ohmage.OhmageMarkdown;
 import org.ohmage.PreferenceStore;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.UserPreferencesHelper;
@@ -611,7 +610,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
             // TODO for now I'm casting, but maybe I should move getters/setters
             // to interface?
             // or just use a list of AbstractPrompt
-            mPromptText.setText(OhmageMarkdown.parse(prompt.getPromptText()));
+            mPromptText.setText(Campaign.parseForImages(this, prompt.getPromptText(), mCampaignUrn));
             mProgressBar.setProgress(index * mProgressBar.getMax() / mSurveyElements.size());
 
             if (prompt.getSkippable().equals("true")) {
