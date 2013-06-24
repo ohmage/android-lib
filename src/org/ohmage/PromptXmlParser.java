@@ -15,9 +15,11 @@
  ******************************************************************************/
 package org.ohmage;
 
+import android.content.Context;
 import android.util.Xml;
 
 import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.Message;
 import org.ohmage.prompt.Prompt;
@@ -64,7 +66,8 @@ public class PromptXmlParser {
 
     private static final String INSTRUCTIONS = "instructions";
 
-	public static List<SurveyElement> parseSurveyElements(InputStream promptXmlStream, String surveyId) throws XmlPullParserException, IOException {
+	public static List<SurveyElement> parseSurveyElements(Context context, String campaignUrn, String surveyId) throws XmlPullParserException, IOException {
+	    InputStream promptXmlStream = Campaign.loadCampaignXml(context, campaignUrn);
 		if(promptXmlStream == null)
 			return null;
 
@@ -194,6 +197,7 @@ public class PromptXmlParser {
 							Prompt prompt = PromptFactory.createPrompt(promptType);
 							PromptBuilder builder = PromptBuilderFactory.createPromptBuilder(promptType);
 							builder.build(prompt, id, displayLabel, promptText, explanationText, defaultValue, condition, skippable, skipLabel, properties);
+							prompt.setCampaignUrn(campaignUrn);
 							surveyElements.add(prompt);
 						} catch (Exception e) {
 							Log.e(TAG, "Error building prompt", e);

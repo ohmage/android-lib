@@ -36,7 +36,8 @@ public abstract class AbstractPromptFragment extends SherlockFragment implements
 
     protected boolean mDisplayed;
     protected boolean mSkipped;
-    
+    private String mCampaignUrn;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -195,5 +196,15 @@ public abstract class AbstractPromptFragment extends SherlockFragment implements
     public boolean isPromptAnswered() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public String getCampaignUrn() {
+        return mCampaignUrn;
+    }
+
+    @Override
+    public void setCampaignUrn(String campaignUrn) {
+        mCampaignUrn = campaignUrn;
     }
 }

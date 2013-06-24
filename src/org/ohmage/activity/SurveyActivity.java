@@ -194,8 +194,7 @@ public class SurveyActivity extends SherlockFragmentActivity implements Location
                 mSurveyElements = null;
 
                 try {
-                    mSurveyElements = PromptXmlParser.parseSurveyElements(
-                            Campaign.loadCampaignXml(this, mCampaignUrn), mSurveyId);
+                    mSurveyElements = PromptXmlParser.parseSurveyElements(this, mCampaignUrn, mSurveyId);
                 } catch (NotFoundException e) {
                     Log.e(TAG, "Error parsing prompts from xml", e);
                 } catch (XmlPullParserException e) {

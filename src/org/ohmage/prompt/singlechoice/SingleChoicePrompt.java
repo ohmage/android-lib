@@ -17,7 +17,6 @@
 package org.ohmage.prompt.singlechoice;
 
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,22 +27,24 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 
-import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.library.R;
 import org.ohmage.prompt.AbstractPromptFragment;
+import org.ohmage.prompt.ChoicePrompt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SingleChoicePrompt extends AbstractPromptFragment {
+public class SingleChoicePrompt extends AbstractPromptFragment implements ChoicePrompt {
 
     private static final String TAG = "SingleChoicePrompt";
 
     private List<KVLTriplet> mChoices;
     private int mSelectedIndex;
 
+    @Override
     public List<KVLTriplet> getChoices() {
         return mChoices;
     }
@@ -53,6 +54,7 @@ public class SingleChoicePrompt extends AbstractPromptFragment {
         mSelectedIndex = -1;
     }
 
+    @Override
     public void setChoices(List<KVLTriplet> choices) {
         mChoices = choices;
     }
@@ -122,7 +124,7 @@ public class SingleChoicePrompt extends AbstractPromptFragment {
         for (int i = 0; i < mChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mChoices.get(i).key);
-            map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
+            map.put("value", Campaign.parseForImages(inflater.getContext(), mChoices.get(i).label, getCampaignUrn()));
             data.add(map);
         }
 
@@ -133,7 +135,7 @@ public class SingleChoicePrompt extends AbstractPromptFragment {
 
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
-                ((CheckedTextView) view).setText((SpannableStringBuilder) data);
+                ((CheckedTextView) view).setText((CharSequence) data);
                 return true;
             }
         });

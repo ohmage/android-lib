@@ -18,10 +18,12 @@ import org.ohmage.OhmageApplication;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.PromptXmlParser;
 import org.ohmage.Utilities;
+import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Surveys;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.logprobe.Log;
+import org.ohmage.prompt.ChoicePrompt;
 import org.ohmage.prompt.Prompt;
 import org.ohmage.prompt.SurveyElement;
 import org.xmlpull.v1.XmlPullParserException;
@@ -55,7 +57,7 @@ public class CampaignContentDownloadTask extends AsyncTask<Void, Void, ArrayList
         while (surveys.moveToNext()) {
             try {
                 List<SurveyElement> surveyElements = PromptXmlParser.parseSurveyElements(
-                        Campaign.loadCampaignXml(mContext, urn), surveys.getString(0));
+                        mContext, urn, surveys.getString(0));
                 for (SurveyElement elem : surveyElements) {
                     if (elem instanceof Prompt) {
                         ImageGetter imageGetter = new ImageGetter() {
@@ -68,6 +70,12 @@ public class CampaignContentDownloadTask extends AsyncTask<Void, Void, ArrayList
                         };
                         Html.fromHtml(OhmageMarkdown.parseHtml(((Prompt) elem).getPromptText()),
                                 imageGetter, null);
+                        if(elem instanceof ChoicePrompt) {
+                            for(KVLTriplet choice : ((ChoicePrompt) elem).getChoices()) {
+                                Html.fromHtml(OhmageMarkdown.parseHtml(choice.label),
+                                        imageGetter, null);
+                            }
+                        }
                     }
                 }
             } catch (NotFoundException e) {

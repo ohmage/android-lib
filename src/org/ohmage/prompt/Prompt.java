@@ -23,6 +23,8 @@ public interface Prompt extends SurveyElement {
 	Object getResponseObject();
 	String getPromptId();
     String getCondition();
+    String getCampaignUrn();
+    void setCampaignUrn(String campaignUrn);
     void setDisplayed(boolean b);
     void setSkipped(boolean b);
     String getPromptText();

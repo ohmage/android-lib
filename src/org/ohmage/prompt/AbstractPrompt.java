@@ -47,11 +47,14 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	// should these be here?
 	protected boolean mDisplayed;
 	protected boolean mSkipped;
+	private String mCampaignUrn;
 	
+	@Override
 	public boolean isDisplayed() {
 		return mDisplayed;
 	}
 	
+	@Override
 	public boolean isSkipped() {
 		return mSkipped;
 	}
@@ -84,6 +87,7 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 		}
 	}
 	
+	@Override
 	public Object getExtrasObject() {
 		return getTypeSpecificExtrasObject();
 	}
@@ -227,4 +231,14 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	protected View getView(Context context) {
 		return null;
 	}
-    }
+
+	@Override
+	public String getCampaignUrn() {
+		return mCampaignUrn;
+	}
+
+	@Override
+	public void setCampaignUrn(String campaignUrn) {
+		mCampaignUrn = campaignUrn;
+	}
+}

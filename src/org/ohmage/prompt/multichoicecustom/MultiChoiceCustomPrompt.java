@@ -46,15 +46,17 @@ import org.ohmage.AccountHelper;
 import org.ohmage.OhmageMarkdown;
 import org.ohmage.Utilities.KVLTriplet;
 import org.ohmage.activity.SurveyActivity;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.library.R;
 import org.ohmage.prompt.AbstractPromptFragment;
+import org.ohmage.prompt.ChoicePrompt;
 import org.ohmage.prompt.CustomChoiceListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
+public class MultiChoiceCustomPrompt extends AbstractPromptFragment implements ChoicePrompt {
 
     private static final String TAG = "MultiChoiceCustomPrompt";
 
@@ -70,6 +72,7 @@ public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
         mIsAddingNewItem = false;
     }
 
+    @Override
     public void setChoices(List<KVLTriplet> choices) {
         if (choices != null) {
             mChoices = choices;
@@ -78,6 +81,7 @@ public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
         }
     }
 
+    @Override
     public List<KVLTriplet> getChoices() {
         return mChoices;
     }
@@ -284,7 +288,7 @@ public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
         for (int i = 0; i < mChoices.size(); i++) {
             HashMap<String, CharSequence> map = new HashMap<String, CharSequence>();
             map.put("key", mChoices.get(i).key);
-            map.put("value", OhmageMarkdown.parse(mChoices.get(i).label));
+            map.put("value", Campaign.parseForImages(inflater.getContext(), mChoices.get(i).label, getCampaignUrn()));
             mData.add(map);
         }
         for (int i = 0; i < mCustomChoices.size(); i++) {
@@ -301,7 +305,7 @@ public class MultiChoiceCustomPrompt extends AbstractPromptFragment {
 
             @Override
             public boolean setViewValue(View view, Object data, String textRepresentation) {
-                ((CheckedTextView) view).setText((SpannableStringBuilder) data);
+                ((CheckedTextView) view).setText((CharSequence) data);
                 return true;
             }
         });
