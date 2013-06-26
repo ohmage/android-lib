@@ -16,6 +16,7 @@
 package org.ohmage;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Xml;
 
 import org.ohmage.Utilities.KVLTriplet;
@@ -49,6 +50,7 @@ public class PromptXmlParser {
 	private static final String PROMPT_DISPLAY_LABEL = "displayLabel";
 	private static final String PROMPT_UNIT = "unit";
 	private static final String PROMPT_TEXT = "promptText";
+	private static final String MARKDOWN_PROMPT_TEXT = "promptTextMarkdown";
 	private static final String PROMPT_EXPLANATION_TEXT = "explanationText";
 	private static final String PROMPT_TYPE = "promptType";
 	private static final String PROMPT_DEFAULT = "default";
@@ -148,8 +150,10 @@ public class PromptXmlParser {
 								displayLabel = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_UNIT)) {
 								unit = parser.nextText().trim();
-							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT)) {
+							} else if (tagName.equalsIgnoreCase(PROMPT_TEXT) && TextUtils.isEmpty(promptText)) {
 								promptText = parser.nextText().trim();
+							} else if (tagName.equalsIgnoreCase(MARKDOWN_PROMPT_TEXT)) {
+							    promptText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_EXPLANATION_TEXT)) {
 								explanationText = parser.nextText().trim();
 							} else if (tagName.equalsIgnoreCase(PROMPT_TYPE)) {
