@@ -18,142 +18,146 @@ public class JsonOptionalElement extends JsonElement {
 
     @Override
     public boolean isJsonArray() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.isJsonArray();
         return false;
     }
 
     @Override
     public boolean isJsonObject() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.isJsonObject();
         return false;
     }
 
     @Override
     public boolean isJsonPrimitive() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.isJsonPrimitive();
         return false;
     }
 
     @Override
     public boolean isJsonNull() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.isJsonNull();
         return false;
     }
 
     @Override
     public JsonObject getAsJsonObject() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsJsonObject();
         return null;
     }
 
     @Override
     public JsonArray getAsJsonArray() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsJsonArray();
         return null;
     }
 
     @Override
     public JsonPrimitive getAsJsonPrimitive() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsJsonPrimitive();
         return null;
     }
 
     @Override
     public JsonNull getAsJsonNull() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsJsonNull();
         return null;
     }
 
     @Override
     public boolean getAsBoolean() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsBoolean();
         return false;
     }
 
     @Override
     public Number getAsNumber() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsNumber();
         return null;
     }
 
     @Override
     public String getAsString() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsString();
         return null;
     }
 
     @Override
     public double getAsDouble() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsDouble();
         return 0;
     }
 
     @Override
     public float getAsFloat() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsFloat();
         return 0;
     }
 
     @Override
     public long getAsLong() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsLong();
         return 0;
     }
 
     @Override
     public int getAsInt() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsInt();
         return 0;
     }
 
     @Override
     public byte getAsByte() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsByte();
         return 0;
     }
 
     @Override
     public char getAsCharacter() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsCharacter();
         return 0;
     }
 
     @Override
     public BigDecimal getAsBigDecimal() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsBigDecimal();
         return null;
     }
 
     @Override
     public BigInteger getAsBigInteger() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsBigInteger();
         return null;
     }
 
     @Override
     public short getAsShort() {
-        if (mElem != null)
+        if (!isNull())
             return mElem.getAsShort();
         return 0;
+    }
+
+    private boolean isNull() {
+        return mElem == null || mElem instanceof JsonNull;
     }
 
 }

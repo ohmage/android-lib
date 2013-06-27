@@ -31,6 +31,7 @@ import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.responsesync.ResponseImageLoader.ResponseImage;
+import org.ohmage.service.SurveyGeotagService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -291,13 +292,12 @@ public class ResponseSyncService extends WakefulIntentService {
 
 							// much of the location data is optional, hence the "opt*()" calls
 							candidate.locationStatus = survey.get("location_status").getAsString();
-							JsonObject location = new JsonOptionalElement(survey.get("location")).getAsJsonObject();
-							if(location != null) {
-								candidate.locationLatitude = new JsonOptionalElement(location.get("latitude")).getAsDouble();
-								candidate.locationLongitude = new JsonOptionalElement(location.get("longitude")).getAsDouble();
-								candidate.locationProvider = new JsonOptionalElement(location.get("location_provider")).getAsString();
-								candidate.locationAccuracy = new JsonOptionalElement(location.get("location_accuracy")).getAsFloat();
-								candidate.locationTime = new JsonOptionalElement(location.get("location_timestamp")).getAsLong();
+							if(candidate.locationStatus != null && !candidate.locationStatus.equals(SurveyGeotagService.LOCATION_UNAVAILABLE)) {
+								candidate.locationLatitude = new JsonOptionalElement(survey.get("latitude")).getAsDouble();
+								candidate.locationLongitude = new JsonOptionalElement(survey.get("longitude")).getAsDouble();
+								candidate.locationProvider = new JsonOptionalElement(survey.get("location_provider")).getAsString();
+								candidate.locationAccuracy = new JsonOptionalElement(survey.get("location_accuracy")).getAsFloat();
+								candidate.locationTime = new JsonOptionalElement(survey.get("location_timestamp")).getAsLong();
 							}
 							
 							candidate.surveyLaunchContext = survey.get("launch_context_long").toString();
