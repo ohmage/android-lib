@@ -29,7 +29,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,6 +54,8 @@ import org.ohmage.db.DbContract.PromptResponses;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbContract.SurveyPrompts;
 import org.ohmage.db.DbContract.Surveys;
+import org.ohmage.db.DbProvider.Qualified;
+import org.ohmage.db.Models.Campaign;
 import org.ohmage.db.Models.Response;
 import org.ohmage.db.utils.ISO8601Utilities;
 import org.ohmage.library.R;
@@ -90,12 +91,14 @@ LoaderManager.LoaderCallbacks<Cursor> {
 	private TextView uploadButton;
 	private ResponseActivityHelper mResponseHelper;
 	private int mStatus;
+	private ResponsePromptsFragment fragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentFragment(new ResponsePromptsFragment());
+		fragment = new ResponsePromptsFragment();
+		setContentFragment(fragment);
 		
 		mResponseHelper = new ResponseActivityHelper(this);
 
@@ -159,7 +162,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				Responses.RESPONSE_TIMEZONE,
 				Campaigns.CAMPAIGN_ICON,
 				Responses.RESPONSE_LOCATION_STATUS,
-				Responses.RESPONSE_STATUS};
+				Responses.RESPONSE_STATUS,
+				Qualified.RESPONSES_CAMPAIGN_URN};
 
 		int CAMPAIGN_NAME = 0;
 		int SURVEY_TITLE = 1;
@@ -168,6 +172,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		int CAMPAIGN_ICON = 4;
 		int LOCATION_STATUS = 5;
 		int STATUS = 6;
+		int CAMPAIGN_URN = 7;
 	}
 
 	@Override
@@ -184,6 +189,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			return;
 		}
 
+		fragment.setCampaignUrn(data.getString(ResponseQuery.CAMPAIGN_URN));
 		final String surveyName = data.getString(ResponseQuery.SURVEY_TITLE);
 		final Long completedDate = data.getLong(ResponseQuery.TIME);
 		mStatus = data.getInt(ResponseQuery.STATUS);
@@ -258,6 +264,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		// This is the Adapter being used to display the list's data.
 		PromptResponsesAdapter mAdapter;
 
+		public String mCampaignUrn;
+
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			super.onActivityCreated(savedInstanceState);
@@ -270,7 +278,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			// Create an empty adapter we will use to display the loaded data.
 			mAdapter = new PromptResponsesAdapter(getActivity(), null,  new String[] {
 				SurveyPrompts.SURVEY_PROMPT_TEXT, PromptResponses.PROMPT_RESPONSE_VALUE }, new int[] {
-				android.R.id.text1, R.id.prompt_value }, 0, getResponseId());
+				android.R.id.text1, R.id.prompt_value }, 0);
 
 			setListAdapter(mAdapter);
 
@@ -285,6 +293,10 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			return new CursorLoader(getActivity(),
 					Responses.buildPromptResponsesUri(Long.valueOf(getResponseId())),
 					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+		}
+
+		public void setCampaignUrn(String campaignUrn) {
+			mCampaignUrn = campaignUrn;
 		}
 
 		public String getResponseId() {
@@ -308,7 +320,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			mAdapter.swapCursor(null);
 		}
 
-		private static class PromptResponsesAdapter extends SimpleCursorAdapter implements ViewBinder {
+		private class PromptResponsesAdapter extends SimpleCursorAdapter implements ViewBinder {
 
 			public static final int UNKNOWN_RESPONSE = -1;
 			public static final int TEXT_RESPONSE = 0;
@@ -323,15 +335,13 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int REMOTE_RESPONSE = 9;
 			public static final int VIDEO_RESPONSE = 10;
 
-			private final String mResponseId;
 			private final ImageLoader mImageLoader;
 
 			public PromptResponsesAdapter(Context context, Cursor c, String[] from,
-					int[] to, int flags, String responseId) {
+					int[] to, int flags) {
 				super(context, R.layout.response_prompt_list_item, c, from, to, flags);
 				mImageLoader = OhmageApplication.getImageLoader();
 				setViewBinder(this);
-				mResponseId = responseId;
 			}
 
 			@Override
@@ -549,14 +559,14 @@ LoaderManager.LoaderCallbacks<Cursor> {
 									builder.append("&bull; ");
 									builder.append(OhmageMarkdown.parseHtml(choices.get(i).toString()));
 								}
-								((TextView) view.getTag()).setText(Html.fromHtml(builder.toString()));
+								((TextView) view.getTag()).setText(Campaign.parseForImagesHtml(mContext, builder.toString(), mCampaignUrn));
 								return true;
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						} else if("single_choice_custom".equals(prompt_type) || "single_choice".equals(prompt_type)) {
-								((TextView) view.getTag()).setText(OhmageMarkdown.parse(value));
+								((TextView) view.getTag()).setText(Campaign.parseForImages(mContext, value, mCampaignUrn));
 								return true;
 						} else if("timestamp".equals(prompt_type)) {
 							try {

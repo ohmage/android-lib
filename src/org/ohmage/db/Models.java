@@ -398,6 +398,10 @@ public class Models {
         }
 
         public static CharSequence parseForImages(final Context context, String text, final String urn) {
+            return parseForImagesHtml(context, OhmageMarkdown.parseHtml(text), urn);
+        }
+
+        public static CharSequence parseForImagesHtml(final Context context, String text, final String urn) {
             ImageGetter imageGetter = new ImageGetter() {
 
                 @Override
@@ -412,7 +416,7 @@ public class Models {
                     return d;
                 }
             };
-            return Html.fromHtml(OhmageMarkdown.parseHtml(text), imageGetter, null);
+            return Html.fromHtml(text, imageGetter, null);
         }
     }
 
