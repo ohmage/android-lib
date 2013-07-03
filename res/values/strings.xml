@@ -30,6 +30,8 @@
     <string name="last_successful_upload">Last upload time</string>
     <string name="upload_now">Upload Now</string>
     <string name="empty_value">-</string>
+    <string name="send">Opt-in</string>
+    <string name="no">No</string>
 
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
@@ -384,7 +386,10 @@
 
     <!-- Probes -->
     <string name="probe_list_item_action_button_upload_description">List Item Action Button (Upload Probe)</string>
-    
+
+    <string name="preserve_invalid_points_summary">Help us improve our software by automatically reporting errors. Your login information will not be included.</string>
+    <string name="preserve_invalid_points_title">Opt-in to share errors</string>
+
     <!--
          This value is here in case the ant script has not run which creates the actual value of the commit hash.
 		 The actual string which is used is in ~hash.xml. The '~' ensures that version of the string is loaded

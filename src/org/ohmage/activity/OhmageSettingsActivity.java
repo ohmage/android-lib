@@ -117,6 +117,11 @@ public class OhmageSettingsActivity extends PreferenceActivity  {
         v = (CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_UPLOAD_RESPONSES_WIFI_ONLY);
         v.setChecked(UserPreferencesHelper.getUploadResponsesWifiOnly());
 
+        v = (CheckBoxPreference) findPreference(UserPreferencesHelper.KEY_PRESERVE_INVALID_POINTS);
+        Boolean b = UserPreferencesHelper.getPreserveInvalidPoints();
+        if(b != null)
+            v.setChecked(b);
+
 		setStatusInfo();
 	}
 

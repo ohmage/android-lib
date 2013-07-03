@@ -37,6 +37,7 @@ public class UserPreferencesHelper {
 
     private static final boolean DEFAULT_UPLOAD_RESPONSES_WIFI_ONLY = false;
 
+    public static final String KEY_PRESERVE_INVALID_POINTS = "key_preserve_invalid_points";
     public static final String KEY_UPLOAD_PROBES_WIFI_ONLY = "key_upload_probes_wifi_only";
     public static final String KEY_UPLOAD_RESPONSES_WIFI_ONLY = "key_upload_responses_wifi_only";
     public static final String KEY_SINGLE_CAMPAIGN_MODE = "key_single_campaign_mode";
@@ -101,6 +102,17 @@ public class UserPreferencesHelper {
     public static boolean getUploadProbesWifiOnly() {
         return getInstance().mPreferences.getBoolean(KEY_UPLOAD_PROBES_WIFI_ONLY,
                 ConfigHelper.getDefaultUploadProbesWifiOnly());
+    }
+
+    public static Boolean getPreserveInvalidPoints() {
+        SharedPreferences prefs = getInstance().mPreferences;
+        if(prefs.contains(KEY_PRESERVE_INVALID_POINTS))
+            return prefs.getBoolean(KEY_PRESERVE_INVALID_POINTS, false);
+        return null;
+    }
+
+    public static void setPreserveInvalidPoints(boolean b) {
+        getInstance().mPreferences.edit().putBoolean(KEY_PRESERVE_INVALID_POINTS, b).commit();
     }
 
     public static boolean getUploadResponsesWifiOnly() {

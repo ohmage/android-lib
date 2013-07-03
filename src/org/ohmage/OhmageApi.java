@@ -404,6 +404,9 @@ public class OhmageApi {
 			nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
 	        nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
 	        nameValuePairs.add(new BasicNameValuePair("data", data));
+	        Boolean preservePoints = UserPreferencesHelper.getPreserveInvalidPoints();
+	        if(preservePoints != null)
+	            nameValuePairs.add(new BasicNameValuePair("preserve_invalid_points", preservePoints.toString()));
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
 
 			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));

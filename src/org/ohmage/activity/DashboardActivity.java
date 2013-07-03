@@ -1,9 +1,14 @@
 
 package org.ohmage.activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
@@ -69,6 +74,10 @@ public class DashboardActivity extends BaseActivity implements
         mHelpBtn.setOnClickListener(buttonListener);
         mMobilityBtn.setOnClickListener(buttonListener);
         mProbeBtn.setOnClickListener(buttonListener);
+
+        if(UserPreferencesHelper.getPreserveInvalidPoints() == null) {
+            showPreserveInvalidDataDialog();
+        }
     }
 
     private void ensureUI() {
@@ -202,5 +211,38 @@ public class DashboardActivity extends BaseActivity implements
     @Override
     public void onLoaderReset(Loader<CampaignReadResponse> arg0) {
         // Nothing to reset
+    }
+
+    private void showPreserveInvalidDataDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        PreserveInvalidDataDialog editNameDialog = new PreserveInvalidDataDialog();
+        editNameDialog.show(fm, "preserve_invalid_data_dialog");
+    }
+
+    public static class PreserveInvalidDataDialog extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.preserve_invalid_points_title)
+                    .setMessage(R.string.preserve_invalid_points_summary)
+                    .setPositiveButton(R.string.send,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                UserPreferencesHelper.setPreserveInvalidPoints(true);
+                            }
+                        }
+                    )
+                    .setNegativeButton(R.string.no,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                UserPreferencesHelper.setPreserveInvalidPoints(false);
+                            }
+                        }
+                    )
+                    .create();
+        }
     }
 }
