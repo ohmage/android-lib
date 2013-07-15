@@ -852,10 +852,12 @@ public class LocTrigMapsActivity extends FragmentActivity {
 
             StringBuilder addr = new StringBuilder();
 
-            int addrLines = address.getMaxAddressLineIndex();
+            if(address != null) {
+                int addrLines = address.getMaxAddressLineIndex();
 
-            for (int i = 0; i < Math.min(2, addrLines); i++) {
-                addr.append(address.getAddressLine(i)).append("\n");
+                for (int i = 0; i < Math.min(2, addrLines); i++) {
+                    addr.append(address.getAddressLine(i)).append("\n");
+                }
             }
 
             if (TextUtils.isEmpty(addr)) {
