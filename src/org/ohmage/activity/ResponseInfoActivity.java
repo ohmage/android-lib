@@ -292,7 +292,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 		public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 			return new CursorLoader(getActivity(),
 					Responses.buildPromptResponsesUri(Long.valueOf(getResponseId())),
-					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { "NOT_DISPLAYED" }, null);
+					null, PromptResponses.PROMPT_RESPONSE_VALUE + " !=?", new String[] { AbstractPrompt.NOT_DISPLAYED_VALUE }, null);
 		}
 
 		public void setCampaignUrn(String campaignUrn) {
