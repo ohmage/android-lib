@@ -334,6 +334,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 			public static final int NUMBER_RESPONSE = 8;
 			public static final int REMOTE_RESPONSE = 9;
 			public static final int VIDEO_RESPONSE = 10;
+			public static final int AUDIO_RESPONSE = 11;
 
 			private final ImageLoader mImageLoader;
 
@@ -364,6 +365,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 					return IMAGE_RESPONSE;
 				else if (PromptFactory.VIDEO.equals(promptType))
 					return VIDEO_RESPONSE;
+				else if (PromptFactory.AUDIO.equals(promptType))
+					return AUDIO_RESPONSE;
 				else if (PromptFactory.TEXT.equals(promptType))
 					return TEXT_RESPONSE;
 				else if (PromptFactory.HOURS_BEFORE_NOW.equals(promptType))
@@ -409,6 +412,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				
 				// set the icon for each prompt type
 				switch(itemViewType) {
+					case AUDIO_RESPONSE:
 					case VIDEO_RESPONSE:
 					case IMAGE_RESPONSE:
 						icon.setImageResource(R.drawable.prompttype_photo);
@@ -464,7 +468,7 @@ LoaderManager.LoaderCallbacks<Cursor> {
 
 			@Override
 			public int getViewTypeCount() {
-				return 11;
+				return 12;
 			}
 
 			@Override
