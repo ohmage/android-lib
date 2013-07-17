@@ -17,6 +17,8 @@ package org.ohmage.conditionevaluator.comparator;
 
 import org.ohmage.conditionevaluator.DataPoint;
 
+import java.math.BigDecimal;
+
 /**
  * Comparator for the number prompt type.
  * 
@@ -27,8 +29,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean equals(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-        Integer valueToCompare = Integer.parseInt(value);
+	    BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+	    BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) == 0) {
             return true;
@@ -39,8 +41,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean greaterThan(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-		Integer valueToCompare = Integer.parseInt(value);
+        BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+        BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) > 0) {
             return true;
@@ -51,8 +53,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean greaterThanOrEquals(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-		Integer valueToCompare = Integer.parseInt(value);
+        BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+        BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) >= 0) {
             return true;
@@ -63,8 +65,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean lessThan(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-		Integer valueToCompare = Integer.parseInt(value);
+        BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+        BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) < 0) {
             return true;
@@ -75,8 +77,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean lessThanOrEquals(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-		Integer valueToCompare = Integer.parseInt(value);
+        BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+        BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) <= 0) {
             return true;
@@ -87,8 +89,8 @@ public class NumberDataPointComparator extends BasicDataPointComparator {
 
 	@Override
 	protected boolean notEquals(DataPoint dataPoint, String value) {
-		Integer dataPointValue = (Integer) dataPoint.getValue();
-		Integer valueToCompare = Integer.parseInt(value);
+        BigDecimal dataPointValue = (BigDecimal) dataPoint.getValue();
+        BigDecimal valueToCompare = new BigDecimal(value);
         
         if (dataPointValue != null && dataPointValue.compareTo(valueToCompare) != 0) {
             return true;
