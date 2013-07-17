@@ -551,33 +551,41 @@ LoaderManager.LoaderCallbacks<Cursor> {
 								}
 							}
 						});
-					} else if(view.getTag() instanceof TextView) {
+					} else if (view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
-						if("multi_choice_custom".equals(prompt_type) || "multi_choice".equals(prompt_type)) {
-							try {
-								JSONArray choices = new JSONArray(value);
-								StringBuilder builder = new StringBuilder();
-								for(int i=0;i<choices.length();i++) {
-									if(i != 0)
-										builder.append("<br\\>");
-									builder.append("&bull; ");
-									builder.append(OhmageMarkdown.parseHtml(choices.get(i).toString()));
+						if (!AbstractPrompt.SKIPPED_VALUE.equals(value)) {
+							if ("multi_choice_custom".equals(prompt_type)
+									|| "multi_choice".equals(prompt_type)) {
+								try {
+									JSONArray choices = new JSONArray(value);
+									StringBuilder builder = new StringBuilder();
+									for (int i = 0; i < choices.length(); i++) {
+										if (i != 0)
+											builder.append("<br\\>");
+										builder.append("&bull; ");
+										builder.append(OhmageMarkdown.parseHtml(choices.get(i)
+												.toString()));
+									}
+									((TextView) view.getTag()).setText(Campaign.parseForImagesHtml(
+											mContext, builder.toString(), mCampaignUrn));
+									return true;
+								} catch (JSONException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
 								}
-								((TextView) view.getTag()).setText(Campaign.parseForImagesHtml(mContext, builder.toString(), mCampaignUrn));
+							} else if ("single_choice_custom".equals(prompt_type)
+									|| "single_choice".equals(prompt_type)) {
+								((TextView) view.getTag()).setText(Campaign.parseForImages(
+										mContext, value, mCampaignUrn));
 								return true;
-							} catch (JSONException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						} else if("single_choice_custom".equals(prompt_type) || "single_choice".equals(prompt_type)) {
-								((TextView) view.getTag()).setText(Campaign.parseForImages(mContext, value, mCampaignUrn));
-								return true;
-						} else if("timestamp".equals(prompt_type)) {
-							try {
-								((TextView) view.getTag()).setText(ISO8601Utilities.print(value));
-								return true;
-							} catch (IllegalArgumentException e) {
-								Log.e(TAG, "Unable to parse timestsamp", e);
+							} else if ("timestamp".equals(prompt_type)) {
+								try {
+									((TextView) view.getTag()).setText(ISO8601Utilities
+											.print(value));
+									return true;
+								} catch (IllegalArgumentException e) {
+									Log.e(TAG, "Unable to parse timestsamp", e);
+								}
 							}
 						}
 						((TextView) view.getTag()).setText(value);
