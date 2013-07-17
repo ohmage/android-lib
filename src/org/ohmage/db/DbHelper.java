@@ -26,6 +26,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.util.Xml;
 
+import com.google.gson.GsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -749,7 +750,7 @@ public class DbHelper extends SQLiteOpenHelper {
 					}
 					catch (IllegalStateException e) {
 						// it wasn't a json array, so just remap the single value
-						p.mValue = glossary.get(item.get("value")).toString();
+						p.mValue = GsonUtils.getString(glossary.get(item.get("value")));
 					}
 				}
 				else if (promptData.mPromptType.equalsIgnoreCase("single_choice")) {
@@ -796,14 +797,11 @@ public class DbHelper extends SQLiteOpenHelper {
 					}
 					catch (IllegalStateException e) {
 						// it wasn't a json array, so just remap the value
-						p.mValue = item.get("value").toString();
+						p.mValue = GsonUtils.getString(item.get("value"));
 					}
 				}
 				else {
-					if(item.get("value").isJsonPrimitive())
-						p.mValue = item.get("value").getAsString();
-					else
-						p.mValue = item.get("value").toString();
+                    p.mValue = GsonUtils.getString(item.get("value"));
 				}
 
 				// and insert this into prompts				
