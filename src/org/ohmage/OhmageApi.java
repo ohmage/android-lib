@@ -45,6 +45,7 @@ import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.PromptFactory;
+import org.ohmage.service.ProbeUploadService.JsonContentBody;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -413,49 +414,44 @@ public class OhmageApi {
         }
     }
 
-	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, String data) {
-
-		final boolean GZIP = true;
+	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, JsonContentBody data) {
 
 		String url = serverUrl + OBSERVER_UPLOAD_PATH;
 
 		try {
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-			nameValuePairs.add(new BasicNameValuePair("user", username));
-			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("observer_id", observerId));
-	        nameValuePairs.add(new BasicNameValuePair("observer_version", observerVersion));
-	        nameValuePairs.add(new BasicNameValuePair("data", data));
-	        Boolean preservePoints = UserPreferencesHelper.getPreserveInvalidPoints();
-	        if(preservePoints != null)
-	            nameValuePairs.add(new BasicNameValuePair("preserve_invalid_points", preservePoints.toString()));
-			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			MultipartEntity reqEntity = new MultipartEntity();
+			reqEntity.addPart("user", new StringBody(username));
+			reqEntity.addPart("password", new StringBody(hashedPassword));
+			reqEntity.addPart("client", new StringBody(client));
+			reqEntity.addPart("observer_id", new StringBody(observerId));
+			reqEntity.addPart("observer_version", new StringBody(observerVersion));
+			reqEntity.addPart("data", data);
 
-			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
+			Boolean preservePoints = UserPreferencesHelper.getPreserveInvalidPoints();
+			if(preservePoints != null)
+				reqEntity.addPart("preserve_invalid_points", new StringBody(preservePoints.toString()));
+
+			return parseUploadResponse(url, doHttpPost(url, reqEntity, false));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);
 		}
 	}
 
-	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, String data) {
-
-		final boolean GZIP = true;
+	public UploadResponse surveyUpload(String serverUrl, String username, String hashedPassword, String client, String campaignUrn, String campaignCreationTimestamp, JsonContentBody data) {
 
 		String url = serverUrl + SURVEY_UPLOAD_PATH;
 
 		try {
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-			nameValuePairs.add(new BasicNameValuePair("campaign_urn", campaignUrn));
-			nameValuePairs.add(new BasicNameValuePair("campaign_creation_timestamp", campaignCreationTimestamp));  
-			nameValuePairs.add(new BasicNameValuePair("user", username));
-			nameValuePairs.add(new BasicNameValuePair("password", hashedPassword));
-			nameValuePairs.add(new BasicNameValuePair("client", client));
-			nameValuePairs.add(new BasicNameValuePair("surveys", data));
-			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+			MultipartEntity reqEntity = new MultipartEntity();
+			reqEntity.addPart("campaign_urn", new StringBody(campaignUrn));
+			reqEntity.addPart("campaign_creation_timestamp", new StringBody(campaignCreationTimestamp));
+			reqEntity.addPart("user", new StringBody(username));
+			reqEntity.addPart("password", new StringBody(hashedPassword));
+			reqEntity.addPart("client", new StringBody(client));
+			reqEntity.addPart("surveys", data);
 
-			return parseUploadResponse(url, doHttpPost(url, formEntity, GZIP));
+			return parseUploadResponse(url, doHttpPost(url, reqEntity, false));
 		} catch (IOException e) {
 			Log.e(TAG, "IOException while creating http entity", e);
 			return new UploadResponse(Result.INTERNAL_ERROR, null);

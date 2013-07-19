@@ -32,6 +32,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import org.apache.http.params.HttpConnectionParams;
 import org.ohmage.authenticator.Authenticator;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.DbHelper;
@@ -268,9 +269,11 @@ public class OhmageApplication extends Application {
     }
 
     public static AndroidHttpClient getHttpClient() {
-        if (mHttpClient == null)
+        if (mHttpClient == null) {
             mHttpClient = AndroidHttpClient.newInstance(Build.MANUFACTURER + " " + Build.MODEL
                     + " (" + Build.VERSION.RELEASE + ")");
+            HttpConnectionParams.setSoTimeout(mHttpClient.getParams(), 60000);
+        }
         return mHttpClient;
     }
 
