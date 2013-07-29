@@ -28,6 +28,7 @@ import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.PromptFactory;
+import org.ohmage.prompt.media.MediaPrompt;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -136,81 +137,84 @@ public class UploadService extends WakefulIntentService {
 
             OhmageApi.UploadResponse response = null;
 
-                responseJson.addProperty("survey_key",
-                        cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
-                responseJson.addProperty("time",
-                        cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
-                responseJson.addProperty("timezone",
+            responseJson.addProperty("survey_key",
+                    cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_UUID)));
+            responseJson.addProperty("time",
+                    cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_TIME)));
+            responseJson.addProperty("timezone",
+                    cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
+            String locationStatus = cursor.getString(cursor
+                    .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
+            responseJson.addProperty("location_status", locationStatus);
+            if (locationStatus.equals(SurveyGeotagService.LOCATION_VALID)) {
+                JsonObject locationJson = new JsonObject();
+                locationJson.addProperty("latitude", cursor.getDouble(cursor
+                        .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
+                locationJson.addProperty("longitude", cursor.getDouble(cursor
+                        .getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
+                String provider = cursor.getString(cursor
+                        .getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
+                locationJson.addProperty("provider", provider);
+                Log.i(TAG, "Response uploaded with " + provider + " location");
+                locationJson.addProperty("accuracy", cursor.getFloat(cursor
+                        .getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
+                locationJson.addProperty("time",
+                        cursor.getLong(cursor.getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
+                locationJson.addProperty("timezone",
                         cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
-                String locationStatus = cursor.getString(cursor
-                        .getColumnIndex(Responses.RESPONSE_LOCATION_STATUS));
-                responseJson.addProperty("location_status", locationStatus);
-                if (locationStatus.equals(SurveyGeotagService.LOCATION_VALID)) {
-                    JsonObject locationJson = new JsonObject();
-                    locationJson.addProperty("latitude", cursor.getDouble(cursor
-                            .getColumnIndex(Responses.RESPONSE_LOCATION_LATITUDE)));
-                    locationJson.addProperty("longitude", cursor.getDouble(cursor
-                            .getColumnIndex(Responses.RESPONSE_LOCATION_LONGITUDE)));
-                    String provider = cursor.getString(cursor
-                            .getColumnIndex(Responses.RESPONSE_LOCATION_PROVIDER));
-                    locationJson.addProperty("provider", provider);
-                    Log.i(TAG, "Response uploaded with " + provider + " location");
-                    locationJson.addProperty("accuracy", cursor.getFloat(cursor
-                            .getColumnIndex(Responses.RESPONSE_LOCATION_ACCURACY)));
-                    locationJson
-                            .addProperty("time", cursor.getLong(cursor
-                                    .getColumnIndex(Responses.RESPONSE_LOCATION_TIME)));
-                    locationJson.addProperty("timezone",
-                            cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_TIMEZONE)));
-                    responseJson.add("location", locationJson);
-                } else {
-                    Log.w(TAG, "Response uploaded without a location");
+                responseJson.add("location", locationJson);
+            } else {
+                Log.w(TAG, "Response uploaded without a location");
+            }
+            responseJson.addProperty("survey_id",
+                    cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
+            responseJson.add("survey_launch_context", parser.parse(cursor.getString(cursor
+                    .getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
+            responseJson.add("responses",
+                    parser.parse(cursor.getString(cursor.getColumnIndex(Responses.RESPONSE_JSON))));
+
+            ContentResolver cr2 = getContentResolver();
+            Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId),
+                    new String[] {
+                            PromptResponses.PROMPT_RESPONSE_VALUE, SurveyPrompts.SURVEY_PROMPT_TYPE
+                    }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND "
+                            + PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
+                            + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
+                            + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
+                            + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
+                            AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
+                            PromptFactory.PHOTO, PromptFactory.VIDEO, PromptFactory.AUDIO
+                    }, null);
+
+            boolean missingMedia = false;
+            while (promptsCursor.moveToNext()) {
+                String filename = promptsCursor.getString(0);
+                if(MediaPrompt.isValue(filename)) {
+                    File m = new File(Response.getResponseMediaUploadDir(), filename);
+                    if (!m.exists()) {
+                        missingMedia = true;
+                        break;
+                    }
+                    media.add(new MediaPart(m, promptsCursor.getString(1)));
                 }
-                responseJson.addProperty("survey_id",
-                        cursor.getString(cursor.getColumnIndex(Responses.SURVEY_ID)));
-                responseJson.add(
-                        "survey_launch_context",
-                        parser.parse(cursor.getString(cursor
-                                .getColumnIndex(Responses.RESPONSE_SURVEY_LAUNCH_CONTEXT))));
-                responseJson.add(
-                        "responses", parser.parse(cursor.getString(cursor
-                                .getColumnIndex(Responses.RESPONSE_JSON))));
+            }
 
-                ContentResolver cr2 = getContentResolver();
-                Cursor promptsCursor = cr2.query(Responses.buildPromptResponsesUri(responseId),
-                        new String[] {
-                                PromptResponses.PROMPT_RESPONSE_VALUE,
-                                SurveyPrompts.SURVEY_PROMPT_TYPE
-                        }, PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND "
-                                + PromptResponses.PROMPT_RESPONSE_VALUE + "!=? AND ("
-                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
-                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=? OR "
-                                + SurveyPrompts.SURVEY_PROMPT_TYPE + "=?)", new String[] {
-                                AbstractPrompt.SKIPPED_VALUE, AbstractPrompt.NOT_DISPLAYED_VALUE,
-                                PromptFactory.PHOTO, PromptFactory.VIDEO, PromptFactory.AUDIO
-                        }, null);
+            promptsCursor.close();
+            int responseStatus = Response.STATUS_ERROR_OTHER;
 
-                while (promptsCursor.moveToNext()) {
-                    media.add(new MediaPart(new File(Response.getResponseMediaUploadDir(),
-                            promptsCursor.getString(0)), promptsCursor.getString(1)));
-                }
-
-                promptsCursor.close();
+            if (!missingMedia) {
 
                 responsesJsonArray.add(responseJson);
 
-                String campaignUrn = cursor.getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
+                String campaignUrn = cursor
+                        .getString(cursor.getColumnIndex(Responses.CAMPAIGN_URN));
                 String campaignCreationTimestamp = cursor.getString(cursor
                         .getColumnIndex(Campaigns.CAMPAIGN_CREATED));
 
-                response = mApi.surveyUpload(serverUrl, username,
-                        hashedPassword, OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp,
+                response = mApi.surveyUpload(serverUrl, username, hashedPassword,
+                        OhmageApi.CLIENT_NAME, campaignUrn, campaignCreationTimestamp,
                         responsesJsonArray.toString(), media);
                 response.handleError(this);
-
-
-
-            int responseStatus = Response.STATUS_ERROR_OTHER;
 
                 switch (response.getResult()) {
                     case SUCCESS:
@@ -245,6 +249,9 @@ public class UploadService extends WakefulIntentService {
                         responseStatus = Response.STATUS_ERROR_HTTP;
                         break;
                 }
+            } else {
+                responseStatus = Response.STATUS_MISSING_MEDIA;
+            }
 
             ContentValues cv2 = new ContentValues();
             cv2.put(Responses.RESPONSE_STATUS, responseStatus);

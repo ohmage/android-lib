@@ -590,6 +590,7 @@ public class Models {
         public static final int STATUS_ERROR_CAMPAIGN_STOPPED = 10;
         public static final int STATUS_ERROR_CAMPAIGN_OUT_OF_DATE = 11;
         public static final int STATUS_ERROR_HTTP = 12;
+        public static final int STATUS_MISSING_MEDIA = 13;
 
         /** the campaign URN for which to record the survey response */
         public String uuid;

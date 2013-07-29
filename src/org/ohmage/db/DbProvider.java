@@ -10,6 +10,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -271,6 +272,28 @@ public class DbProvider extends ContentProvider {
 					dbHelper.populateSurveysFromCampaignXML(db, oldCampaigns.getString(0), values.getAsString(Campaigns.CAMPAIGN_CONFIGURATION_XML));
 			}
 			oldCampaigns.close();
+		} else if (values.containsKey(Responses.RESPONSE_JSON)
+				&& (sUriMatcher.match(uri) == MatcherTypes.RESPONSE_BY_PID || sUriMatcher
+						.match(uri) == MatcherTypes.RESPONSES)) {
+
+			// Here is a hack to get the prompt responses table populated when the json for a response changes
+			Cursor c = builder.query(db, new String[] {
+					BaseColumns._ID, Responses.CAMPAIGN_URN, Responses.SURVEY_ID,
+		    }, null);
+
+			if (c.moveToFirst()) {
+				long id = c.getLong(0);
+				String campaign = c.getString(1);
+				String survey = c.getString(2);
+				c.close();
+
+				db.delete(Tables.PROMPT_RESPONSES, PromptResponses.RESPONSE_ID + "=" + id, null);
+
+				dbHelper.populatePromptsFromResponseJSON(db, id,
+						values.getAsString(Responses.RESPONSE_JSON), campaign, survey);
+			} else if (!c.isClosed()) {
+				c.close();
+			}
 		}
 
 		// we assume we've matched it correctly, so proceed with the update

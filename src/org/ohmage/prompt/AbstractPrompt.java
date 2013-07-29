@@ -241,4 +241,14 @@ public abstract class AbstractPrompt implements Prompt, Displayable {
 	public void setCampaignUrn(String campaignUrn) {
 		mCampaignUrn = campaignUrn;
 	}
+
+    /**
+     * Checks if this value is not SKIPPED_VALUE and not NOT_DISPLAYED_VALUE
+     * 
+     * @param value
+     * @return true if this value is a value
+     */
+    public static boolean isValue(String value) {
+        return !SKIPPED_VALUE.equals(value) && !NOT_DISPLAYED_VALUE.equals(value);
+    }
 }

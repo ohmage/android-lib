@@ -8,15 +8,23 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import org.ohmage.library.R;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;
+import org.ohmage.library.R;
+import org.ohmage.prompt.media.MediaPrompt;
 import org.ohmage.service.UploadService;
+
+import java.io.File;
 
 /**
  * A helper for activities which have responses. This helper provides access to a dialog which
@@ -68,6 +76,9 @@ public class ResponseActivityHelper {
 			case Response.STATUS_ERROR_HTTP:
 				message = R.string.upload_queue_network_error;
 				break;
+			case Response.STATUS_MISSING_MEDIA:
+				message = R.string.upload_queue_missing_media;
+				break;
 			case Response.STATUS_WAITING_FOR_LOCATION:
 				builder.setMessage(R.string.upload_queue_response_waiting_for_gps)
 				.setCancelable(true)
@@ -85,14 +96,7 @@ public class ResponseActivityHelper {
 
 		builder.setMessage(message)
 		.setCancelable(true)
-		.setPositiveButton(R.string.retry_now, new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-
-				queueForUpload(responseUriForDialogs);
-			}
-		}).setNeutralButton(R.string.retry_later, new DialogInterface.OnClickListener() {
+		.setNeutralButton(R.string.retry_later, new DialogInterface.OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -110,12 +114,64 @@ public class ResponseActivityHelper {
 			}
 		});
 
+		if (id == Response.STATUS_MISSING_MEDIA) {
+			builder.setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					ignoreMissingMediaAndQueue(responseUriForDialogs);
+				}
+			});
+		} else {
+			builder.setPositiveButton(R.string.retry_now, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					queueForUpload(responseUriForDialogs);
+				}
+			});
+		}
+
 		return builder.create();
 	}
 
 	public void queueForUpload(Uri responseUri) {
+		startUpload(responseUri, new ContentValues());
+	}
+
+	/**
+	 * Changes the response to ignore missing media and tries to upload it
+	 * @param responseUri
+	 */
+	public void ignoreMissingMediaAndQueue(Uri responseUri) {
 		ContentResolver cr = mContext.getContentResolver();
-		ContentValues cv = new ContentValues();
+
+		Cursor c = cr.query(responseUri, new String[] {Responses.RESPONSE_JSON}, null, null, null);
+		if(c.moveToFirst()) {
+			JsonParser parser = new JsonParser();
+			JsonArray r = parser.parse(c.getString(0)).getAsJsonArray();
+			c.close();
+
+			for (int j = 0; j < r.size(); j++) {
+				JsonObject prompt = r.get(j).getAsJsonObject();
+				String value = prompt.get("value").getAsString();
+
+				// If the image doesn't exist, then change the value to not uploaded
+				if (!TextUtils.isEmpty(value) && MediaPrompt.isValue(value)
+						&& !new File(Response.getResponseMediaUploadDir(), value).exists()) {
+					prompt.addProperty("value", MediaPrompt.MEDIA_NOT_UPLOADED);
+				}
+			}
+
+			// Save the new response json to the db
+			ContentValues cv = new ContentValues();
+			cv.put(Responses.RESPONSE_JSON, r.toString());
+			startUpload(responseUri, cv);
+		}
+	}
+
+	private void startUpload(Uri responseUri, ContentValues cv) {
+		ContentResolver cr = mContext.getContentResolver();
 		cv.put(Responses.RESPONSE_STATUS, Response.STATUS_QUEUED);
 		cr.update(responseUri, cv, null, null);
 

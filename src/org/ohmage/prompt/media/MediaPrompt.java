@@ -29,6 +29,8 @@ public abstract class MediaPrompt extends AbstractPrompt {
 
 	private static final String TAG = "MediaPrompt";
 
+	public static final String MEDIA_NOT_UPLOADED = "MEDIA_NOT_UPLOADED";
+
 	String uuid;
 
 	public MediaPrompt() {
@@ -80,4 +82,15 @@ public abstract class MediaPrompt extends AbstractPrompt {
 	        uuid = UUID.randomUUID().toString();
 	    return Response.getTemporaryResponsesMedia(uuid);
 	}
+
+    /**
+     * Checks if this value is not SKIPPED_VALUE, not NOT_DISPLAYED_VALUE, and
+     * not IMAGE_NOT_UPLOADED
+     * 
+     * @param value
+     * @return true if this value is a value
+     */
+    public static boolean isValue(String value) {
+        return !MEDIA_NOT_UPLOADED.equals(value) && AbstractPrompt.isValue(value);
+    }
 }

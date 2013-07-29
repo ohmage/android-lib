@@ -63,6 +63,7 @@ import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.AbstractPrompt;
 import org.ohmage.prompt.PromptFactory;
+import org.ohmage.prompt.media.MediaPrompt;
 import org.ohmage.service.SurveyGeotagService;
 import org.ohmage.ui.BaseInfoActivity;
 import org.ohmage.ui.ResponseActivityHelper;
@@ -450,7 +451,8 @@ LoaderManager.LoaderCallbacks<Cursor> {
 				// there are only two categories: image and non-image (i.e. text)
 				if (itemViewType != IMAGE_RESPONSE
 						// also if the image was skipped we are showing the text view
-						|| AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))) {
+						|| AbstractPrompt.SKIPPED_VALUE.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))
+						|| MediaPrompt.MEDIA_NOT_UPLOADED.equals(cursor.getString(cursor.getColumnIndex(PromptResponses.PROMPT_RESPONSE_VALUE)))){
 					progress.setVisibility(View.GONE);
 					image.setVisibility(View.GONE);
 					text.setVisibility(View.VISIBLE);
@@ -492,65 +494,82 @@ LoaderManager.LoaderCallbacks<Cursor> {
 						final File file = Response.getTemporaryResponsesMedia(value);
 						final ImageView imageView = (ImageView) view.getTag();
 
-						if(file != null && file.exists()) {
-							try {
-								BitmapDrawable d = (BitmapDrawable) imageView.getDrawable();
-								if(d!=null) d.getBitmap().recycle();
-								Bitmap img = Utilities.decodeImage(file, 600);
-								imageView.setImageBitmap(img);
-								imageView.setOnClickListener(new View.OnClickListener() {
+                        // Check locally first just in case we have it
+                        if (file != null && file.exists()) {
+                            try {
+                                BitmapDrawable d = (BitmapDrawable) imageView.getDrawable();
+                                if (d != null && imageView.getTag() != null
+                                        && d.getBitmap() != null)
+                                    d.getBitmap().recycle();
+                                Bitmap img = Utilities.decodeImage(file, 600);
+                                imageView.setImageBitmap(img);
+                                imageView.setTag(new Object());
+                                imageView.setOnClickListener(new View.OnClickListener() {
 
-									@Override
-									public void onClick(View v) {
-										Analytics.widget(v, "View Local Fullsize Image");
-										Intent intent = new Intent(Intent.ACTION_VIEW);
-										intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-										mContext.startActivity(intent);
-									}
-								});
-								return true;
-							} catch (FileNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IOException e) {
-								Log.e(TAG, "Error decoding image", e);
-							}
-						}
+                                    @Override
+                                    public void onClick(View v) {
+                                        Analytics.widget(v, "View Local Fullsize Image");
+                                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                                        intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                                        mContext.startActivity(intent);
+                                    }
+                                });
+                                return true;
+                            } catch (FileNotFoundException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                Log.e(TAG, "Error decoding image", e);
+                            }
+                        } else {
+                            // If the file doesn't exist locally fall back to
+                            // the alert icon
+                            imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+                            imageView.setTag(null);
+                        }
 
-						String url = OhmageApi.defaultImageReadUrl(value, campaignUrn, "small");
-						final String largeUrl = OhmageApi.defaultImageReadUrl(value, campaignUrn, null);
-						imageView.setOnClickListener(new View.OnClickListener() {
+                        // If we downloaded the response, we can check the
+                        // server for the images
+                        if (cursor.getInt(cursor.getColumnIndex(Responses.RESPONSE_STATUS)) == Response.STATUS_DOWNLOADED) {
+                            String url = OhmageApi.defaultImageReadUrl(value, campaignUrn, "small");
+                            final String largeUrl = OhmageApi.defaultImageReadUrl(value,
+                                    campaignUrn, null);
+                            imageView.setOnClickListener(new View.OnClickListener() {
 
-							@Override
-							public void onClick(View v) {
-								Analytics.widget(v, "View Fullsize Image");
-								Intent intent = new Intent(OhmageApplication.ACTION_VIEW_REMOTE_IMAGE, Uri.parse(largeUrl));
-								mContext.startActivity(intent);
-							}
-						});
+                                @Override
+                                public void onClick(View v) {
+                                    Analytics.widget(v, "View Fullsize Image");
+                                    Intent intent = new Intent(
+                                            OhmageApplication.ACTION_VIEW_REMOTE_IMAGE, Uri
+                                                    .parse(largeUrl));
+                                    mContext.startActivity(intent);
+                                }
+                            });
 
-						imageView.setVisibility(View.GONE);
-						// Ideally we should use the viewholder pattern so we can cancel requests
-						mImageLoader.get(url, new ImageLoader.ImageListener() {
+                            imageView.setVisibility(View.GONE);
+                            // Ideally we should use the viewholder pattern so
+                            // we can cancel requests
+                            mImageLoader.get(url, new ImageLoader.ImageListener() {
 
-							@Override
-							public void onErrorResponse(VolleyError error) {
-								imageView.setVisibility(View.VISIBLE);
-								imageView.setImageResource(android.R.drawable.ic_dialog_alert);
-								imageView.setClickable(false);
-								imageView.setFocusable(false);
-							}
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    imageView.setVisibility(View.VISIBLE);
+                                    imageView.setImageResource(android.R.drawable.ic_dialog_alert);
+                                    imageView.setClickable(false);
+                                    imageView.setFocusable(false);
+                                }
 
-							@Override
-							public void onResponse(ImageContainer response, boolean isImmediate) {
-								if(response.getBitmap() != null) {
-									imageView.setImageBitmap(response.getBitmap());
-									imageView.setVisibility(View.VISIBLE);
-									imageView.setClickable(true);
-									imageView.setFocusable(true);
-								}
-							}
-						});
+                                @Override
+                                public void onResponse(ImageContainer response, boolean isImmediate) {
+                                    if (response.getBitmap() != null) {
+                                        imageView.setImageBitmap(response.getBitmap());
+                                        imageView.setVisibility(View.VISIBLE);
+                                        imageView.setClickable(true);
+                                        imageView.setFocusable(true);
+                                    }
+                                }
+                            });
+                        }
 					} else if (view.getTag() instanceof TextView) {
 						String prompt_type = getItemPromptType(cursor);
 						if (!AbstractPrompt.SKIPPED_VALUE.equals(value)) {

@@ -192,6 +192,7 @@
     <string name="upload_queue_campaign_stopped">The project this survey response belongs to is no longer running.</string>
     <string name="upload_queue_invalid_user_role">Your user role does not permit you to upload responses for this project.</string>
     <string name="upload_queue_network_error">Unable to connect to the server.</string>
+    <string name="upload_queue_missing_media">Some media associated with this response can\'t be found right now. Turn off the phone and check that sdcard is completely inserted and try again. If you choose to upload the response now, any images that can\'t be found will be skipped.</string>
     <string name="upload_queue_upload_all">Upload All</string>
     <string name="upload_button_description">Upload Button</string>
 

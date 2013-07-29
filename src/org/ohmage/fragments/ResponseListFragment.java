@@ -116,6 +116,7 @@ public class ResponseListFragment extends FilterableListFragment implements SubA
 				case Response.STATUS_ERROR_INVALID_USER_ROLE:
 				case Response.STATUS_ERROR_HTTP:
 				case Response.STATUS_ERROR_OTHER:
+				case Response.STATUS_MISSING_MEDIA:
 					mListener.onResponseActionError(uri, status);
 					break;
 					

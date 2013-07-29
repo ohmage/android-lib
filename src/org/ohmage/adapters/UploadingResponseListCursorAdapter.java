@@ -9,10 +9,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 
-import org.ohmage.library.R;
 import org.ohmage.activity.SubActionClickListener;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.db.Models.Response;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Analytics;
 
 public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapter {
@@ -104,6 +104,7 @@ public class UploadingResponseListCursorAdapter extends ResponseListCursorAdapte
 		case Response.STATUS_ERROR_INVALID_USER_ROLE:
 		case Response.STATUS_ERROR_HTTP:
 		case Response.STATUS_ERROR_OTHER:
+		case Response.STATUS_MISSING_MEDIA:
 			actionButton.setContentDescription(context.getString(R.string.response_list_item_action_button_error_description));
 			actionButton.setImageResource(R.drawable.subaction_campaign_broken);
 			break;
