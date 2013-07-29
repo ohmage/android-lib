@@ -60,6 +60,7 @@ public class OhmageApi {
 
 	private static final String AUTHENTICATE_PATH = "app/user/auth";
 	private static final String AUTHENTICATE_TOKEN_PATH = "app/user/auth_token";
+	private static final String CHANGE_PASSWORD_PATH = "app/user/change_password";
 	private static final String OBSERVER_UPLOAD_PATH = "app/stream/upload";
 	private static final String SURVEY_UPLOAD_PATH = "app/survey/upload";
 	private static final String IMAGE_UPLOAD_PATH = "app/image/upload";
@@ -389,6 +390,28 @@ public class OhmageApi {
 			return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
 		}
 	}
+
+    public AuthenticateResponse changePassword(String serverUrl, String username, String oldPassword, String mNewPassword) {
+
+        final boolean GZIP = false;
+
+        String url = serverUrl + CHANGE_PASSWORD_PATH;
+
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("user", username));
+            nameValuePairs.add(new BasicNameValuePair("password", oldPassword));
+            nameValuePairs.add(new BasicNameValuePair("new_password", mNewPassword));
+            nameValuePairs.add(new BasicNameValuePair("client", OhmageApi.CLIENT_NAME));
+
+            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs);
+
+            return parseAuthenticateResponse(doHttpPost(url, formEntity, GZIP));
+        } catch (IOException e) {
+            Log.e(TAG, "IOException while creating http entity", e);
+            return new AuthenticateResponse(Result.INTERNAL_ERROR, null, null, null);
+        }
+    }
 
 	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, String data) {
 

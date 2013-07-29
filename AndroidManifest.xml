@@ -247,6 +247,10 @@
             -->
         </activity>
 
+        <activity
+            android:name="org.ohmage.activity.PasswordChangeActivity"
+            android:label="@string/title_change_password" />
+
         <!-- allows queries against the contentprovider to be tested -->
         <activity
             android:name="org.ohmage.activity.QueryTestActivity"

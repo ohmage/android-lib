@@ -42,7 +42,7 @@
 
     <!-- Login -->
     <string name="login_error">Login Error</string>
-    <string name="login_invalid_password">Unable to authenticate. Please check username and update the password.</string>
+    <string name="login_auth_error">Unable to authenticate. Please check username and the password.</string>
     <string name="login_account_disabled">This user account has been disabled.</string>
     <string name="login_network_error">Unable to communicate with server. Please try again later.</string>
     <string name="login_server_error">The server returned an unexpected response. Please try again later.</string>
@@ -57,6 +57,17 @@
     <string name="login_invalid_server">Please Enter a valid server name</string>
     <string name="login_activity_login_button_description">Login Button</string>
     <string name="login_register_new_account"><a href="#">register an account</a></string>
+
+    <!-- Change Password -->
+    <string name="change_password_submit">Change Password</string>
+    <string name="change_password_description">change password button</string>
+    <string name="old_password_title">Current Password</string>
+    <string name="new_password_title">New Password</string>
+    <string name="repeat_password_title">Repeat Password</string>
+    <string name="changing_password">Changing Password</string>
+    <string name="change_password_invalid_title">Invalid password</string>
+    <string name="change_password_requirements"><![CDATA[Your new password must be 8 ~ 16 characters long and contain at least:<br> &bull; one lower case letter<br> &bull; one upper case letter<br> &bull; one number<br> &bull; one special character: <br>, . &lt; &gt; ! @ # $ % ^ &amp; * + - :]]></string>
+    <string name="change_password_unsuccessful">Password change required. Please login and change your password.</string>
 
     <!-- Mobility -->
     <string name="mobility_missing_desc">Please make sure the Mobility package is installed.</string>
@@ -104,6 +115,8 @@
     <string name="title_response">Response</string>
     <string name="title_campaign_info">Project Info</string>
     <string name="title_survey_info">Survey Info</string>
+    <string name="title_change_password">Change Password</string>
+    <string name="change_password_not_same">Passwords are not the same</string>
 
     <!-- Dashboard entries -->
     <string name="dashboard_campaigns">Projects</string>

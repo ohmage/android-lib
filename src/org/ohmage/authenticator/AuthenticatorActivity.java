@@ -50,6 +50,7 @@ import org.ohmage.PreferenceStore;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.Utilities;
 import org.ohmage.activity.DashboardActivity;
+import org.ohmage.activity.PasswordChangeActivity;
 import org.ohmage.async.CampaignReadTask;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.Models.Campaign;
@@ -60,7 +61,6 @@ import org.ohmage.logprobe.LogProbe.Status;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Activity which displays login screen to the user.
@@ -70,6 +70,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
     private static final String TAG = "AuthenticatorActivity";
 
     private static final int LOGIN_FINISHED = 0;
+    private static final int PASSWORD_CHANGE = 1;
+
     private static final int DIALOG_LOGIN_ERROR = 1;
     private static final int DIALOG_NETWORK_ERROR = 2;
     private static final int DIALOG_LOGIN_PROGRESS = 3;
@@ -264,7 +266,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
             case DIALOG_LOGIN_ERROR:
                 dialogBuilder.setTitle(R.string.login_error)
-                        .setMessage(R.string.login_invalid_password).setCancelable(true)
+                        .setMessage(R.string.login_auth_error).setCancelable(true)
                         .setPositiveButton(R.string.ok, null)
                 /*
                  * .setNeutralButton("Help", new
@@ -441,6 +443,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         userData.putString(KEY_OHMAGE_SERVER, ConfigHelper.serverUrl());
         mAuthtoken = mHashedPassword;
 
+        if(TextUtils.isEmpty(mAuthtoken)) {
+            Log.w(TAG, "Trying to create account with empty password");
+            return;
+        }
+
         if (mRequestNewAccount) {
             mAccountManager.addAccountExplicitly(account, mPassword, userData);
             mAccountManager.setAuthToken(account, OhmageApplication.AUTHTOKEN_TYPE, mAuthtoken);
@@ -504,10 +511,19 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
                 }
                 break;
             case FAILURE:
-                Log.e(TAG, "login failure: " + response.getErrorCodes());
+                if(response.getErrorCodes().contains("0202")) {
+                    Log.v(TAG, "password change required");
+                    Intent intent = new Intent(this, PasswordChangeActivity.class);
+                    intent.putExtra(PasswordChangeActivity.ACCOUNT_NAME, mUsername);
+                    intent.putExtra(PasswordChangeActivity.OLD_PASSWORD, mPassword);
+                    startActivityForResult(intent, PASSWORD_CHANGE);
+                    break;
+                } else {
+                    Log.e(TAG, "login failure: " + response.getErrorCodes());
+                }
 
                 // show error dialog
-                if (Arrays.asList(response.getErrorCodes()).contains("0201")) {
+                if (response.getErrorCodes().contains("0201")) {
                     mPreferencesHelper.edit().setUserDisabled(true).commit();
                     showDialog(DIALOG_USER_DISABLED);
                 } else {
@@ -534,6 +550,14 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
         switch (requestCode) {
             case LOGIN_FINISHED:
                 finish();
+                break;
+            case PASSWORD_CHANGE:
+                if(resultCode == RESULT_OK && data != null && data.hasExtra(PasswordChangeActivity.NEW_PASSWORD)) {
+                    mHashedPassword = data.getStringExtra(PasswordChangeActivity.NEW_PASSWORD);
+                    createAccount();
+                } else {
+                    Toast.makeText(this, R.string.change_password_unsuccessful, Toast.LENGTH_SHORT).show();
+                }
                 break;
             default:
                 this.onActivityResult(requestCode, resultCode, data);
