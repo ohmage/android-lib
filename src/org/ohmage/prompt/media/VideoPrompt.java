@@ -33,9 +33,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import org.ohmage.library.R;
 import org.ohmage.Utilities;
 import org.ohmage.activity.SurveyActivity;
+import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 
 import java.io.File;
@@ -67,14 +67,22 @@ public class VideoPrompt extends MediaPrompt {
 	public void handleActivityResult(Context context, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-				File videoFile = Utilities.fileForMediaStore(data.getData());
+				File videoFile;
+				if("file".equals(data.getData().getScheme()))
+				   videoFile = new File(data.getData().getPath());
+				else
+				   videoFile = Utilities.fileForMediaStore(data.getData());
 				if(videoFile != null && videoFile.exists()) {
 					Log.i(TAG, "Video size = " + videoFile.length() + " bytes");
 					if(videoFile.length() / 1024 / 1024 > 300) {
 						Log.e(TAG, "Video exceeded 300 MB. It was " + videoFile.length() + " bytes");
 						Toast.makeText(context, "Video size exceeds 300 MB. The file will be stored on the sdcard, but not uploaded to the server. Record less video or lower the quality.", Toast.LENGTH_LONG).show();
 					} else {
-						Utilities.moveMediaStoreFile(data.getData(), getMedia());
+						if("file".equals(data.getData().getScheme())) {
+							Utilities.moveFile(videoFile, getMedia());
+						} else {
+							Utilities.moveMediaStoreFile(data.getData(), getMedia());
+						}
 					}
 				}
 			} else {
@@ -174,7 +182,8 @@ public class VideoPrompt extends MediaPrompt {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-				.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mDuration);
+				.putExtra(MediaStore.EXTRA_DURATION_LIMIT, mDuration)
+				.putExtra(MediaStore.EXTRA_OUTPUT, Utilities.getOutputMovieFile());
 				act.startActivityForResult(intent, REQUEST_CODE);
 			}
 		});
