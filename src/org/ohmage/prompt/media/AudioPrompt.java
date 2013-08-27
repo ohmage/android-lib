@@ -19,6 +19,7 @@ package org.ohmage.prompt.media;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,11 @@ public class AudioPrompt extends MediaPromptFragment {
     }
 
     private void startPlaying() {
+        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) &&
+                !Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
+            unableToAccessMedia();
+            return;
+        }
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(mFileName);
@@ -85,6 +91,10 @@ public class AudioPrompt extends MediaPromptFragment {
     }
 
     private void startRecording() {
+        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            unableToAccessMedia();
+            return;
+        }
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -128,6 +138,12 @@ public class AudioPrompt extends MediaPromptFragment {
         mRecorder.stop();
         mRecorder.release();
         mRecorder = null;
+    }
+
+    private void unableToAccessMedia() {
+        mRecordButton.setChecked(false);
+        mPlayButton.setChecked(false);
+        Toast.makeText(getActivity(), R.string.media_unavailable_to_record_audio, Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -180,6 +180,7 @@
     <string name="audio_prompt_max_duration_reached">You have reached the maximum duration.</string>
     <string name="audio_prompt_max_filesize_reached">You have reached the maximum filesize.</string>
     <string name="survey_campaign_instructions_title">Instructions</string>
+    <string name="media_unavailable_to_record_audio">Please insert an SD card before recording audio.</string>
 
     <!-- Upload Queue -->
     <string name="upload_queue_empty">There are no responses that need to be uploaded.\n\nAfter completing a survey, you can upload the response from here.</string>
