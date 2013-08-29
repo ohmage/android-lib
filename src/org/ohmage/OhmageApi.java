@@ -31,7 +31,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
@@ -51,6 +53,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -414,6 +417,43 @@ public class OhmageApi {
         }
     }
 
+    public static class GZIPContentBody extends AbstractContentBody {
+
+        private final AbstractContentBody mBody;
+
+        public GZIPContentBody(AbstractContentBody body) {
+            super("application/x-gzip");
+            mBody = body;
+        }
+
+        @Override
+        public String getFilename() {
+            return "json-data";
+        }
+
+        @Override
+        public String getCharset() {
+            return null;
+        }
+
+        @Override
+        public long getContentLength() {
+            return -1;
+        }
+
+        @Override
+        public String getTransferEncoding() {
+            return MIME.ENC_8BIT;
+        }
+
+        @Override
+        public void writeTo(OutputStream out) throws IOException {
+            GZIPOutputStream zos = new GZIPOutputStream(out);
+            mBody.writeTo(zos);
+            zos.finish();
+        }
+    }
+
 	public UploadResponse observerUpload(String serverUrl, String username, String hashedPassword, String client, String observerId, String observerVersion, JsonContentBody data) {
 
 		String url = serverUrl + OBSERVER_UPLOAD_PATH;
@@ -425,7 +465,7 @@ public class OhmageApi {
 			reqEntity.addPart("client", new StringBody(client));
 			reqEntity.addPart("observer_id", new StringBody(observerId));
 			reqEntity.addPart("observer_version", new StringBody(observerVersion));
-			reqEntity.addPart("data", data);
+			reqEntity.addPart("data", new GZIPContentBody(data));
 
 			Boolean preservePoints = UserPreferencesHelper.getPreserveInvalidPoints();
 			if(preservePoints != null)
