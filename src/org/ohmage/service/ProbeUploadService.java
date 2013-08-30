@@ -57,7 +57,10 @@ public class ProbeUploadService extends WakefulIntentService {
     public static final String EXTRA_OBSERVER_VERSION = "extra_observer_version";
 
     /** Uploaded in batches based on the size of the points **/
-    private final long BATCH_SIZE = 1024 * 32;
+    private static final long BATCH_MAX_SIZE_MB = 1024 * 256;
+
+    /** Uploaded in batches based on the number of points **/
+    private static final int BATCH_MAX_COUNT = 200;
 
     public static final String PROBE_UPLOAD_STARTED = "org.ohmage.PROBE_UPLOAD_STARTED";
     public static final String PROBE_UPLOAD_FINISHED = "org.ohmage.PROBE_UPLOAD_FINISHED";
@@ -101,7 +104,6 @@ public class ProbeUploadService extends WakefulIntentService {
     public void onCreate() {
         super.onCreate();
         Analytics.service(this, Status.ON);
-        Log.d(TAG, "batch size:" + BATCH_SIZE);
     }
 
     @Override
@@ -198,7 +200,7 @@ public class ProbeUploadService extends WakefulIntentService {
 
             for (Probe o : observers) {
                 Log.d(TAG, "starting to upload " + o.observer_id + " v" + o.observer_version);
-                uploadBatches(o, BATCH_SIZE);
+                uploadBatches(o);
             }
 
             Log.d(TAG, "total time: " + (System.currentTimeMillis() - start));
@@ -240,16 +242,16 @@ public class ProbeUploadService extends WakefulIntentService {
          * Adds the probes to the probes JsonArray.
          * 
          * @param o
-         * @param size
          */
-        protected void uploadBatches(Probe o, long size) {
+        protected void uploadBatches(Probe o) {
             DeletingCursor c = queryProbe(o);
 
             int i = 0;
 
             while (i < c.getCount()) {
                 long startTime = System.currentTimeMillis();
-                ProbeWriterBody probeWriter = new ProbeWriterBody(this, c, size);
+                ProbeWriterBody probeWriter = new ProbeWriterBody(this, c, BATCH_MAX_SIZE_MB,
+                        BATCH_MAX_COUNT);
                 if (!upload(o, probeWriter))
                     break;
                 int uploadedCount = c.deleteMarkedIds(ProbeUploadService.this, getContentURI());
@@ -293,7 +295,8 @@ public class ProbeUploadService extends WakefulIntentService {
             response.handleError(ProbeUploadService.this);
 
             if (response.getResult().equals(OhmageApi.Result.HTTP_ERROR)) {
-                Log.d(TAG, "failed due to http error (" + BATCH_SIZE + ")");
+                Log.d(TAG, "failed due to http error (max_mb:" + BATCH_MAX_SIZE_MB
+                        + ", max_points:" + BATCH_MAX_COUNT + ")");
             }
 
             if (response.getResult().equals(OhmageApi.Result.FAILURE)) {
@@ -499,11 +502,13 @@ public class ProbeUploadService extends WakefulIntentService {
         private final DeletingCursor mCursor;
         private long mSize;
         private final Uploader mUploader;
+        private int mNum;
 
-        public ProbeWriterBody(Uploader uploader, DeletingCursor c, long size) {
+        public ProbeWriterBody(Uploader uploader, DeletingCursor c, long size, int num) {
             mUploader = uploader;
             mCursor = c;
             mSize = size;
+            mNum = num;
         }
 
         @Override
@@ -511,12 +516,15 @@ public class ProbeUploadService extends WakefulIntentService {
             try {
 
                 writer.beginArray();
-                while (mSize > 0 && mCursor.moveToNext()) {
+                // Note the moveToNext call must be last, otherwise it will
+                // assume it was added to the batch
+                while (mSize > 0 && mNum > 0 && mCursor.moveToNext()) {
                     try {
                         mSize -= mUploader.createProbe(mCursor, writer);
                     } catch (IOException e) {
                         Log.e(TAG, "There was an error creating a probe");
                     }
+                    mNum--;
                 }
                 writer.endArray();
                 writer.flush();
