@@ -531,4 +531,16 @@ public class Utilities {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return Uri.fromFile(new File(mediaStorageDir, "VID_" + timeStamp + ".mp4"));
     }
+
+    /**
+     * Helper method which checks if the user is logged in and logs if they aren't
+     * @return
+     */
+    public static boolean checkUserLoggedInForTask(String tag) {
+        if(!AccountHelper.accountExists()) {
+            Log.w(tag, "User isn't logged in, terminating task");
+            return false;
+        }
+        return true;
+    }
 }

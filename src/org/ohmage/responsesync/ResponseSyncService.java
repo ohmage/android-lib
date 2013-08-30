@@ -19,6 +19,7 @@ import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.OhmageApi.StreamingResponseListener;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.DbContract.Responses;
@@ -108,8 +109,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		OhmageApi api = new OhmageApi(this);
 		mPrefs = new AccountHelper(this);
 
-		if (!AccountHelper.accountExists()) {
-			Log.e(TAG, "User isn't logged in, terminating task");
+		if (!Utilities.checkUserLoggedInForTask(TAG)) {
 			return;
 		}
 
@@ -165,8 +165,7 @@ public class ResponseSyncService extends WakefulIntentService {
 		for (final Campaign c : campaigns) {
 			Log.v(TAG, "Requesting responses for campaign " + c.mUrn + "...");
 
-			if(!AccountHelper.accountExists()) {
-				Log.e(TAG, "User isn't logged in, terminating task");
+			if(!Utilities.checkUserLoggedInForTask(TAG)) {
 				return;
 			}
 
@@ -182,9 +181,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			// ===   * anything in this list that's not on the phone should be downloaded
 			// ==================================================================
 
-			if(!AccountHelper.accountExists()) {
-				Log.e(TAG, "User isn't logged in, terminating task");
-
+			if(!Utilities.checkUserLoggedInForTask(TAG)) {
 				return;
 			}
 
@@ -247,9 +244,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			// this is campaign-response-specific, which is why it's happening in this loop over the campaigns
 			final LinkedList<ResponseImage> responsePhotos = new LinkedList<ResponseImage>();
 
-			if(!AccountHelper.accountExists()) {
-				Log.e(TAG, "User isn't logged in, terminating task");
-
+			if(!Utilities.checkUserLoggedInForTask(TAG)) {
 				return;
 			}
 
@@ -401,9 +396,7 @@ public class ResponseSyncService extends WakefulIntentService {
 			readResult.handleError(this);
 		}
 
-		if(!AccountHelper.accountExists()) {
-			Log.e(TAG, "User isn't logged in, terminating task");
-
+		if(!Utilities.checkUserLoggedInForTask(TAG)) {
 			return;
 		}
 

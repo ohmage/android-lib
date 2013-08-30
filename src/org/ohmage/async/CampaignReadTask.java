@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
@@ -23,6 +22,7 @@ import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
 import org.ohmage.UserPreferencesHelper;
+import org.ohmage.Utilities;
 import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.db.DbContract;
 import org.ohmage.db.DbContract.Campaigns;
@@ -77,11 +77,19 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
         if (mApi == null)
             mApi = new OhmageApi(mContext);
 
+        if (!Utilities.checkUserLoggedInForTask(TAG)) {
+            return null;
+        }
+
         CampaignReadResponse response = mApi.campaignRead(ConfigHelper.serverUrl(), getUsername(),
                 getHashedPassword(), OhmageApi.CLIENT_NAME, "short", null);
 
         if (response.getResult() == Result.SUCCESS) {
             ContentResolver cr = getContext().getContentResolver();
+
+            if (!Utilities.checkUserLoggedInForTask(TAG)) {
+                return null;
+            }
 
             // build list of urns of all campaigns
             Cursor cursor = cr.query(Campaigns.CONTENT_URI, new String[] {
@@ -109,6 +117,10 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
             }
 
             cursor.close();
+
+            if (!Utilities.checkUserLoggedInForTask(TAG)) {
+                return null;
+            }
 
             // The old urn thats used for single campaign mode. This has to be
             // determined before the new data is downloaded in case the
@@ -210,8 +222,7 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
                         .withValues(values).build());
             }
 
-            if (!AccountHelper.accountExists()) {
-                Log.e(TAG, "User isn't logged in, terminating task");
+            if (!Utilities.checkUserLoggedInForTask(TAG)) {
                 return response;
             }
 
@@ -228,6 +239,10 @@ public class CampaignReadTask extends AuthenticatedTaskLoader<CampaignReadRespon
             // If we are in single campaign mode, we should automatically
             // download the xml for the best campaign
             if (UserPreferencesHelper.isSingleCampaignMode()) {
+                if (!Utilities.checkUserLoggedInForTask(TAG)) {
+                    return null;
+                }
+
                 Campaign newCampaign = Campaign.getFirstAvaliableCampaign(getContext());
 
                 // If there is no good new campaign, the new campaign is

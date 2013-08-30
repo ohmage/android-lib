@@ -26,6 +26,7 @@ import org.ohmage.NotificationHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.UploadResponse;
 import org.ohmage.PreferenceStore;
+import org.ohmage.Utilities;
 import org.ohmage.logprobe.Analytics;
 import org.ohmage.logprobe.Log;
 import org.ohmage.logprobe.LogProbe.Status;
@@ -92,6 +93,8 @@ public class ProbeUploadService extends WakefulIntentService {
 
     private String mObserverVersion = null;
 
+    private String mAccountUsername;
+
     public ProbeUploadService() {
         super(TAG);
     }
@@ -120,6 +123,7 @@ public class ProbeUploadService extends WakefulIntentService {
         Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
         mAccount = new AccountHelper(ProbeUploadService.this);
+
         mPrefs = new PreferenceStore(this);
 
         if (mApi == null)
@@ -214,6 +218,8 @@ public class ProbeUploadService extends WakefulIntentService {
          * @return
          */
         private ArrayList<Probe> queryObservers() {
+            ArrayList<Probe> observers = new ArrayList<Probe>();
+
             String select = BaseProbeColumns.USERNAME + "=?";
             if (mObserverId != null)
                 select += " AND " + getNameColumn() + "='" + mObserverId + "'";
@@ -221,13 +227,17 @@ public class ProbeUploadService extends WakefulIntentService {
             if (mObserverVersion != null)
                 select += " AND " + getVersionColumn() + "='" + mObserverVersion + "'";
 
+            mAccountUsername = mAccount.getUsername();
+            if(!Utilities.checkUserLoggedInForTask(TAG) || mAccountUsername == null) {
+                return observers;
+            }
+
             Cursor observersCursor = getContentResolver().query(getContentURI(), new String[] {
                     "distinct " + getNameColumn(), getVersionColumn()
             }, select, new String[] {
-                mAccount.getUsername()
+                mAccountUsername
             }, null);
 
-            ArrayList<Probe> observers = new ArrayList<Probe>();
 
             while (observersCursor.moveToNext()) {
                 observers
@@ -271,7 +281,7 @@ public class ProbeUploadService extends WakefulIntentService {
                     getProjection(),
                     BaseProbeColumns.USERNAME + "=? AND " + getNameColumn() + "=? AND "
                             + getVersionColumn() + "=?", new String[] {
-                            mAccount.getUsername(), o.observer_id, o.observer_version
+                            mAccountUsername, o.observer_id, o.observer_version
                     }, null));
         }
 
@@ -286,6 +296,9 @@ public class ProbeUploadService extends WakefulIntentService {
         private boolean upload(Probe observer, JsonContentBody data) {
 
             String username = mAccount.getUsername();
+            if(!Utilities.checkUserLoggedInForTask(TAG) || username == null) {
+                return false;
+            }
             String hashedPassword = mAccount.getAuthToken();
 
             String observerId = observer.observer_id;

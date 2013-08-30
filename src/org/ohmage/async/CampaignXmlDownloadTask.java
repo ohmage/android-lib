@@ -11,13 +11,13 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ohmage.AccountHelper;
 import org.ohmage.ConfigHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApi.CampaignReadResponse;
 import org.ohmage.OhmageApi.CampaignXmlResponse;
 import org.ohmage.OhmageApi.Response;
 import org.ohmage.OhmageApi.Result;
+import org.ohmage.Utilities;
 import org.ohmage.db.DbContract.Campaigns;
 import org.ohmage.db.Models.Campaign;
 import org.ohmage.logprobe.Log;
@@ -54,8 +54,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
         CampaignReadResponse campaignResponse = mApi.campaignRead(ConfigHelper.serverUrl(),
                 getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, "short", mCampaignUrn);
 
-        if (!AccountHelper.accountExists()) {
-            Log.e(TAG, "User isn't logged in, terminating task");
+        if (!Utilities.checkUserLoggedInForTask(TAG)) {
             return campaignResponse;
         }
 
@@ -90,8 +89,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
         CampaignXmlResponse response = mApi.campaignXmlRead(ConfigHelper.serverUrl(),
                 getUsername(), getHashedPassword(), OhmageApi.CLIENT_NAME, mCampaignUrn);
 
-        if (!AccountHelper.accountExists()) {
-            Log.e(TAG, "User isn't logged in, terminating task");
+        if (!Utilities.checkUserLoggedInForTask(TAG)) {
             return response;
         }
 
@@ -127,8 +125,7 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
 
     @Override
     public void deliverResult(Response response) {
-        if (!AccountHelper.accountExists()) {
-            Log.e(TAG, "User isn't logged in, terminating task");
+        if (!Utilities.checkUserLoggedInForTask(TAG)) {
             return;
         }
 
@@ -158,15 +155,12 @@ public class CampaignXmlDownloadTask extends AuthenticatedTaskLoader<Response> {
     protected void onForceLoad() {
         super.onForceLoad();
 
-        if (!AccountHelper.accountExists()) {
-            Log.e(TAG, "User isn't logged in, terminating task");
-            return;
+        if (Utilities.checkUserLoggedInForTask(TAG)) {
+            ContentResolver cr = getContext().getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
+            values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
+            cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
         }
-
-        ContentResolver cr = getContext().getContentResolver();
-        ContentValues values = new ContentValues();
-        values.put(Campaigns.CAMPAIGN_STATUS, Campaign.STATUS_DOWNLOADING);
-        values.put(Campaigns.CAMPAIGN_UPDATED, startTime);
-        cr.update(Campaigns.buildCampaignUri(mCampaignUrn), values, null, null);
     }
 }

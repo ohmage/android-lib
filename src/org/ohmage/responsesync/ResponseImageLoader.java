@@ -11,9 +11,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 
-import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApi;
 import org.ohmage.OhmageApplication;
+import org.ohmage.Utilities;
 import org.ohmage.db.Models.Response;
 import org.ohmage.logprobe.Log;
 
@@ -79,8 +79,7 @@ public class ResponseImageLoader extends Service {
         String url;
         for (int i = 0; i < responsePhotos.size(); i++) {
             final ResponseImage responseImage = responsePhotos.get(i);
-            if (!AccountHelper.accountExists()) {
-                Log.e(TAG, "User isn't logged in, terminating task");
+            if (!Utilities.checkUserLoggedInForTask(TAG)) {
                 return START_NOT_STICKY;
             }
             url = OhmageApi

@@ -109,7 +109,8 @@ public class ProbeManager extends Service {
                     int streamVersion, int uploadPriority, String metadata, String data)
                     throws RemoteException {
                 // Don't write a probe unless a user is logged into ohmage
-                if (TextUtils.isEmpty(mAccount.getUsername())) {
+                String username = mAccount.getUsername();
+                if (TextUtils.isEmpty(username)) {
                     return false;
                 }
 
@@ -121,7 +122,7 @@ public class ProbeManager extends Service {
                 values.put(Probes.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Probes.PROBE_METADATA, metadata);
                 values.put(Probes.PROBE_DATA, data);
-                values.put(Probes.USERNAME, mAccount.getUsername());
+                values.put(Probes.USERNAME, username);
 
                 if (BUFFER_POINTS) {
                     synchronized (probePoints) {
@@ -147,7 +148,8 @@ public class ProbeManager extends Service {
             public boolean writeResponse(String campaignUrn, String campaignCreationTimestamp,
                     int uploadPriority, String data) throws RemoteException {
                 // Don't write a response unless a user is logged into ohmage
-                if (TextUtils.isEmpty(mAccount.getUsername()))
+                String username = mAccount.getUsername();
+                if (TextUtils.isEmpty(username))
                     return false;
 
                 ContentValues values = new ContentValues();
@@ -155,7 +157,7 @@ public class ProbeManager extends Service {
                 values.put(Responses.CAMPAIGN_CREATED, campaignCreationTimestamp);
                 values.put(Responses.UPLOAD_PRIORITY, uploadPriority);
                 values.put(Responses.RESPONSE_DATA, data);
-                values.put(Responses.USERNAME, mAccount.getUsername());
+                values.put(Responses.USERNAME, username);
 
                 if (BUFFER_POINTS) {
                     synchronized (responsePoints) {

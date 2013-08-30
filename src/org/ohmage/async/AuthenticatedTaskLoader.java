@@ -30,7 +30,8 @@ public abstract class AuthenticatedTaskLoader<T extends Response> extends Pausea
 
     @Override
     public void deliverResult(T response) {
-        response.handleError(getContext());
+        if (response != null)
+            response.handleError(getContext());
         super.deliverResult(response);
     }
 }
