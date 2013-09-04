@@ -6,7 +6,6 @@ servers:
     log_analytics: true
     log_level: verbose
     show_mobility: false
-    upload_probes_wifi: false
   pilots.mobilizelabs.org:
     admin_mode: false
     log_level: error
