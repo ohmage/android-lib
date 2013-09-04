@@ -81,33 +81,37 @@ public class DashboardActivity extends BaseActivity implements
     }
 
     private void ensureUI() {
-        UserPreferencesHelper userPrefs = UserPreferencesHelper.getInstance();
 
-        if (userPrefs.isSingleCampaignMode()) {
+        if (UserPreferencesHelper.isSingleCampaignMode()) {
             mCampaignBtn.setVisibility(View.GONE);
         } else {
             mCampaignBtn.setVisibility(View.VISIBLE);
         }
 
-        if (userPrefs.showProfile())
+        if (UserPreferencesHelper.showProfile())
             mProfileBtn.setVisibility(View.VISIBLE);
         else
             mProfileBtn.setVisibility(View.GONE);
 
-        if (userPrefs.showFeedback())
+        if (UserPreferencesHelper.showFeedback())
             mFeedbackBtn.setVisibility(View.VISIBLE);
         else
             mFeedbackBtn.setVisibility(View.GONE);
 
-        if (userPrefs.showUploadQueue())
+        if (UserPreferencesHelper.showUploadQueue())
             mUploadQueueBtn.setVisibility(View.VISIBLE);
         else
             mUploadQueueBtn.setVisibility(View.GONE);
 
-        if (userPrefs.showMobility())
+        if (UserPreferencesHelper.showMobility())
             mMobilityBtn.setVisibility(View.VISIBLE);
         else
             mMobilityBtn.setVisibility(View.GONE);
+
+        if (UserPreferencesHelper.showProbes())
+            mProbeBtn.setVisibility(View.VISIBLE);
+        else
+            mProbeBtn.setVisibility(View.GONE);
     }
 
     @Override

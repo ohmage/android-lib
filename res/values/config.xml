@@ -49,6 +49,9 @@
     <!-- Show mobility by default -->
     <item name="show_mobility" type="bool">true</item>
 
+    <!-- Show probes on dashboard by default -->
+    <item name="show_streams" type="bool">true</item>
+
     <!-- Upload probes over wifi only by default -->
     <item name="upload_probes_wifi" type="bool">true</item>
 

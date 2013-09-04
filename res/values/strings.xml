@@ -269,6 +269,9 @@
     <string name="preferences_show_mobility_feedback_summary_off">Show Mobility Feedback</string>
     <string name="preferences_show_mobility_feedback_summary_on">Hide Mobility Feedback</string>
     <string name="preferences_show_mobility_feedback_title">Show Mobility Feedback</string>
+    <string name="preferences_show_probes_summary_off">Show Streams on Dashboard</string>
+    <string name="preferences_show_probes_summary_on">Hide Streams from Dashboard</string>
+    <string name="preferences_show_probes_title">Show Streams</string>
     <string name="preferences_account_management">Account Management</string>
     <string name="preferences_update_password_title">Sync Password</string>
     <string name="preferences_update_password_summary">Sync your password if you changed it on the server</string>

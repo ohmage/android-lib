@@ -44,6 +44,12 @@
 			android:summaryOn="@string/preferences_show_mobility_feedback_summary_on"
 			android:title="@string/preferences_show_mobility_feedback_title"
 			android:dependency="key_show_mobility" />
+
+		<CheckBoxPreference
+			android:key="key_show_probes"
+			android:summaryOff="@string/preferences_show_probes_summary_off"
+			android:summaryOn="@string/preferences_show_probes_summary_on"
+			android:title="@string/preferences_show_probes_title" />
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/preferences_account_management">

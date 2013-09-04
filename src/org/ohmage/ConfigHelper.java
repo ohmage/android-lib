@@ -56,6 +56,10 @@ public class ConfigHelper {
         return getConfigBoolean("show_mobility", R.bool.show_mobility);
     }
 
+    public static boolean getDefaultShowProbes() {
+        return getConfigBoolean("show_streams", R.bool.show_streams);
+    }
+
     public static boolean getDefaultUploadProbesWifiOnly() {
         return getConfigBoolean("upload_probes_wifi", R.bool.upload_probes_wifi);
     }

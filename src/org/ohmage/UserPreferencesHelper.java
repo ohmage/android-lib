@@ -46,6 +46,7 @@ public class UserPreferencesHelper {
     public static final String KEY_SHOW_UPLOAD_QUEUE = "key_show_upload_queue";
     public static final String KEY_SHOW_MOBILITY = "key_show_mobility";
     public static final String KEY_SHOW_MOBILITY_FEEDBACK = "key_show_mobility_feedback";
+    public static final String KEY_SHOW_PROBES = "key_show_probes";
 
     private static final String KEY_BASELINE_END_TIME = "key_baseline_end_time";
     private static final String KEY_BASELINE_START_TIME = "key_baseline_start_time";
@@ -97,6 +98,11 @@ public class UserPreferencesHelper {
     public static boolean showMobilityFeedback() {
         return getInstance().mPreferences.getBoolean(KEY_SHOW_MOBILITY_FEEDBACK,
                 ConfigHelper.getDefaultShowMobility() && DEFAULT_SHOW_MOBILITY_FEEDBACK);
+    }
+
+    public static boolean showProbes() {
+        return getInstance().mPreferences.getBoolean(KEY_SHOW_PROBES,
+                ConfigHelper.getDefaultShowProbes());
     }
 
     public static boolean getUploadProbesWifiOnly() {
