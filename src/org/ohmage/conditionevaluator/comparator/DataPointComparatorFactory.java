@@ -38,28 +38,28 @@ public final class DataPointComparatorFactory {
      */
     public static DataPointComparator createDataPointComparator(DataPoint.PromptType promptType) {
 
-        switch (promptType) {
-            case single_choice:
-                return new SingleChoiceDataPointComparator();
+        if (promptType != null) {
+            switch (promptType) {
+                case single_choice:
+                    return new SingleChoiceDataPointComparator();
 
-            case single_choice_custom:
-                return new SingleChoiceCustomDataPointComparator();
+                case single_choice_custom:
+                    return new SingleChoiceCustomDataPointComparator();
 
-            case multi_choice:
-                return new MultiChoiceDataPointComparator();
+                case multi_choice:
+                    return new MultiChoiceDataPointComparator();
 
-            case multi_choice_custom:
-                return new MultiChoiceCustomDataPointComparator();
+                case multi_choice_custom:
+                    return new MultiChoiceCustomDataPointComparator();
 
-            case number:
-                return new NumberDataPointComparator();
+                case number:
+                    return new NumberDataPointComparator();
 
-            case hours_before_now:
-                return new HoursBeforeNowDataPointComparator();
-
-            default:
-                return new BasicDataPointComparator();
+                case hours_before_now:
+                    return new HoursBeforeNowDataPointComparator();
+            }
         }
 
+        return new BasicDataPointComparator();
     }
 }
