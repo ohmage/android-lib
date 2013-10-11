@@ -16,9 +16,6 @@ public class Message extends SherlockFragment implements SurveyElement {
     private static final String KEY_MESSAGE_TEXT = "key_message_text";
     private static final String KEY_CONDITION = "key_condition";
 
-    private String mMessageText;
-    private String mCondition;
-
     public static Message getInstance(String messageText, String condition) {
         Message fragment = new Message();
         Bundle args = new Bundle();
@@ -29,28 +26,25 @@ public class Message extends SherlockFragment implements SurveyElement {
     }
 
     public String getMessageText() {
-        return mMessageText;
+        return getArguments().getString(KEY_MESSAGE_TEXT);
     }
 
     public void setMessageText(String messageText) {
-        this.mMessageText = messageText;
+        getArguments().putString(KEY_MESSAGE_TEXT, messageText);
     }
 
     public String getCondition() {
-        return mCondition;
+        return getArguments().getString(KEY_CONDITION);
     }
 
     public void setCondition(String condition) {
-        this.mCondition = condition;
+        getArguments().putString(KEY_CONDITION, condition);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-        mMessageText = getArguments().getString(KEY_MESSAGE_TEXT);
-        mCondition = getArguments().getString(KEY_CONDITION);
     }
 
     @Override
