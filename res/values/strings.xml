@@ -408,6 +408,9 @@
     <string name="preserve_invalid_points_summary">Help us improve our software by automatically reporting errors. Your login information will not be included.</string>
     <string name="preserve_invalid_points_title">Opt-in to share errors</string>
 
+    <string name="account_disabled_title">Account Disabled</string>
+    <string name="account_disabled_message">Your account is disabled. If you believe this is an error please contact an administrator</string>
+
     <!--
          This value is here in case the ant script has not run which creates the actual value of the commit hash.
 		 The actual string which is used is in ~hash.xml. The '~' ensures that version of the string is loaded

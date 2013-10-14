@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import org.ohmage.activity.ErrorDialogActivity;
 import org.ohmage.activity.ProbeActivity;
 import org.ohmage.activity.UploadQueueActivity;
 import org.ohmage.authenticator.AuthenticatorActivity;
@@ -17,6 +18,7 @@ public class NotificationHelper {
     private static final int AUTH_ERROR_ID = 0;
     private static final int NOTIFICATION_ID = 1;
     private static final int UPLOAD_ERROR_ID = 2;
+    private static final int ACCOUNT_DISABLED_ID = 3;
 
     public static void showAuthNotification(Context context, String username) {
         showNotification(
@@ -79,5 +81,20 @@ public class NotificationHelper {
         NotificationManager notifMan = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notifMan.cancel(id);
+    }
+
+    public static void showAccountDisabledNotification(Context context) {
+        showNotification(
+                context,
+                ACCOUNT_DISABLED_ID,
+                context.getString(R.string.account_disabled_title),
+                context.getString(R.string.account_disabled_message),
+                new Intent(context, ErrorDialogActivity.class).putExtra(
+                        ErrorDialogActivity.EXTRA_TITLE, context.getString(R.string.account_disabled_title)).putExtra(
+                        ErrorDialogActivity.EXTRA_MESSAGE, context.getString(R.string.account_disabled_message)));
+    }
+
+    public static void hideAccountDisabledNotification(Context context) {
+        hideNotification(context, ACCOUNT_DISABLED_ID);
     }
 }

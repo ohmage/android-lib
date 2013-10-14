@@ -31,6 +31,7 @@ import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import org.ohmage.PreferenceStore;
 import org.ohmage.UserPreferencesHelper;
 import org.ohmage.db.DbContract.Responses;
 import org.ohmage.responsesync.ResponseSyncService;
@@ -41,15 +42,23 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = "SyncAdapter";
     private final Context mContext;
+    private final PreferenceStore mPreferencesHelper;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
+        mPreferencesHelper = new PreferenceStore(mContext);
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
             ContentProviderClient provider, SyncResult syncResult) {
+
+        // First make sure the user isn't disabled
+        if (mPreferencesHelper.isUserDisabled()) {
+            Log.i(TAG, "User is disabled, preventing background sync");
+            return;
+        }
 
         // Don't try to upload if we have less than 20% battery
         Context appContext = mContext.getApplicationContext();

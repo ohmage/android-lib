@@ -17,7 +17,6 @@ import com.actionbarsherlock.view.Window;
 
 import org.ohmage.AccountHelper;
 import org.ohmage.OhmageApplication;
-import org.ohmage.PreferenceStore;
 import org.ohmage.UIUtils;
 import org.ohmage.activity.DashboardActivity;
 import org.ohmage.library.R;
@@ -46,13 +45,6 @@ public abstract class BaseActivity extends SherlockFragmentActivity {
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        PreferenceStore preferencesHelper = new PreferenceStore(this);
-
-        if (preferencesHelper.isUserDisabled()) {
-            ((OhmageApplication) getApplication()).resetAll();
-        }
-
         if (!AccountHelper.accountExists()) {
             Log.v(TAG, "no credentials saved, so launch Login");
             startActivity(AccountHelper.getLoginIntent(this));

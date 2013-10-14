@@ -233,6 +233,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
         // Hide any notifications since we started the login activity
         NotificationHelper.hideAuthNotification(this);
+        NotificationHelper.hideAccountDisabledNotification(this);
     }
 
     private CharSequence getVersion() {

@@ -139,6 +139,7 @@ public class OhmageApi {
 		public void handleError(Context context) {
 			switch(mResult) {
 			case SUCCESS:
+			    NotificationHelper.hideAccountDisabledNotification(context);
 				NotificationHelper.hideAuthNotification(context);
 				break;
 			case FAILURE:
@@ -146,6 +147,7 @@ public class OhmageApi {
 
 				if (mErrorCodes.contains(ERROR_ACCOUNT_DISABLED)) {
 					new PreferenceStore(context).edit().setUserDisabled(true).commit();
+					NotificationHelper.showAccountDisabledNotification(context);
 				}
 
 				if (mErrorCodes.contains(ERROR_AUTHENTICATION)) {

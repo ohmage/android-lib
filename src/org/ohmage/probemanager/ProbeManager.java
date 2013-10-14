@@ -11,6 +11,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 
 import org.ohmage.AccountHelper;
+import org.ohmage.PreferenceStore;
 import org.ohmage.probemanager.DbContract.Probes;
 import org.ohmage.probemanager.DbContract.Responses;
 
@@ -100,6 +101,8 @@ public class ProbeManager extends Service {
     PointFlushHandler mHandler = new PointFlushHandler(this);
     private AccountHelper mAccount;
 
+    private PreferenceStore mPreferencesHelper;
+
     @Override
     public IBinder onBind(Intent intent) {
         return new IProbeManager.Stub() {
@@ -110,7 +113,7 @@ public class ProbeManager extends Service {
                     throws RemoteException {
                 // Don't write a probe unless a user is logged into ohmage
                 String username = mAccount.getUsername();
-                if (TextUtils.isEmpty(username)) {
+                if (TextUtils.isEmpty(username) || mPreferencesHelper.isUserDisabled()) {
                     return false;
                 }
 
@@ -149,8 +152,9 @@ public class ProbeManager extends Service {
                     int uploadPriority, String data) throws RemoteException {
                 // Don't write a response unless a user is logged into ohmage
                 String username = mAccount.getUsername();
-                if (TextUtils.isEmpty(username))
+                if (TextUtils.isEmpty(username) || mPreferencesHelper.isUserDisabled()) {
                     return false;
+                }
 
                 ContentValues values = new ContentValues();
                 values.put(Responses.CAMPAIGN_URN, campaignUrn);
@@ -183,6 +187,7 @@ public class ProbeManager extends Service {
     public void onCreate() {
         super.onCreate();
         mAccount = new AccountHelper(this);
+        mPreferencesHelper = new PreferenceStore(this);
     }
 
     @Override
