@@ -73,7 +73,7 @@ public class OhmageApi {
 	private static final String MOBILITY_AGGREGATE_READ_PATH = "app/mobility/aggregate/read";
 	public static final String IMAGE_READ_PATH = "app/image/read";
 
-	public static final String CLIENT_NAME = "ohmage-android";
+	public static String CLIENT_NAME = "ohmage-android";
 
 	private final Context mContext;
 
@@ -83,6 +83,10 @@ public class OhmageApi {
 
 	public OhmageApi(Context context) {
 		mContext = context;
+	}
+
+	public static void setClientName(String name) {
+	    CLIENT_NAME = name;
 	}
 
 	public static enum Result {
