@@ -32,7 +32,7 @@ public class NumberPrompt extends AbstractPrompt {
 	private BigDecimal mMaximum;
 	private BigDecimal mValue;
 	protected NumberPicker mNumberPicker;
-	private boolean mWholeNumnbers;
+	private boolean mWholeNumnbers = true;
 
 	public NumberPrompt() {
 		super();
