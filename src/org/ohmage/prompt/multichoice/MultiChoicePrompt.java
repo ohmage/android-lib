@@ -74,7 +74,7 @@ public class MultiChoicePrompt extends AbstractPromptFragment implements ChoiceP
      */
     @Override
     public boolean isPromptAnswered() {
-        return true;
+        return !mSelectedIndexes.isEmpty();
     }
 
     @Override
