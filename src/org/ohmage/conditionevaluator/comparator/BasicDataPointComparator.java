@@ -39,7 +39,7 @@ public class BasicDataPointComparator implements DataPointComparator {
         // DataPoint condition value
         // NOT_DISPLAYED == NOT_DISPLAYED
         // DISPLAYED != NOT_DISPLAYED
-        if (AbstractPrompt.NOT_DISPLAYED_VALUE.equals(value)) {
+        if (AbstractPrompt.NOT_DISPLAYED_VALUE.equals(value) || dataPoint.isNotDisplayed()) {
             return ("==".equals(condition) && dataPoint.isNotDisplayed())
                     || ("!=".equals(condition) && !dataPoint.isNotDisplayed());
         }
@@ -49,7 +49,7 @@ public class BasicDataPointComparator implements DataPointComparator {
         // DataPoint condition value
         // SKIPPED == SKIPPED
         // SHOWN != SKIPPED
-        if (AbstractPrompt.SKIPPED_VALUE.equals(value)) {
+        if (AbstractPrompt.SKIPPED_VALUE.equals(value) || dataPoint.isSkipped()) {
             return ("==".equals(condition) && dataPoint.isSkipped())
                     || ("!=".equals(condition) && !dataPoint.isSkipped());
         }
