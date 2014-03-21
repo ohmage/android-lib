@@ -466,10 +466,6 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAEkUH1FVkCDrETFD-o7xMJ_WpzeHoFOvQ" />
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
         <service
             android:name="org.ohmage.responsesync.ResponseImageLoader"
             android:enabled="true"
