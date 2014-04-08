@@ -3,8 +3,7 @@ servers:
     log_level: error
   lausd.mobilizingcs.org:
     admin_mode: false
-    log_analytics: true
-    log_level: verbose
+    log_level: error
     show_mobility: false
     show_streams: false
   pilots.mobilizelabs.org:
@@ -12,6 +11,5 @@ servers:
     log_level: error
     show_mobility: false
   test.ohmage.org:
-    log_analytics: true
-    log_level: verbose
+    log_level: error
     upload_probes_wifi: false
