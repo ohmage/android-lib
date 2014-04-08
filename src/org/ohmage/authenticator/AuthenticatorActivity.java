@@ -353,7 +353,6 @@ public class AuthenticatorActivity extends AccountAuthenticatorFragmentActivity 
 
                 if (OhmageApplication.DEBUG_BUILD) {
                     servers.add("https://test.ohmage.org/");
-                    servers.add("https://dev.ohmage.org/");
                 }
 
                 final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,

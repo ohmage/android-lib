@@ -11,10 +11,6 @@ servers:
     admin_mode: false
     log_level: error
     show_mobility: false
-  dev.ohmage.org:
-    log_analytics: true
-    log_level: verbose
-    upload_probes_wifi: false
   test.ohmage.org:
     log_analytics: true
     log_level: verbose
