@@ -32,6 +32,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ohmage.Utilities;
 import org.ohmage.library.R;
 import org.ohmage.logprobe.Log;
 import org.ohmage.prompt.AbstractPrompt;
@@ -202,7 +203,7 @@ public class RemoteActivityPrompt extends AbstractPrompt implements OnClickListe
 					{
 						try
 						{
-							currResponse.put(nextKey, extras.get(nextKey));
+						    currResponse.put(nextKey, Utilities.wrap(extras.get(nextKey)));
 						}
 						catch(JSONException e)
 						{
