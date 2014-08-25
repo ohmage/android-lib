@@ -3,6 +3,7 @@ servers:
     log_level: error
   lausd.mobilizingcs.org:
     admin_mode: false
+    log_analytics: true
     log_level: error
     show_mobility: false
     show_streams: false
